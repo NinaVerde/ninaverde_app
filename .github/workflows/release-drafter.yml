@@ -1,16 +1,38 @@
-﻿name: Release Drafter
+﻿name: PR title lint
 on:
-  push:
-    branches: [ develop, main ]
   pull_request:
-    types: [opened, reopened, synchronize, closed]
-permissions:
-  contents: write
-  pull-requests: write
+    types: [opened, edited, synchronize, reopened]
 jobs:
-  update:
+  lint:
     runs-on: ubuntu-latest
+    # keep the check, but do NOT block merges if it fails
     steps:
-      - uses: release-drafter/release-drafter@v6
+      - name: Check title
+        id: lint
+        uses: amannn/action-semantic-pull-request@v5
+        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            chore
+            docs
+            refactor
+            test
+            ci
+          requireScope: false
+          subjectPattern: ".+"
+          subjectPatternError: "PR title should look like: 'chore: describe change'"
+      - name: Comment when invalid
+        if: failure()    # leaves a friendly comment if title doesn’t match
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            **PR title check** found an issue.
+            Please rename to the Conventional Commits style, e.g.
+            - `feat: add profile page`
+            - `fix: handle null token`
+            - `chore: update CI`
+            _(This check is non-blocking; you can still merge.)_
