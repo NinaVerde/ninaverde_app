@@ -1,0 +1,16 @@
+﻿name: Release Drafter
+on:
+  push:
+    branches: [ develop, main ]
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: release-drafter/release-drafter@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
