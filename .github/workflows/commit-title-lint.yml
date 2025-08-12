@@ -5,12 +5,11 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    # keep the check, but do NOT block merges if it fails
     steps:
       - name: Check title
         id: lint
         uses: amannn/action-semantic-pull-request@v5
-        continue-on-error: true
+        continue-on-error: true   # <-- makes it non-blocking
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -24,15 +23,15 @@ jobs:
             ci
           requireScope: false
           subjectPattern: ".+"
-          subjectPatternError: "PR title should look like: 'chore: describe change'"
+          subjectPatternError: "PR title must include a subject after the type, e.g. `chore: update CI`"
       - name: Comment when invalid
-        if: failure()    # leaves a friendly comment if title doesn’t match
+        if: steps.lint.outcome == 'failure'
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
             **PR title check** found an issue.
-            Please rename to the Conventional Commits style, e.g.
+            Please rename to Conventional Commits, e.g.:
             - `feat: add profile page`
             - `fix: handle null token`
             - `chore: update CI`
-            _(This check is non-blocking; you can still merge.)_
+            _(This check is non-blocking; merge is still allowed.)_
