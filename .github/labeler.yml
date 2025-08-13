@@ -1,12 +1,15 @@
 ﻿"area: frontend":
-  - "lib/**"
-  - "web/**"
+  - changed-files:
+      - any-glob-to-any-file: ["lib/**", "web/**"]
 
 "area: backend":
-  - "server/**"
+  - changed-files:
+      - any-glob-to-any-file: ["server/**"]
 
 assets:
-  - "assets/**"
+  - changed-files:
+      - any-glob-to-any-file: ["assets/**"]
 
 ci:
-  - ".github/**"
+  - changed-files:
+      - any-glob-to-any-file: [".github/**"]
