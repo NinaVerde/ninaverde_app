@@ -9,7 +9,7 @@ jobs:
       - name: Check title
         id: lint
         uses: amannn/action-semantic-pull-request@v5
-        continue-on-error: true   # <-- makes it non-blocking
+        continue-on-error: true           # non-blocking
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -21,17 +21,14 @@ jobs:
             refactor
             test
             ci
-          requireScope: false
-          subjectPattern: ".+"
-          subjectPatternError: "PR title must include a subject after the type, e.g. `chore: update CI`"
       - name: Comment when invalid
         if: steps.lint.outcome == 'failure'
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
             **PR title check** found an issue.
-            Please rename to Conventional Commits, e.g.:
+            Please rename to Conventional Commits style, e.g.:
             - `feat: add profile page`
             - `fix: handle null token`
             - `chore: update CI`
-            _(This check is non-blocking; merge is still allowed.)_
+            _(This check is non‑blocking; merge is still allowed.)_
