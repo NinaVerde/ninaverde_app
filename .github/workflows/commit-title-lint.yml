@@ -18,14 +18,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          types: |
-            feat
-            fix
-            chore
-            docs
-            refactor
-            test
-            ci
           requireScope: false
           subjectPattern: ".+"
           subjectPatternError: "PR title must include a subject after the type, e.g. `chore: update CI`"
@@ -40,4 +32,10 @@ jobs:
             - `feat: add profile page`
             - `fix: handle null token`
             - `chore: update CI`
-            _(This check is non‑blocking; merge is still allowed.)_
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run tests
+        run: echo "Add test steps here"
