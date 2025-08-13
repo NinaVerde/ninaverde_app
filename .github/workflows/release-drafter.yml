@@ -1,4 +1,4 @@
-﻿name: Release Drafter
+name: Release Drafter
 on:
   push:
     branches: [ develop, main ]   # only run on pushes to these branches

@@ -1,4 +1,4 @@
-﻿name: PR title lint
+name: PR title lint
 on:
   pull_request:
     types: [opened, edited, synchronize, reopened]
@@ -9,7 +9,7 @@ jobs:
       - name: Check title
         id: lint
         uses: amannn/action-semantic-pull-request@v5
-        continue-on-error: true           # non-blocking
+        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -31,4 +31,4 @@ jobs:
             - `feat: add profile page`
             - `fix: handle null token`
             - `chore: update CI`
-            _(This check is non‑blocking; merge is still allowed.)_
+            _(This check is non-blocking; merge is still allowed.)_
