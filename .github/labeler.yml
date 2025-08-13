@@ -1,4 +1,4 @@
-﻿"area:frontend":
+﻿area:frontend:
   - "lib/**"
   - "web/**"
 
