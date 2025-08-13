@@ -1,4 +1,4 @@
-﻿name: PR title lint
+name: PR title lint
 on:
   pull_request:
     types: [opened, edited, synchronize, reopened]
@@ -9,7 +9,11 @@ jobs:
       - name: Check title
         id: lint
         uses: amannn/action-semantic-pull-request@v5
-        continue-on-error: true           # non-blocking
+ chore/pr-title-help
+        continue-on-error: true           # non-blockin
+        
+        continue-on-error: true   # <-- makes it non-blocking
+ develop
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -21,14 +25,28 @@ jobs:
             refactor
             test
             ci
+chore/pr-title-help
+
+          requireScope: false
+          subjectPattern: ".+"
+          subjectPatternError: "PR title must include a subject after the type, e.g. `chore: update CI`"
+develop
       - name: Comment when invalid
         if: steps.lint.outcome == 'failure'
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
             **PR title check** found an issue.
+chore/pr-title-help
             Please rename to Conventional Commits style, e.g.:
             - `feat: add profile page`
             - `fix: handle null token`
             - `chore: update CI`
             _(This check is non‑blocking; merge is still allowed.)_
+
+            Please rename to Conventional Commits, e.g.:
+            - `feat: add profile page`
+            - `fix: handle null token`
+            - `chore: update CI`
+            _(This check is non-blocking; merge is still allowed.)_
+develop
