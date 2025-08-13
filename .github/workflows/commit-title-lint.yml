@@ -1,34 +1,17 @@
-﻿name: PR title lint
+name: Publish Release from tag
 on:
-  pull_request:
-    types: [opened, edited, synchronize, reopened]
+  push:
+    tags:
+      - "v*"
+permissions:
+  contents: write
+  pull-requests: write
 jobs:
-  lint:
+  release:
     runs-on: ubuntu-latest
     steps:
-      - name: Check title
-        id: lint
-        uses: amannn/action-semantic-pull-request@v5
-        continue-on-error: true           # non-blocking
+      - uses: release-drafter/release-drafter@v6
+        with:
+          publish: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          types: |
-            feat
-            fix
-            chore
-            docs
-            refactor
-            test
-            ci
-      - name: Comment when invalid
-        if: steps.lint.outcome == 'failure'
-        uses: thollander/actions-comment-pull-request@v2
-        with:
-          message: |
-            **PR title check** found an issue.
-            Please rename to Conventional Commits style, e.g.:
-            - `feat: add profile page`
-            - `fix: handle null token`
-            - `chore: update CI`
-            _(This check is non‑blocking; merge is still allowed.)_
