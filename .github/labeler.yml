@@ -1,0 +1,9 @@
+﻿area:frontend:
+  - "lib/**"
+  - "web/**"
+area:backend:
+  - "server/**"
+assets:
+  - "assets/**"
+ci:
+  - ".github/**"
