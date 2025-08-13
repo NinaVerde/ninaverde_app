@@ -18,13 +18,24 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          types: |
+            feat
+            fix
+            chore
+            docs
+            refactor
+            test
+            ci
           requireScope: false
           subjectPattern: ".+"
           subjectPatternError: "PR title must include a subject after the type, e.g. `chore: update CI`"
 
-      - name: Comment when invalid
-        if: steps.lint.outcome == 'failure'
-        uses: thollander/actions-comment-pull-request@v2
+  comment:
+    needs: lint
+    if: needs.lint.result == 'failure'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
             **PR title check** found an issue.
@@ -32,10 +43,3 @@ jobs:
             - `feat: add profile page`
             - `fix: handle null token`
             - `chore: update CI`
-
-jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run tests
-        run: echo "Add test steps here"
