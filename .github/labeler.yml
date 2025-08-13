@@ -1,19 +1,20 @@
-chore/labeler-v5-config
-"area: frontend":
-
-"area: frontend":
-develop
+﻿"area: frontend":
   - changed-files:
-      - any-glob-to-any-file: ["lib/**", "web/**"]
+      - any-glob-to-any-file:
+          - 'lib/**'
+          - 'web/**'
 
 "area: backend":
   - changed-files:
-      - any-glob-to-any-file: ["server/**"]
+      - any-glob-to-any-file:
+          - 'server/**'
 
 assets:
   - changed-files:
-      - any-glob-to-any-file: ["assets/**"]
+      - any-glob-to-any-file:
+          - 'assets/**'
 
 ci:
   - changed-files:
-      - any-glob-to-any-file: [".github/**"]
+      - any-glob-to-any-file:
+          - '.github/**'
