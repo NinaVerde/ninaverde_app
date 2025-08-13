@@ -1,7 +1,7 @@
-﻿area:frontend:
+﻿"area:frontend":
   - "lib/**"
   - "web/**"
-area:backend:
+"area:backend":
   - "server/**"
 assets:
   - "assets/**"
