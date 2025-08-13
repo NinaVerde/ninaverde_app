@@ -1,7 +1,7 @@
-name: PR Labeler
+﻿name: PR Labeler
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize, reopened, edited]
 
 permissions:
@@ -12,8 +12,13 @@ jobs:
   label:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/labeler@v5
+      - name: Checkout repo (base)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply labels
+        uses: actions/labeler@v5
         with:
           configuration-path: .github/labeler.yml
           sync-labels: true
