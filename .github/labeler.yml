@@ -1,4 +1,8 @@
-﻿"area: frontend":
+chore/labeler-v5-config
+"area: frontend":
+
+"area: frontend":
+develop
   - changed-files:
       - any-glob-to-any-file: ["lib/**", "web/**"]
 
