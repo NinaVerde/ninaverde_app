@@ -1,12 +1,12 @@
-﻿area:frontend:
-  - lib/**
-  - web/**
+﻿"area: frontend":
+  - "lib/**"
+  - "web/**"
 
-area:backend:
-  - server/**
+"area: backend":
+  - "server/**"
 
 assets:
-  - assets/**
+  - "assets/**"
 
 ci:
-  - .github/**
+  - ".github/**"
