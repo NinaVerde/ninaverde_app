@@ -1,9 +1,12 @@
 ﻿name: PR title lint
+
 on:
   pull_request:
     types: [opened, edited, synchronize, reopened]
+
 permissions:
   pull-requests: read
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -26,6 +29,7 @@ jobs:
           requireScope: false
           subjectPattern: ".+"
           subjectPatternError: "PR title must include a subject after the type, e.g. `chore: update CI`"
+
   comment:
     needs: lint
     if: needs.lint.result == 'failure'
