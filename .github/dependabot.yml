@@ -1,8 +1,31 @@
-﻿version: 2
+version: 2
 updates:
-  - package-ecosystem: github-actions
+  # Keep GitHub Actions up-to-date
+  - package-ecosystem: "github-actions"
     directory: "/"
-    schedule: { interval: weekly }
-  - package-ecosystem: pub
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+      timezone: "America/Los_Angeles"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "ci"]
+    target-branch: "develop"
+    groups:
+      gh-actions:
+        patterns: ["*"]
+
+  # Keep Dart/Flutter packages up-to-date (pubspec.yaml / pubspec.lock)
+  - package-ecosystem: "pub"
     directory: "/"
-    schedule: { interval: weekly }
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+      timezone: "America/Los_Angeles"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "flutter", "dart"]
+    target-branch: "develop"
+    groups:
+      dart-deps:
+        patterns: ["*"]
