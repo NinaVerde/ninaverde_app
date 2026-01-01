@@ -1,44 +1,89 @@
 name: ninaverde_app
-description: "A new Flutter project."
-publish_to: 'none'
-
-version: 1.0.0+1
+description: Nicaragua Niña Verde mobile app
+publish_to: "none"
 
 environment:
-  sdk: ^3.8.1
+  sdk: ">=3.4.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
+
+  # UI / Icons
   cupertino_icons: ^1.0.8
-  flutter_riverpod: ^2.6.1
-  go_router: ^16.2.1
-  dio: ^5.9.0
-  freezed_annotation: ^3.1.0
-  json_annotation: ^4.9.0
+  font_awesome_flutter: ^10.7.0
+
+  # Core / Utils
   url_launcher: ^6.3.2
-  package_info_plus: ^8.3.1
-  flutter_animate: ^4.5.2
+  flutter_secure_storage: ^9.2.4
+  intl: ^0.20.2
+  crypto: ^3.0.5
+
+  # Firebase (latest compatible with Flutter 3.35.4)
+  firebase_core: ^4.1.1
+  firebase_auth: ^6.1.0
+  cloud_firestore: ^6.0.2
+
+  # Social sign-in
+  flutter_facebook_auth: ^7.1.1
+  sign_in_with_apple: ^7.0.1
+  google_sign_in: 6.2.1
+
+  # Media
+  video_player: ^2.9.1
+  youtube_player_iframe: ^5.2.2
+  audioplayers: ^6.5.1
+
+  # Animations
+  flutter_animate: ^4.5.0
+
+  # WebView
+  webview_flutter: ^4.13.0
+  webview_flutter_android: ^4.10.2
+  webview_flutter_wkwebview: ^3.23.1
+
+  # Game / Stage
+  flame: ^1.13.1
+  flame_audio: ^2.11.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-  flutter_launcher_icons: ^0.14.4
-  rename: ^3.0.2
-  build_runner: ^2.7.1     # <-- stay on 2.6.0 (compatible with meta 1.16.0)
-  freezed: ^3.2.0
-  json_serializable: ^6.11.1
+  flutter_native_splash: ^2.4.1
+  flutter_launcher_icons: ^0.14.1   # ✅ added for device/desktop icons
 
 flutter:
   uses-material-design: true
+
   assets:
-    - assets/images/Logo.jpg
+    - assets/images/
+    - assets/images/kitchen/
+    - assets/images/avatar/
+    - assets/lottie/
+    - assets/legal/
+    - assets/videos/Illuminated_Circles_Remastered_1080p.mp4
+    - assets/audio/
+
+  fonts:
+    - family: BebasNeue
+      fonts:
+        - asset: assets/fonts/BebasNeue-Regular.ttf
+          weight: 400
+
+flutter_native_splash:
+  android: true
+  ios: true
+  web: false
+  color: "#000000"
+  image: assets/images/app_icon_foreground.png
+  android_12:
+    image: assets/images/app_icon_foreground.png
+    icon_background_color: "#000000"
 
 flutter_icons:
   android: true
   ios: true
-  web:
-    generate: true
-  image_path: "assets/images/logo.jpg"
-  min_sdk_android: 21
+  image_path: "assets/images/app_icon_foreground.png"
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "assets/images/app_icon_foreground.png"
