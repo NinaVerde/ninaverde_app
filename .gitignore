@@ -43,3 +43,19 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+# Recovery artifacts - do NOT commit
+_recovered_from_apk/
+restored/
+backup/
+*.bak
+*.bak-*
+*.txt
+
+# Flutter/Build outputs
+.dart_tool/
+build/
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/ephemeral/
+android/.gradle/
+android/app/build/
