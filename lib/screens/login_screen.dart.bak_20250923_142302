@@ -1,0 +1,1271 @@
+// lib/screens/login_screen.dart
+import 'dart:convert';
+import 'dart:math';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crypto/crypto.dart';
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+
+import '../main.dart'; // AppState + NvAppBar
+import '../services/user_service.dart'; // Firestore upsert on sign-in
+
+// Brand colors
+const Color kNvGreenDark = Color(0xFF022F18); // link color on light theme
+const Color kNvAccentOrange = Color(0xFFF3A70B); // highlight “Register!”
+
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen>
+    with SingleTickerProviderStateMixin {
+  final emailCtrl = TextEditingController();
+  final passCtrl = TextEditingController();
+  final formKey = GlobalKey<FormState>();
+  bool obscured = true;
+  bool busy = false;
+
+  // --- Video & logo config (Firestore: app_config/video) ----
+  static const _cfgCol = 'app_config';
+  static const _videoDoc = 'video';
+
+  // App-level hardcoded fallbacks for defaults
+  static const String _appDefaultYouTubeUrl = 'https://youtu.be/ZczKlWNp5qY';
+  static const String _appDefaultLogoUrl =
+      'https://raw.githubusercontent.com/example/nv_logo_round.png';
+
+  String? _videoUrl; // stored full URL
+  String? _logoUrl; // stored full URL
+  bool _videoLoaded = false;
+
+  // Overlay state to allow unlimited open/close
+  bool _isVideoOpen = false;
+  OverlayEntry? _videoEntry;
+
+  // Key to find the logo position for the opening animation
+  final GlobalKey _logoKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVideoLogo();
+  }
+
+  Future<void> _loadVideoLogo() async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection(_cfgCol)
+          .doc(_videoDoc)
+          .get();
+      if (doc.exists) {
+        final data = doc.data()!;
+        _videoUrl = (data['url'] as String?)?.trim();
+        _logoUrl = (data['logo'] as String?)?.trim();
+      }
+    } catch (_) {
+      // Silent; fall back to defaults
+    } finally {
+      if (mounted) setState(() => _videoLoaded = true);
+    }
+  }
+
+  Future<void> _saveVideoLogo({
+    String? url,
+    String? logo,
+    bool setAsDefault = false,
+  }) async {
+    final payload = <String, dynamic>{
+      if (url != null) 'url': url.trim(),
+      if (logo != null) 'logo': logo.trim(),
+      'updated_at': FieldValue.serverTimestamp(),
+    };
+    if (setAsDefault) {
+      if (url != null) payload['default_url'] = url.trim();
+      if (logo != null) payload['default_logo'] = logo.trim();
+    }
+
+    await FirebaseFirestore.instance
+        .collection(_cfgCol)
+        .doc(_videoDoc)
+        .set(payload, SetOptions(merge: true));
+
+    setState(() {
+      if (url != null) _videoUrl = url.trim();
+      if (logo != null) _logoUrl = logo.trim();
+    });
+    _showSnack(t(context, 'saved_ok'));
+  }
+
+  @override
+  void dispose() {
+    emailCtrl.dispose();
+    passCtrl.dispose();
+    _videoEntry?.remove();
+    super.dispose();
+  }
+
+  // ---- Tiny ES/EN map ------------------------------------------------------
+  String t(BuildContext context, String key) {
+    final es = AppState.of(context).isSpanish.value;
+
+    const esMap = {
+      'title': 'Niña Verde — Iniciar sesión',
+      'email': 'Correo',
+      'password': 'Contraseña',
+      'login': 'Acceder',
+      'forgot': '¿Olvidaste tu contraseña?',
+      'google': 'Google',
+      'facebook': 'Facebook',
+      'apple': 'Apple',
+      'microsoft': 'Microsoft',
+      'guest': 'Continuar como invitado',
+      'noAccount': '¿No tienes cuenta? ¡Regístrate!',
+      'contact': 'Contáctenos',
+      'privacy': 'Política de Privacidad',
+      'deletion': 'Eliminación de Datos',
+      'show': 'Mostrar',
+      'hide': 'Ocultar',
+      'enter_email': 'Ingresa tu correo',
+      'enter_password': 'Ingresa tu contraseña',
+      'reset_title': 'Restablecer contraseña',
+      'send': 'Enviar',
+      'cancel': 'Cancelar',
+      'reset_sent': 'Correo de restablecimiento enviado.',
+      'err_invalid_email': 'Correo inválido.',
+      'err_user_not_found': 'No existe un usuario con ese correo.',
+      'err_wrong_password': 'Contraseña incorrecta.',
+      'err_network': 'Error de red. Intenta de nuevo.',
+      'err_generic': 'Error al iniciar sesión',
+      'fb_no_email':
+          'No recibimos tu email de Facebook. Por favor, otorga el permiso de email.',
+      'fb_cancelled': 'Inicio de sesión con Facebook cancelado.',
+      'play_video': 'Reproducir video de introducción',
+      'or_rapid': 'Inicio rápido con',
+      'video_url_hint':
+          'Pega URL de YouTube (https://youtu.be/… o watch?v=…)',
+      'logo_url_hint': 'Pega URL del logo (https://… .png/.jpg)',
+      // Popup dialog:
+      'popup_title': 'Configuración del Popup',
+      'yt_label': 'URL de YouTube',
+      'logo_label': 'URL del Logo (opcional)',
+      'save_btn': 'Guardar',
+      'saving_btn': 'Guardando…',
+      'make_default_btn': 'Hacer predeterminado',
+      'reset_default_btn': 'Restablecer al predeterminado',
+      'saved_ok': 'Guardado',
+      'save_failed': 'Error al guardar',
+      'insufficient': 'Permisos insuficientes',
+    };
+
+    const enMap = {
+      'title': 'Niña Verde — Sign In',
+      'email': 'Email',
+      'password': 'Password',
+      'login': 'Login',
+      'forgot': 'Forgot password?',
+      'google': 'Google',
+      'facebook': 'Facebook',
+      'apple': 'Apple',
+      'microsoft': 'Microsoft',
+      'guest': 'Continue as guest',
+      'noAccount': "Don't have an account? Register!",
+      'contact': 'Contact Us',
+      'privacy': 'Privacy Policy',
+      'deletion': 'Data Deletion',
+      'show': 'Show',
+      'hide': 'Hide',
+      'enter_email': 'Enter your email',
+      'enter_password': 'Enter your password',
+      'reset_title': 'Reset password',
+      'send': 'Send',
+      'cancel': 'Cancel',
+      'reset_sent': 'Password reset email sent.',
+      'err_invalid_email': 'Invalid email address.',
+      'err_user_not_found': 'No user found for that email.',
+      'err_wrong_password': 'Wrong password.',
+      'err_network': 'Network error. Try again.',
+      'err_generic': 'Sign-in failed',
+      'fb_no_email':
+          'We did not receive your Facebook email. Please ensure the email permission is granted.',
+      'fb_cancelled': 'Facebook sign-in cancelled.',
+      'play_video': 'Play intro video',
+      'or_rapid': 'Or Rapid Sign In With',
+      'video_url_hint': 'Paste YouTube URL (https://youtu.be/… or watch?v=…)',
+      'logo_url_hint': 'Paste logo image URL (https://… .png/.jpg)',
+      // Popup dialog:
+      'popup_title': 'Popup Settings',
+      'yt_label': 'YouTube URL',
+      'logo_label': 'Logo URL (optional)',
+      'save_btn': 'Save',
+      'saving_btn': 'Saving…',
+      'make_default_btn': 'Make default',
+      'reset_default_btn': 'Reset to default',
+      'saved_ok': 'Saved',
+      'save_failed': 'Save failed',
+      'insufficient': 'Insufficient permissions',
+    };
+
+    return (es ? esMap : enMap)[key]!;
+  }
+
+  // --------------------------------------------------------------------------
+  // Auth flows (all call UserService.upsertCurrentUser on success)
+  // --------------------------------------------------------------------------
+  Future<void> signInEmailPassword() async {
+    if (!formKey.currentState!.validate()) return;
+    setState(() => busy = true);
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailCtrl.text.trim(),
+        password: passCtrl.text,
+      );
+      await UserService.upsertCurrentUser();
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, '/home');
+    } on FirebaseAuthException catch (e) {
+      _showError(_firebaseMessage(e));
+    } catch (e) {
+      _showError(e.toString());
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  // Google Sign-In (native) → Firebase
+  Future<void> signInGoogle() async {
+    setState(() => busy = true);
+    try {
+      final g = GoogleSignIn(scopes: <String>['email']);
+      await g.signOut(); // force account chooser
+      final acct = await g.signIn();
+      if (acct == null) return;
+      final auth = await acct.authentication;
+      final cred = GoogleAuthProvider.credential(
+        idToken: auth.idToken,
+        accessToken: auth.accessToken,
+      );
+      await FirebaseAuth.instance.signInWithCredential(cred);
+      await UserService.upsertCurrentUser();
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, '/home');
+    } on FirebaseAuthException catch (e) {
+      _showError(_firebaseMessage(e));
+    } catch (e) {
+      _showError(e.toString());
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  Future<void> signInFacebook() async {
+    setState(() => busy = true);
+    try {
+      final result = await FacebookAuth.instance.login(
+        permissions: const ['public_profile', 'email'],
+      );
+
+      if (result.status == LoginStatus.success) {
+        final token = result.accessToken!.tokenString; // v6+
+        final cred = FacebookAuthProvider.credential(token);
+        await FirebaseAuth.instance.signInWithCredential(cred);
+
+        // Optional: sanity check for email presence
+        final userData =
+            await FacebookAuth.instance.getUserData(fields: 'email,name');
+        final u = FirebaseAuth.instance.currentUser;
+        if ((u?.email == null || (u?.email ?? '').isEmpty) &&
+            (userData['email'] == null ||
+                (userData['email'] as String?)?.isEmpty == true)) {
+          _showSnack(t(context, 'fb_no_email'));
+        }
+
+        await UserService.upsertCurrentUser();
+        if (!mounted) return;
+        Navigator.pushReplacementNamed(context, '/home');
+      } else if (result.status == LoginStatus.cancelled) {
+        _showSnack(t(context, 'fb_cancelled'));
+      } else {
+        throw result.message ?? 'Facebook login failed.';
+      }
+    } on FirebaseAuthException catch (e) {
+      _showError(_firebaseMessage(e));
+    } catch (e) {
+      _showError(e.toString());
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  // Apple Sign-In (Firebase)
+  Future<void> signInApple() async {
+    setState(() => busy = true);
+    try {
+      final rawNonce = _randomNonce();
+      final nonce = _sha256ofString(rawNonce);
+
+      final appleCred = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName
+        ],
+        nonce: nonce,
+      );
+
+      final oauth = OAuthProvider('apple.com').credential(
+        idToken: appleCred.identityToken,
+        rawNonce: rawNonce,
+      );
+
+      await FirebaseAuth.instance.signInWithCredential(oauth);
+      await UserService.upsertCurrentUser();
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, '/home');
+    } on SignInWithAppleAuthorizationException catch (e) {
+      if (e.code != AuthorizationErrorCode.canceled) {
+        _showError('Apple sign-in failed: ${e.code.name}');
+      }
+    } on FirebaseAuthException catch (e) {
+      _showError(_firebaseMessage(e));
+    } catch (e) {
+      _showError(e.toString());
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  // Microsoft Sign-In (Firebase)
+  Future<void> signInMicrosoft() async {
+    setState(() => busy = true);
+    try {
+      final provider = OAuthProvider('microsoft.com');
+      provider.setCustomParameters({'prompt': 'select_account'});
+      provider
+        ..addScope('openid')
+        ..addScope('profile')
+        ..addScope('email')
+        ..addScope('User.Read');
+
+      final cred = await FirebaseAuth.instance.signInWithProvider(provider);
+      if (cred.user == null) {
+        throw FirebaseAuthException(
+            code: 'microsoft-error', message: 'No user returned.');
+      }
+      await UserService.upsertCurrentUser();
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, '/home');
+    } on FirebaseAuthException catch (e) {
+      _showError(_firebaseMessage(e));
+    } catch (e) {
+      _showError(e.toString());
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  // Guest sign-in
+  Future<void> signInGuest() async {
+    setState(() => busy = true);
+    try {
+      await FirebaseAuth.instance.signInAnonymously();
+      await UserService.upsertCurrentUser();
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, '/home');
+    } on FirebaseAuthException catch (e) {
+      _showError(_firebaseMessage(e));
+    } catch (e) {
+      _showError(e.toString());
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  // Forgot Password
+  Future<void> forgotPasswordDialog() async {
+    final c = TextEditingController(text: emailCtrl.text.trim());
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(t(context, 'reset_title')),
+        content: TextFormField(
+          controller: c,
+          keyboardType: TextInputType.emailAddress,
+          decoration: InputDecoration(
+            labelText: t(context, 'email'),
+            prefixIcon: const Icon(Icons.email_outlined),
+          ),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(t(context, 'cancel'))),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(t(context, 'send'))),
+        ],
+      ),
+    );
+    if (ok != true) return;
+
+    try {
+      await FirebaseAuth.instance
+          .sendPasswordResetEmail(email: c.text.trim());
+      if (!mounted) return;
+      _showSnack(t(context, 'reset_sent'));
+    } on FirebaseAuthException catch (e) {
+      _showError(_firebaseMessage(e));
+    } catch (e) {
+      _showError(e.toString());
+    }
+  }
+
+  // ---- Helpers -------------------------------------------------------------
+  String _firebaseMessage(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'invalid-email':
+        return t(context, 'err_invalid_email');
+      case 'user-not-found':
+        return t(context, 'err_user_not_found');
+      case 'wrong-password':
+      case 'invalid-credential':
+        return t(context, 'err_wrong_password');
+      case 'network-request-failed':
+        return t(context, 'err_network');
+      default:
+        return '${t(context, 'err_generic')} (${e.code})';
+    }
+  }
+
+  void _showError(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(backgroundColor: Colors.red.shade700, content: Text(msg)),
+    );
+  }
+
+  void _showSnack(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  }
+
+  // Nonce helpers for Apple
+  String _randomNonce([int length = 32]) {
+    const charset =
+        '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
+    final rand = Random.secure();
+    return List.generate(length, (_) => charset[rand.nextInt(charset.length)])
+        .join();
+  }
+
+  String _sha256ofString(String input) {
+    final bytes = utf8.encode(input);
+    final digest = sha256.convert(bytes);
+    return digest.toString();
+  }
+
+  // --------- Animated YouTube overlay (logo ➜ centered) ----------
+  void _openVideoFromLogo() {
+    if (_isVideoOpen) return; // prevent double-open
+
+    final id = _extractYoutubeId(_videoUrl ?? _appDefaultYouTubeUrl) ??
+        'ZczKlWNp5qY';
+
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
+
+    // Where is the logo on screen?
+    final logoContext = _logoKey.currentContext;
+    if (logoContext == null) return;
+    final box = logoContext.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return;
+    final logoOffset = box.localToGlobal(Offset.zero);
+    final logoSize = box.size;
+    final logoRect = Rect.fromLTWH(
+      logoOffset.dx,
+      logoOffset.dy,
+      logoSize.width,
+      logoSize.height,
+    );
+
+    // Target rect: large 16:9 centered under AppBar + ticker
+    final size = MediaQuery.of(context).size;
+    final paddingTop = MediaQuery.of(context).padding.top;
+    final reservedTop =
+        paddingTop + kToolbarHeight + NvAppBar.tickerHeight + 16;
+
+    double width = size.width * 0.70; // ~70% screen width
+    double height = width * 9 / 16;
+
+    final maxHeight = size.height - reservedTop - 32;
+    if (height > maxHeight) {
+      height = maxHeight;
+      width = height * 16 / 9;
+    }
+
+    final targetRect = Rect.fromLTWH(
+      (size.width - width) / 2,
+      reservedTop,
+      width,
+      height,
+    );
+
+    final yt = YoutubePlayerController.fromVideoId(
+      videoId: id,
+      params: const YoutubePlayerParams(
+        playsInline: true,
+        showFullscreenButton: true,
+        strictRelatedVideos: true,
+      ),
+    );
+
+    // Start playback after first build
+    WidgetsBinding.instance.addPostFrameCallback((_) => yt.playVideo());
+
+    final ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 350),
+      reverseDuration: const Duration(milliseconds: 250),
+    );
+    final rectAnim = RectTween(begin: logoRect, end: targetRect)
+        .animate(CurvedAnimation(parent: ctrl, curve: Curves.easeOutCubic));
+
+    _isVideoOpen = true;
+
+    late OverlayEntry entry;
+    entry = OverlayEntry(builder: (_) {
+      return AnimatedBuilder(
+        animation: rectAnim,
+        builder: (_, __) {
+          final rect = rectAnim.value ?? targetRect;
+          return Stack(children: [
+            // Dim background – tap to close
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: () async {
+                  await ctrl.reverse();
+                  yt.close();
+                  entry.remove();
+                  ctrl.dispose();
+                  _isVideoOpen = false;
+                  _videoEntry = null;
+                },
+                child: Container(color: Colors.black54),
+              ),
+            ),
+            // Video window
+            Positioned(
+              left: rect.left,
+              top: rect.top,
+              child: Material(
+                color: Colors.transparent,
+                elevation: 14,
+                borderRadius: BorderRadius.circular(18),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(18),
+                  child: SizedBox(
+                    width: rect.width,
+                    height: rect.height,
+                    child: Stack(children: [
+                      const Positioned.fill(
+                          child: ColoredBox(color: Colors.black)),
+                      Positioned.fill(child: YoutubePlayer(controller: yt)),
+                      Positioned(
+                        right: 8,
+                        top: 8,
+                        child: IconButton(
+                          style: IconButton.styleFrom(
+                            backgroundColor: Colors.black54,
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(36, 36),
+                            padding: EdgeInsets.zero,
+                          ),
+                          icon: const Icon(Icons.close),
+                          onPressed: () async {
+                            await ctrl.reverse();
+                            yt.close();
+                            entry.remove();
+                            ctrl.dispose();
+                            _isVideoOpen = false;
+                            _videoEntry = null;
+                          },
+                        ),
+                      ),
+                    ]),
+                  ),
+                ),
+              ),
+            ),
+          ]);
+        },
+      );
+    });
+
+    _videoEntry = entry;
+    overlay.insert(entry);
+    ctrl.forward();
+  }
+
+  String? _extractYoutubeId(String? url) {
+    if (url == null || url.trim().isEmpty) return null;
+    final u = Uri.tryParse(url.trim());
+    if (u == null) return null;
+    // youtu.be/<id>
+    if (u.host.contains('youtu.be') && u.pathSegments.isNotEmpty) {
+      return u.pathSegments.first;
+    }
+    // youtube.com/watch?v=<id> (and shorts/<id>)
+    if (u.host.contains('youtube.com')) {
+      final shorts = u.pathSegments;
+      if (shorts.length >= 2 && shorts[0] == 'shorts') return shorts[1];
+      return u.queryParameters['v'];
+    }
+    // raw id
+    if (RegExp(r'^[A-Za-z0-9_-]{6,}$').hasMatch(url)) return url;
+    return null;
+  }
+
+  Future<void> _editVideoAndLogoDialog() async {
+    // Only allow if manager
+    final isMgr = AppState.of(context).isManager.value;
+    if (!isMgr) {
+      _showSnack(t(context, 'insufficient'));
+      return;
+    }
+
+    final doc =
+        await FirebaseFirestore.instance.collection(_cfgCol).doc(_videoDoc).get();
+    final data = doc.data() ?? <String, dynamic>{};
+
+    final urlCtl = TextEditingController(text: _videoUrl ?? '');
+    final logoCtl = TextEditingController(text: _logoUrl ?? '');
+
+    final defaultUrl = (data['default_url'] as String?) ?? _appDefaultYouTubeUrl;
+    final defaultLogo = (data['default_logo'] as String?) ?? _appDefaultLogoUrl;
+
+    bool saving = false;
+
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) {
+        String tr(String k) => t(context, k);
+        return StatefulBuilder(
+          builder: (ctx, setLocal) => AlertDialog(
+            title: Text(tr('popup_title')),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: urlCtl,
+                    decoration: InputDecoration(
+                      labelText: tr('yt_label'),
+                      helperText: t(context, 'video_url_hint'),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: logoCtl,
+                    decoration: InputDecoration(
+                      labelText: tr('logo_label'),
+                      helperText: t(context, 'logo_url_hint'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  urlCtl.text = defaultUrl;
+                  logoCtl.text = defaultLogo;
+                  setLocal(() {});
+                },
+                child: Text(tr('reset_default_btn')),
+              ),
+              TextButton(
+                onPressed: saving
+                    ? null
+                    : () async {
+                        setLocal(() => saving = true);
+                        try {
+                          await _saveVideoLogo(
+                            url: urlCtl.text,
+                            logo: logoCtl.text,
+                            setAsDefault: true,
+                          );
+                          if (mounted) Navigator.pop(ctx, true);
+                        } catch (e) {
+                          _showError('${t(context, 'save_failed')}: $e');
+                        } finally {
+                          if (mounted) setLocal(() => saving = false);
+                        }
+                      },
+                child: Text(tr('make_default_btn')),
+              ),
+              const SizedBox(width: 8),
+              TextButton(
+                onPressed: saving ? null : () => Navigator.pop(ctx, false),
+                child: Text(t(context, 'cancel')),
+              ),
+              FilledButton(
+                onPressed: saving
+                    ? null
+                    : () async {
+                        setLocal(() => saving = true);
+                        try {
+                          await _saveVideoLogo(
+                            url: urlCtl.text,
+                            logo: logoCtl.text,
+                            setAsDefault: false,
+                          );
+                          if (mounted) Navigator.pop(ctx, true);
+                        } catch (e) {
+                          _showError('${t(context, 'save_failed')}: $e');
+                        } finally {
+                          if (mounted) setLocal(() => saving = false);
+                        }
+                      },
+                child: Text(saving ? t(context, 'saving_btn') : t(context, 'save_btn')),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (ok == true) {
+      // Immediately use the new video URL if valid
+      try {
+        final id = _extractYoutubeId(urlCtl.text);
+        if (id != null) {
+          await Future.delayed(const Duration(milliseconds: 50));
+          _openVideoFromLogo();
+        }
+      } catch (_) {
+        // ignore
+      }
+    }
+  }
+
+  // ---- UI ------------------------------------------------------------------
+  @override
+  Widget build(BuildContext context) {
+    final app = AppState.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final linkColor =
+        isDark ? Theme.of(context).colorScheme.primary : kNvGreenDark;
+
+    return ValueListenableBuilder<bool>(
+      valueListenable: app.isSpanish,
+      builder: (_, __, ___) {
+        return Scaffold(
+          resizeToAvoidBottomInset: true,
+          appBar: NvAppBar(title: t(context, 'title')),
+          body: SafeArea(
+            child: GestureDetector(
+              onTap: () => FocusScope.of(context).unfocus(),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    padding: EdgeInsets.only(
+                      left: 24,
+                      right: 24,
+                      top: 16,
+                      bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+                    ),
+                    child: ConstrainedBox(
+                      constraints:
+                          BoxConstraints(minHeight: constraints.maxHeight),
+                      child: IntrinsicHeight(
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 12),
+
+                            // ---- HERO LOGO (tap plays, long-press settings) ----
+                            Tooltip(
+                              message: t(context, 'play_video'),
+                              child: Semantics(
+                                button: true,
+                                label: t(context, 'play_video'),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    if (!_videoLoaded) return;
+                                    _openVideoFromLogo();
+                                  },
+                                  onLongPress: _editVideoAndLogoDialog,
+                                  child: Hero(
+                                    tag: 'nv.logo',
+                                    child: _buildLogoWidget(),
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(height: 20),
+
+                            // ---- FORM ---------------------------------------
+                            Form(
+                              key: formKey,
+                              child: Column(
+                                children: [
+                                  TextFormField(
+                                    controller: emailCtrl,
+                                    keyboardType: TextInputType.emailAddress,
+                                    autofillHints: const [
+                                      AutofillHints.username
+                                    ],
+                                    decoration: InputDecoration(
+                                      labelText: t(context, 'email'),
+                                      prefixIcon:
+                                          const Icon(Icons.email_outlined),
+                                    ),
+                                    validator: (v) {
+                                      if (v == null || v.trim().isEmpty) {
+                                        return t(context, 'enter_email');
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                  const SizedBox(height: 16),
+                                  TextFormField(
+                                    controller: passCtrl,
+                                    obscureText: obscured,
+                                    autofillHints: const [
+                                      AutofillHints.password
+                                    ],
+                                    decoration: InputDecoration(
+                                      labelText: t(context, 'password'),
+                                      prefixIcon: const Icon(
+                                          Icons.lock_outline_rounded),
+                                      suffixIcon: IconButton(
+                                        tooltip: obscured
+                                            ? t(context, 'show')
+                                            : t(context, 'hide'),
+                                        onPressed: () =>
+                                            setState(() => obscured = !obscured),
+                                        icon: Icon(
+                                          obscured
+                                              ? Icons.visibility_off_outlined
+                                              : Icons.visibility_outlined,
+                                        ),
+                                      ),
+                                    ),
+                                    validator: (v) {
+                                      if (v == null || v.isEmpty) {
+                                        return t(context, 'enter_password');
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            const SizedBox(height: 20),
+
+                            // ---- PRIMARY ACTION ------------------------------
+                            FilledButton(
+                              onPressed: busy ? null : signInEmailPassword,
+                              style: FilledButton.styleFrom(
+                                minimumSize: const Size.fromHeight(52),
+                                shape: const StadiumBorder(),
+                              ),
+                              child: busy
+                                  ? const SizedBox(
+                                      width: 22,
+                                      height: 22,
+                                      child: CircularProgressIndicator(
+                                          strokeWidth: 2),
+                                    )
+                                  : Text(t(context, 'login')),
+                            ),
+
+                            const SizedBox(height: 12),
+
+                            // ---- NAV LINKS above Forgot ----------------------
+                            TextButton(
+                              onPressed: busy
+                                  ? null
+                                  : () =>
+                                      Navigator.pushNamed(context, '/register'),
+                              style: TextButton.styleFrom(
+                                foregroundColor: linkColor,
+                                textStyle:
+                                    const TextStyle(fontWeight: FontWeight.w700),
+                              ),
+                              child: Builder(builder: (ctx) {
+                                final s = t(context, 'noAccount');
+                                final idx = s.lastIndexOf(' ');
+                                if (idx <= 0) return Text(s);
+                                final left = s.substring(0, idx + 1);
+                                final right = s.substring(idx + 1);
+                                return RichText(
+                                  text: TextSpan(
+                                    style: DefaultTextStyle.of(ctx).style
+                                        .copyWith(fontWeight: FontWeight.w700),
+                                    children: [
+                                      TextSpan(text: left),
+                                      const TextSpan(
+                                        text: 'Regístrate!',
+                                        style: TextStyle(color: kNvAccentOrange),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }),
+                            ),
+                            const SizedBox(height: 4),
+                            TextButton(
+                              onPressed: busy ? null : forgotPasswordDialog,
+                              style: TextButton.styleFrom(
+                                foregroundColor: linkColor,
+                                textStyle:
+                                    const TextStyle(fontWeight: FontWeight.w700),
+                              ),
+                              child: Text(t(context, 'forgot')),
+                            ),
+
+                            const SizedBox(height: 16),
+
+                            // ----- Divider with centered label ---------------
+                            _LabeledDivider(label: t(context, 'or_rapid')),
+
+                            const SizedBox(height: 12),
+
+                            // ---- SOCIAL (2-2 layout) -------------------------
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _GoogleButton(
+                                      onPressed: busy ? null : signInGoogle),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: _SocialButton(
+                                    onPressed: busy ? null : signInFacebook,
+                                    bg: const Color(0xFF1877F2),
+                                    fg: Colors.white,
+                                    icon: const FaIcon(
+                                        FontAwesomeIcons.facebookF,
+                                        size: 22),
+                                    label: t(context, 'facebook'),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _SocialButton(
+                                    onPressed: busy ? null : signInApple,
+                                    bg: Colors.black,
+                                    fg: Colors.white,
+                                    icon: const FaIcon(FontAwesomeIcons.apple,
+                                        size: 22),
+                                    label: t(context, 'apple'),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: _SocialButton(
+                                    onPressed: busy ? null : signInMicrosoft,
+                                    bg: Colors.white,
+                                    fg: Colors.black87,
+                                    icon: const _MicrosoftLogo(size: 22),
+                                    label: t(context, 'microsoft'),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+
+                            // Guest (full width)
+                            _SocialButton(
+                              onPressed: busy ? null : signInGuest,
+                              bg: Theme.of(context).colorScheme.surfaceVariant,
+                              fg: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                              icon: const Icon(Icons.person_outline),
+                              label: t(context, 'guest'),
+                              fullWidth: true,
+                              outlinedLook: true,
+                            ),
+
+                            const SizedBox(height: 20),
+
+                            // ---- Footer links (wrap to 2 lines if needed) ----
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: 18,
+                              runSpacing: 6,
+                              children: [
+                                TextButton.icon(
+                                  onPressed: busy
+                                      ? null
+                                      : () => Navigator.pushNamed(
+                                          context, '/contact'),
+                                  icon:
+                                      const Icon(Icons.support_agent_outlined),
+                                  label: Text(t(context, 'contact')),
+                                ),
+                                TextButton.icon(
+                                  onPressed: busy
+                                      ? null
+                                      : () => Navigator.pushNamed(
+                                          context, '/privacy'),
+                                  icon:
+                                      const Icon(Icons.privacy_tip_outlined),
+                                  label: Text(t(context, 'privacy')),
+                                ),
+                                TextButton.icon(
+                                  onPressed: busy
+                                      ? null
+                                      : () => Navigator.pushNamed(
+                                          context, '/data-deletion'),
+                                  icon: const Icon(Icons.delete_outline),
+                                  label: Text(t(context, 'deletion')),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 8),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildLogoWidget() {
+    final fallback = Image.asset(
+      'assets/images/app_icon_foreground.png',
+      key: _logoKey,
+      width: 120,
+      height: 120,
+      fit: BoxFit.contain,
+    );
+
+    if (_logoUrl == null || _logoUrl!.trim().isEmpty) {
+      return fallback;
+    }
+    return Image.network(
+      _logoUrl!,
+      key: _logoKey,
+      width: 120,
+      height: 120,
+      fit: BoxFit.contain,
+      errorBuilder: (_, __, ___) => fallback,
+    );
+  }
+}
+
+// -------- Centered text with dividers on both sides -----------------
+class _LabeledDivider extends StatelessWidget {
+  final String label;
+  const _LabeledDivider({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context)
+        .textTheme
+        .labelLarge
+        ?.copyWith(fontWeight: FontWeight.w800, letterSpacing: 0.2);
+    return Row(
+      children: [
+        const Expanded(child: Divider()),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Text(label, style: style),
+        ),
+        const Expanded(child: Divider()),
+      ],
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Google brand button (white background, multicolor wordmark, bigger G icon)
+// ---------------------------------------------------------------------------
+class _GoogleButton extends StatelessWidget {
+  final VoidCallback? onPressed;
+  const _GoogleButton({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    // Official Google colors
+    const blue = Color(0xFF4285F4);
+    const red = Color(0xFFEA4335);
+    const yellow = Color(0xFFFBBC05);
+    const green = Color(0xFF34A853);
+
+    TextSpan _wordmark() => const TextSpan(children: [
+          TextSpan(
+              text: 'G',
+              style: TextStyle(color: blue, fontWeight: FontWeight.w700)),
+          TextSpan(
+              text: 'o',
+              style: TextStyle(color: red, fontWeight: FontWeight.w700)),
+          TextSpan(
+              text: 'o',
+              style: TextStyle(color: yellow, fontWeight: FontWeight.w700)),
+          TextSpan(
+              text: 'g',
+              style: TextStyle(color: blue, fontWeight: FontWeight.w700)),
+          TextSpan(
+              text: 'l',
+              style: TextStyle(color: green, fontWeight: FontWeight.w700)),
+          TextSpan(
+              text: 'e',
+              style: TextStyle(color: red, fontWeight: FontWeight.w700)),
+        ]);
+
+    return OutlinedButton(
+      onPressed: onPressed,
+      style: OutlinedButton.styleFrom(
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        minimumSize: const Size.fromHeight(52),
+        shape: const StadiumBorder(),
+        side: BorderSide(color: Colors.grey.shade300),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Double the usual icon size for emphasis
+          SizedBox(
+            width: 44,
+            height: 44,
+            child: Image.asset(
+              'assets/images/google_g.png',
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) =>
+                  const Icon(Icons.g_mobiledata_rounded, size: 44),
+            ),
+          ),
+          const SizedBox(width: 10),
+          RichText(
+            text: TextSpan(
+              style: const TextStyle(fontSize: 16, letterSpacing: 0.2),
+              children: [_wordmark()],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Pretty social button used above
+// ---------------------------------------------------------------------------
+class _SocialButton extends StatelessWidget {
+  final VoidCallback? onPressed;
+  final Color bg;
+  final Color fg;
+  final Widget icon;
+  final String label;
+  final bool fullWidth;
+  final bool outlinedLook;
+
+  const _SocialButton({
+    required this.onPressed,
+    required this.bg,
+    required this.fg,
+    required this.icon,
+    required this.label,
+    this.fullWidth = false,
+    this.outlinedLook = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final shape = const StadiumBorder();
+    final child = Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        icon,
+        const SizedBox(width: 10),
+        Text(label,
+            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+      ],
+    );
+
+    if (outlinedLook) {
+      return OutlinedButton(
+        onPressed: onPressed,
+        style: OutlinedButton.styleFrom(
+          minimumSize: Size.fromHeight(fullWidth ? 48 : 44),
+          shape: shape,
+        ),
+        child: child,
+      );
+    }
+
+    return FilledButton(
+      onPressed: onPressed,
+      style: FilledButton.styleFrom(
+        backgroundColor: bg,
+        foregroundColor: fg,
+        minimumSize: Size.fromHeight(fullWidth ? 52 : 48),
+        shape: shape,
+        elevation: 1,
+      ),
+      child: child,
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Microsoft colored logo
+// ---------------------------------------------------------------------------
+class _MicrosoftLogo extends StatelessWidget {
+  final double size;
+  const _MicrosoftLogo({this.size = 22});
+
+  @override
+  Widget build(BuildContext context) {
+    const orange = Color(0xFFF25022);
+    const green = Color(0xFF7FBA00);
+    const blue = Color(0xFF00A4EF);
+    const yellow = Color(0xFFFFB900);
+    final s = size / 2 - 1;
+
+    Widget sq(Color c) => Container(width: s, height: s, color: c);
+
+    return SizedBox(
+      width: size,
+      height: size,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [sq(orange), const SizedBox(width: 2), sq(green)],
+          ),
+          const SizedBox(height: 2),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [sq(blue), const SizedBox(width: 2), sq(yellow)],
+          ),
+        ],
+      ),
+    );
+  }
+}
+

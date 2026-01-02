@@ -1,0 +1,20 @@
+﻿name: Stale bot
+on:
+  schedule: [{ cron: "0 9 * * *" }] # daily 09:00 UTC
+permissions:
+  issues: write
+  pull-requests: write
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          days-before-stale: 30
+          days-before-close: 7
+          stale-issue-label: "stale"
+          stale-pr-label: "stale"
+          exempt-issue-labels: "pinned,important"
+          exempt-pr-labels: "pinned,important"
+          stale-issue-message: "This issue is stale after 30 days of inactivity."
+          stale-pr-message: "This PR is stale after 30 days of inactivity."

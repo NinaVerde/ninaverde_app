@@ -1,0 +1,11 @@
+﻿name-template: 'v\'
+tag-template: 'v\'
+categories:
+  - title: 🚀 Features
+    labels: [feature, enhancement]
+  - title: 🐛 Fixes
+    labels: [bug, fix]
+change-template: '- \ (#\) by @\'
+template: |
+  ## What’s changed
+  \

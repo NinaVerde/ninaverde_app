@@ -1,4 +1,4 @@
-plugins {
+﻿plugins {
     id("com.android.application")
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
@@ -6,7 +6,10 @@ plugins {
 }
 
 android {
+    // Namespace must be declared here (NOT in AndroidManifest.xml)
     namespace = "com.nicaraguaninaverde.theapp"
+
+    // Use Flutterâ€™s provided SDK/NDK values
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -20,10 +23,10 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+        // Application ID (separate from namespace)
         applicationId = "com.nicaraguaninaverde.theapp"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
+
+        // SDK levels and versioning passed through from Flutter
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -31,10 +34,23 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Debug builds should NOT shrink or obfuscate
+            isMinifyEnabled = false
+            isShrinkResources = false
+        }
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+            // You can replace this with a proper release signing config later
             signingConfig = signingConfigs.getByName("debug")
+
+            // Enable code + resource shrinking for optimized release builds
+            isMinifyEnabled = true
+            isShrinkResources = true
+
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 }
@@ -42,3 +58,5 @@ android {
 flutter {
     source = "../.."
 }
+
+
