@@ -1,4 +1,4 @@
-plugins {
+﻿plugins {
     id("com.android.application")
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
@@ -9,7 +9,7 @@ android {
     // Namespace must be declared here (NOT in AndroidManifest.xml)
     namespace = "com.nicaraguaninaverde.theapp"
 
-    // Use Flutter’s provided SDK/NDK values
+    // Use Flutterâ€™s provided SDK/NDK values
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -58,3 +58,5 @@ android {
 flutter {
     source = "../.."
 }
+
+
