@@ -1,23 +1,31 @@
 name: ci
-run-name: ci
 
 on:
-  push:
-    branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
+  push:
+    branches: [ main, develop ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   ci:
+    name: ci
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: stable
           cache: true
 
       - name: Flutter version
@@ -30,7 +38,7 @@ jobs:
         run: flutter analyze
 
       - name: Run tests
-        run: flutter test --machine --coverage
+        run: flutter test
 
       - name: Build web
         run: flutter build web --release
