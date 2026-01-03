@@ -103,9 +103,7 @@ class _HeroPane extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  AppState.isSpanish
-                      ? 'Especiales de hoy'
-                      : "Today's Specials",
+                  AppState.isSpanish ? 'Especiales de hoy' : "Today's Specials",
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ).animate().scale(duration: 300.ms),
@@ -133,7 +131,8 @@ class _Category {
 }
 
 const _fallbackCategories = <_Category>[
-  _Category(id: 'breakfast', titleEn: 'Breakfast', titleEs: 'Desayuno', image: ''),
+  _Category(
+      id: 'breakfast', titleEn: 'Breakfast', titleEs: 'Desayuno', image: ''),
   _Category(id: 'bowls', titleEn: 'Bowls', titleEs: 'Bowls', image: ''),
   _Category(id: 'tacos', titleEn: 'Tacos', titleEs: 'Tacos', image: ''),
   _Category(id: 'drinks', titleEn: 'Drinks', titleEs: 'Bebidas', image: ''),
@@ -165,8 +164,7 @@ class _CategoriesGrid extends StatelessWidget {
             itemBuilder: (context, index) => Container(
               decoration: BoxDecoration(
                 color: Colors.grey.shade300,
-                borderRadius:
-                    BorderRadius.circular(NvThemeTokens.cornerRadius),
+                borderRadius: BorderRadius.circular(NvThemeTokens.cornerRadius),
               ),
             ).animate().shimmer(duration: 1.seconds),
           );
@@ -186,8 +184,7 @@ class _CategoriesGrid extends StatelessWidget {
             final cat = data[index];
             final title = AppState.isSpanish ? cat.titleEs : cat.titleEn;
             return GestureDetector(
-              onTap: () =>
-                  Navigator.pushNamed(context, '/category/${cat.id}'),
+              onTap: () => Navigator.pushNamed(context, '/category/${cat.id}'),
               onLongPress: () {
                 showModalBottomSheet(
                   context: context,
@@ -265,6 +262,7 @@ class _PromotionsCarouselState extends State<_PromotionsCarousel> {
       });
     });
   }
+
   @override
   Widget build(BuildContext context) {
     final promos = List<int>.generate(3, (i) => i);
@@ -288,8 +286,7 @@ class _PromotionsCarouselState extends State<_PromotionsCarousel> {
               ),
               decoration: BoxDecoration(
                 color: Colors.orange.shade200,
-                borderRadius:
-                    BorderRadius.circular(NvThemeTokens.cornerRadius),
+                borderRadius: BorderRadius.circular(NvThemeTokens.cornerRadius),
               ),
             ),
           );
@@ -385,8 +382,7 @@ class _MiniCart extends StatelessWidget {
               padding: const EdgeInsets.all(NvThemeTokens.spacing),
               decoration: BoxDecoration(
                 color: theme.colorScheme.primary,
-                borderRadius:
-                    BorderRadius.circular(NvThemeTokens.cornerRadius),
+                borderRadius: BorderRadius.circular(NvThemeTokens.cornerRadius),
               ),
               child: Text(
                 '${AppState.currencyCode} ${subtotal.toStringAsFixed(2)}',
@@ -402,4 +398,3 @@ class _MiniCart extends StatelessWidget {
     );
   }
 }
-

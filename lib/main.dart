@@ -15,8 +15,10 @@ import 'firebase_options.dart';
 import 'screens/login_screen.dart' show LoginScreen;
 import 'screens/home_screen.dart' show HomeScreen;
 import 'screens/splash_to_login.dart' show SplashToLoginScreen; // boot splash
-import 'screens/document_webview.dart' show DocumentWebView; // standalone WebView screen
-import 'screens/contact_nina_verde_page.dart' show ContactNinaVerdePage; // <-- NEW: AI Contact page
+import 'screens/document_webview.dart'
+    show DocumentWebView; // standalone WebView screen
+import 'screens/contact_nina_verde_page.dart'
+    show ContactNinaVerdePage; // <-- NEW: AI Contact page
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -137,8 +139,8 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
       return s
           .replaceAll("Naturally, Welcome to Nicaragua Niña Verde!",
               "Naturalmente, ¡Bienvenido a Nicaragua Niña Verde!")
-          .replaceAll("Login to collect points.",
-              "Inicia sesión para acumular puntos.")
+          .replaceAll(
+              "Login to collect points.", "Inicia sesión para acumular puntos.")
           .replaceAll("Get exclusive offers.", "Obtén ofertas exclusivas.")
           .replaceAll("Earn rewards.", "Gana recompensas.")
           .replaceAll("Enjoy free services.", "Disfruta servicios gratis.")
@@ -275,7 +277,8 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
           videoId: 'ZczKlWNp5qY',
         ),
         transitionsBuilder: (context, anim, _, child) {
-          final curved = CurvedAnimation(parent: anim, curve: Curves.easeOutCubic);
+          final curved =
+              CurvedAnimation(parent: anim, curve: Curves.easeOutCubic);
           return FadeTransition(
             opacity: curved,
             child: ScaleTransition(
@@ -343,13 +346,14 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
                 routes: {
                   '/': (_) => const SplashToLoginScreen(),
                   '/splash': (_) => const SplashToLoginScreen(),
-                  '/login': (_) => LoginScreen(), // non-const for dynamic logo/video
+                  '/login': (_) =>
+                      LoginScreen(), // non-const for dynamic logo/video
                   '/home': (_) => const HomeScreen(),
                   '/forgot': (_) =>
                       const PlaceholderPage(title: 'Forgot Password'),
-                  '/register': (_) =>
-                      const PlaceholderPage(title: 'Register'),
-                  '/contact': (_) => const ContactNinaVerdePage(), // <-- AI contact page
+                  '/register': (_) => const PlaceholderPage(title: 'Register'),
+                  '/contact': (_) =>
+                      const ContactNinaVerdePage(), // <-- AI contact page
                   '/privacy': (_) => const DocumentWebView(
                         titleEs: 'Política de Privacidad',
                         titleEn: 'Privacy Policy',
@@ -667,7 +671,8 @@ class _TickerBandState extends State<_TickerBand>
         width: double.infinity,
         child: Column(
           children: [
-            Container(height: topH, width: double.infinity, color: widget.railColor),
+            Container(
+                height: topH, width: double.infinity, color: widget.railColor),
             Expanded(
               child: Container(
                 width: double.infinity,
@@ -700,7 +705,8 @@ class _TickerBandState extends State<_TickerBand>
                               width: _contentWidth,
                               child: Center(
                                 child: Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 1.0),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 1.0),
                                   child: rich,
                                 ),
                               ),
@@ -722,7 +728,8 @@ class _TickerBandState extends State<_TickerBand>
                 ),
               ),
             ),
-            Container(height: botH, width: double.infinity, color: widget.railColor),
+            Container(
+                height: botH, width: double.infinity, color: widget.railColor),
           ],
         ),
       ),
@@ -871,9 +878,20 @@ class _TickerSettingsPageState extends State<TickerSettingsPage>
     if (t.isEmpty) return false;
     if (RegExp(r'[áéíóúñ¡¿]').hasMatch(t)) return true;
     const hits = [
-      ' el ', ' la ', ' los ', ' las ', ' de ', ' para ',
-      ' sesión', ' ofertas', ' recompensas', ' gratis',
-      ' sintoniza', ' participa', ' bienvenido', ' naturalmente'
+      ' el ',
+      ' la ',
+      ' los ',
+      ' las ',
+      ' de ',
+      ' para ',
+      ' sesión',
+      ' ofertas',
+      ' recompensas',
+      ' gratis',
+      ' sintoniza',
+      ' participa',
+      ' bienvenido',
+      ' naturalmente'
     ];
     return hits.any((w) => t.contains(w));
   }
@@ -993,10 +1011,10 @@ class _TickerSettingsPageState extends State<TickerSettingsPage>
   // ----- Helpers for colors/hex -----
   static String _toHex(Color c, {bool leadingHash = true}) {
     return '${leadingHash ? '#' : ''}'
-        '${c.alpha.toRadixString(16).padLeft(2, '0')}'
-        '${c.red.toRadixString(16).padLeft(2, '0')}'
-        '${c.green.toRadixString(16).padLeft(2, '0')}'
-        '${c.blue.toRadixString(16).padLeft(2, '0')}'
+            '${c.alpha.toRadixString(16).padLeft(2, '0')}'
+            '${c.red.toRadixString(16).padLeft(2, '0')}'
+            '${c.green.toRadixString(16).padLeft(2, '0')}'
+            '${c.blue.toRadixString(16).padLeft(2, '0')}'
         .toUpperCase();
   }
 
@@ -1020,8 +1038,12 @@ class _TickerSettingsPageState extends State<TickerSettingsPage>
         title: const Text('Remove message?'),
         content: const Text('This will delete the message in both languages.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('No')),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Yes')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('No')),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Yes')),
         ],
       ),
     );
@@ -1067,6 +1089,7 @@ class _TickerSettingsPageState extends State<TickerSettingsPage>
       final item = list.removeAt(from);
       list.insert(to, item);
     }
+
     setState(() {
       move(_ids, oldIndex, newIndex);
       move(_pairs, oldIndex, newIndex);
@@ -1084,8 +1107,8 @@ class _TickerSettingsPageState extends State<TickerSettingsPage>
         Container(
           width: 28,
           height: 28,
-          decoration:
-              BoxDecoration(color: value, borderRadius: BorderRadius.circular(6)),
+          decoration: BoxDecoration(
+              color: value, borderRadius: BorderRadius.circular(6)),
         ),
         const SizedBox(width: 10),
         Expanded(
@@ -1147,7 +1170,6 @@ class _TickerSettingsPageState extends State<TickerSettingsPage>
           ],
         ),
         const SizedBox(height: 8),
-
         ReorderableListView.builder(
           buildDefaultDragHandles: false,
           shrinkWrap: true,
@@ -1255,7 +1277,8 @@ class _TickerSettingsPageState extends State<TickerSettingsPage>
                           ),
                           const SizedBox(height: 8),
                           Text(speedLbl,
-                              style: const TextStyle(fontWeight: FontWeight.bold)),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold)),
                           Slider(
                             value: _speedLocal,
                             min: 40,
@@ -1265,9 +1288,7 @@ class _TickerSettingsPageState extends State<TickerSettingsPage>
                             onChanged: (v) => setState(() => _speedLocal = v),
                           ),
                           const SizedBox(height: 12),
-
                           _messagesReorderEditor(isEsUI: isEsUI),
-
                           const SizedBox(height: 80),
                         ],
                       ),
@@ -1277,45 +1298,53 @@ class _TickerSettingsPageState extends State<TickerSettingsPage>
                         padding: const EdgeInsets.all(16),
                         children: [
                           Text(colorsLight,
-                              style: const TextStyle(fontWeight: FontWeight.bold)),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold)),
                           const SizedBox(height: 8),
                           _colorRow(
                             label: laneLbl,
                             value: _laneLightLocal,
-                            onChanged: (c) => setState(() => _laneLightLocal = c),
+                            onChanged: (c) =>
+                                setState(() => _laneLightLocal = c),
                           ),
                           const SizedBox(height: 10),
                           _colorRow(
                             label: railLbl,
                             value: _railLightLocal,
-                            onChanged: (c) => setState(() => _railLightLocal = c),
+                            onChanged: (c) =>
+                                setState(() => _railLightLocal = c),
                           ),
                           const SizedBox(height: 10),
                           _colorRow(
                             label: textLbl,
                             value: _textLightLocal,
-                            onChanged: (c) => setState(() => _textLightLocal = c),
+                            onChanged: (c) =>
+                                setState(() => _textLightLocal = c),
                           ),
                           const SizedBox(height: 20),
                           Text(colorsDark,
-                              style: const TextStyle(fontWeight: FontWeight.bold)),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold)),
                           const SizedBox(height: 8),
                           _colorRow(
                             label: laneLbl,
                             value: _laneDarkLocal,
-                            onChanged: (c) => setState(() => _laneDarkLocal = c),
+                            onChanged: (c) =>
+                                setState(() => _laneDarkLocal = c),
                           ),
                           const SizedBox(height: 10),
                           _colorRow(
                             label: railLbl,
                             value: _railDarkLocal,
-                            onChanged: (c) => setState(() => _railDarkLocal = c),
+                            onChanged: (c) =>
+                                setState(() => _railDarkLocal = c),
                           ),
                           const SizedBox(height: 10),
                           _colorRow(
                             label: textLbl,
                             value: _textDarkLocal,
-                            onChanged: (c) => setState(() => _textDarkLocal = c),
+                            onChanged: (c) =>
+                                setState(() => _textDarkLocal = c),
                           ),
                           const SizedBox(height: 80),
                         ],
@@ -1415,8 +1444,13 @@ class _YouTubePopupWebViewState extends State<_YouTubePopupWebView> {
 
   Future<void> _init() async {
     // Clear cookies/cache to avoid sticky state across opens.
-    try { await _cookieManager.clearCookies(); } catch (_) {}
-    try { final tmp = WebViewController(); await tmp.clearCache(); } catch (_) {}
+    try {
+      await _cookieManager.clearCookies();
+    } catch (_) {}
+    try {
+      final tmp = WebViewController();
+      await tmp.clearCache();
+    } catch (_) {}
 
     // Per-platform creation params (inline playback on iOS)
     PlatformWebViewControllerCreationParams creationParams;
@@ -1429,14 +1463,15 @@ class _YouTubePopupWebViewState extends State<_YouTubePopupWebView> {
       creationParams = const PlatformWebViewControllerCreationParams();
     }
 
-    final controller = WebViewController.fromPlatformCreationParams(creationParams)
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(Colors.black)
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onNavigationRequest: (req) => NavigationDecision.navigate,
-        ),
-      );
+    final controller =
+        WebViewController.fromPlatformCreationParams(creationParams)
+          ..setJavaScriptMode(JavaScriptMode.unrestricted)
+          ..setBackgroundColor(Colors.black)
+          ..setNavigationDelegate(
+            NavigationDelegate(
+              onNavigationRequest: (req) => NavigationDecision.navigate,
+            ),
+          );
 
     // Android: allow autoplay
     if (controller.platform is AndroidWebViewController) {
@@ -1458,9 +1493,15 @@ class _YouTubePopupWebViewState extends State<_YouTubePopupWebView> {
   }
 
   Future<void> _cleanup() async {
-    try { await _controller.loadRequest(Uri.parse('about:blank')); } catch (_) {}
-    try { await _controller.clearCache(); } catch (_) {}
-    try { await _cookieManager.clearCookies(); } catch (_) {}
+    try {
+      await _controller.loadRequest(Uri.parse('about:blank'));
+    } catch (_) {}
+    try {
+      await _controller.clearCache();
+    } catch (_) {}
+    try {
+      await _cookieManager.clearCookies();
+    } catch (_) {}
   }
 
   @override

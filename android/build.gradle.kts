@@ -1,5 +1,7 @@
 ﻿// Top-level build.gradle.kts for the Android project
 
+import org.gradle.api.tasks.Delete
+
 allprojects {
     repositories {
         google()
@@ -8,11 +10,11 @@ allprojects {
 }
 
 // Redirect Flutter build output into the top-level /build directory
-val newBuildDir: Directory = rootProject.layout.buildDirectory.dir("../../build").get()
+val newBuildDir = rootProject.layout.buildDirectory.dir("../../build").get()
 rootProject.layout.buildDirectory.set(newBuildDir)
 
 subprojects {
-    val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
+    val newSubprojectBuildDir = newBuildDir.dir(project.name)
     project.layout.buildDirectory.set(newSubprojectBuildDir)
 }
 
@@ -25,4 +27,3 @@ subprojects {
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
-

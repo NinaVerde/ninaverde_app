@@ -1,4 +1,4 @@
-﻿// lib/screens/login_screen.dart
+// lib/screens/login_screen.dart
 import 'dart:convert';
 import 'dart:math';
 
@@ -150,8 +150,7 @@ class _LoginScreenState extends State<LoginScreen>
       'fb_cancelled': 'Inicio de sesin con Facebook cancelado.',
       'play_video': 'Reproducir video de introduccin',
       'or_rapid': 'Inicio rpido con',
-      'video_url_hint':
-          'Pega URL de YouTube (https://youtu.be/ o watch?v=)',
+      'video_url_hint': 'Pega URL de YouTube (https://youtu.be/ o watch?v=)',
       'logo_url_hint': 'Pega URL del logo (https:// .png/.jpg)',
       // Popup dialog:
       'popup_title': 'Configuracin del Popup',
@@ -240,34 +239,40 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
-  // Google Sign-In (native)  Firebase
+  // Google Sign-In (native) -> Firebase
+  // FIXED for your current google_sign_in API:
+  // - no signIn()/signInSilently()
+  // - authentication is NOT a Future
+  // - accessToken not available
   Future<void> signInGoogle() async {
-  setState(() => busy = true);
-  try {
-    final g = GoogleSignIn(
-  scopes: ['email'],
-);
-    final account = await g.signInSilently() ?? await g.signIn();
-    if (account == null) return;
+    setState(() => busy = true);
+    try {
+      final g = GoogleSignIn.instance;
 
-    final auth = await account.authentication;
-    final cred = GoogleAuthProvider.credential(
-      idToken: auth.idToken,
-      accessToken: auth.accessToken,
-    );
+      // New API: authenticate() replaces signIn/signInSilently
+      final account = await g.authenticate();
+      if (account == null) return;
 
-    await FirebaseAuth.instance.signInWithCredential(cred);
-    await UserService.upsertCurrentUser();
-    if (!mounted) return;
-    Navigator.pushReplacementNamed(context, '/home');
-  } on FirebaseAuthException catch (e) {
-    _showError(_firebaseMessage(e));
-  } catch (e) {
-    _showError(e.toString());
-  } finally {
-    if (mounted) setState(() => busy = false);
+      // New API: authentication is sync (no await)
+      final auth = account.authentication;
+
+      // Firebase accepts idToken; accessToken may not exist in this API version
+      final cred = GoogleAuthProvider.credential(
+        idToken: auth.idToken,
+      );
+
+      await FirebaseAuth.instance.signInWithCredential(cred);
+      await UserService.upsertCurrentUser();
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, '/home');
+    } on FirebaseAuthException catch (e) {
+      _showError(_firebaseMessage(e));
+    } catch (e) {
+      _showError(e.toString());
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
   }
-}
 
   Future<void> signInFacebook() async {
     setState(() => busy = true);
@@ -419,8 +424,7 @@ class _LoginScreenState extends State<LoginScreen>
     if (ok != true) return;
 
     try {
-      await FirebaseAuth.instance
-          .sendPasswordResetEmail(email: c.text.trim());
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: c.text.trim());
       if (!mounted) return;
       _showSnack(t(context, 'reset_sent'));
     } on FirebaseAuthException catch (e) {
@@ -472,12 +476,12 @@ class _LoginScreenState extends State<LoginScreen>
     return digest.toString();
   }
 
-  // --------- Animated YouTube overlay (logo  centered) ----------
+  // --------- Animated YouTube overlay (logo centered) ----------
   void _openVideoFromLogo() {
     if (_isVideoOpen) return; // prevent double-open
 
-    final id = _extractYoutubeId(_videoUrl ?? _appDefaultYouTubeUrl) ??
-        'ZczKlWNp5qY';
+    final id =
+        _extractYoutubeId(_videoUrl ?? _appDefaultYouTubeUrl) ?? 'ZczKlWNp5qY';
 
     final overlay = Overlay.of(context);
     if (overlay == null) return;
@@ -547,7 +551,7 @@ class _LoginScreenState extends State<LoginScreen>
         builder: (_, __) {
           final rect = rectAnim.value ?? targetRect;
           return Stack(children: [
-            // Dim background  tap to close
+            // Dim background => tap to close
             Positioned.fill(
               child: GestureDetector(
                 onTap: () async {
@@ -641,14 +645,17 @@ class _LoginScreenState extends State<LoginScreen>
       return;
     }
 
-    final doc =
-        await FirebaseFirestore.instance.collection(_cfgCol).doc(_videoDoc).get();
+    final doc = await FirebaseFirestore.instance
+        .collection(_cfgCol)
+        .doc(_videoDoc)
+        .get();
     final data = doc.data() ?? <String, dynamic>{};
 
     final urlCtl = TextEditingController(text: _videoUrl ?? '');
     final logoCtl = TextEditingController(text: _logoUrl ?? '');
 
-    final defaultUrl = (data['default_url'] as String?) ?? _appDefaultYouTubeUrl;
+    final defaultUrl =
+        (data['default_url'] as String?) ?? _appDefaultYouTubeUrl;
     final defaultLogo = (data['default_logo'] as String?) ?? _appDefaultLogoUrl;
 
     bool saving = false;
@@ -734,7 +741,8 @@ class _LoginScreenState extends State<LoginScreen>
                           if (mounted) setLocal(() => saving = false);
                         }
                       },
-                child: Text(saving ? t(context, 'saving_btn') : t(context, 'save_btn')),
+                child: Text(
+                    saving ? t(context, 'saving_btn') : t(context, 'save_btn')),
               ),
             ],
           ),
@@ -850,8 +858,8 @@ class _LoginScreenState extends State<LoginScreen>
                                         tooltip: obscured
                                             ? t(context, 'show')
                                             : t(context, 'hide'),
-                                        onPressed: () =>
-                                            setState(() => obscured = !obscured),
+                                        onPressed: () => setState(
+                                            () => obscured = !obscured),
                                         icon: Icon(
                                           obscured
                                               ? Icons.visibility_off_outlined
@@ -899,24 +907,25 @@ class _LoginScreenState extends State<LoginScreen>
                                       Navigator.pushNamed(context, '/register'),
                               style: TextButton.styleFrom(
                                 foregroundColor: linkColor,
-                                textStyle:
-                                    const TextStyle(fontWeight: FontWeight.w700),
+                                textStyle: const TextStyle(
+                                    fontWeight: FontWeight.w700),
                               ),
                               child: Builder(builder: (ctx) {
                                 final s = t(context, 'noAccount');
                                 final idx = s.lastIndexOf(' ');
                                 if (idx <= 0) return Text(s);
                                 final left = s.substring(0, idx + 1);
-                                final right = s.substring(idx + 1);
                                 return RichText(
                                   text: TextSpan(
-                                    style: DefaultTextStyle.of(ctx).style
+                                    style: DefaultTextStyle.of(ctx)
+                                        .style
                                         .copyWith(fontWeight: FontWeight.w700),
                                     children: [
                                       TextSpan(text: left),
                                       const TextSpan(
                                         text: 'Regstrate!',
-                                        style: TextStyle(color: kNvAccentOrange),
+                                        style:
+                                            TextStyle(color: kNvAccentOrange),
                                       ),
                                     ],
                                   ),
@@ -928,8 +937,8 @@ class _LoginScreenState extends State<LoginScreen>
                               onPressed: busy ? null : forgotPasswordDialog,
                               style: TextButton.styleFrom(
                                 foregroundColor: linkColor,
-                                textStyle:
-                                    const TextStyle(fontWeight: FontWeight.w700),
+                                textStyle: const TextStyle(
+                                    fontWeight: FontWeight.w700),
                               ),
                               child: Text(t(context, 'forgot')),
                             ),
@@ -1025,8 +1034,7 @@ class _LoginScreenState extends State<LoginScreen>
                                       ? null
                                       : () => Navigator.pushNamed(
                                           context, '/privacy'),
-                                  icon:
-                                      const Icon(Icons.privacy_tip_outlined),
+                                  icon: const Icon(Icons.privacy_tip_outlined),
                                   label: Text(t(context, 'privacy')),
                                 ),
                                 TextButton.icon(
@@ -1271,12 +1279,3 @@ class _MicrosoftLogo extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
-
-
-
