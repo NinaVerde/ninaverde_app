@@ -3,9 +3,7 @@ name: ci
 on:
   pull_request:
     branches: [ main, develop ]
-  pull_request_target:
-    branches: [ main, develop ]
-    types: [opened, synchronize, reopened, edited, ready_for_review]
+    types: [opened, synchronize, reopened, ready_for_review]
   push:
     branches: [ main, develop ]
   workflow_dispatch:
@@ -14,7 +12,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -24,11 +22,8 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      - name: Checkout (PR code)
-        uses: actions/checkout@v5
-        with:
-          # For pull_request_target, this ensures we test the PR head commit
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
