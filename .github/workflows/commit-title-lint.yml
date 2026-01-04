@@ -1,18 +1,24 @@
 name: PR title lint
 
 on:
-  pull_request_target:
+  pull_request:
     types: [opened, edited, synchronize, reopened]
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
 
 permissions:
-  pull-requests: read
+  pull-requests: write
 
 jobs:
   lint:
     name: lint
     runs-on: ubuntu-latest
     steps:
+      # Real PR title validation (only makes sense on PR events)
       - name: Check title
+        id: lint
+        if: github.event_name == 'pull_request'
         uses: amannn/action-semantic-pull-request@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -28,3 +34,23 @@ jobs:
           requireScope: false
           subjectPattern: ".+"
           subjectPatternError: "PR title must include a subject after the type, e.g. `chore: update CI`"
+
+      # No-op so the status check exists + completes on push
+      - name: No-op on push
+        if: github.event_name != 'pull_request'
+        run: echo "PR title lint runs only on pull_request. Passing on push so branch rules don't hang."
+
+  comment:
+    name: comment
+    needs: lint
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            **PR title check** found an issue.
+            Please rename to Conventional Commits style, e.g.:
+            - `feat: add profile page`
+            - `fix: handle null token`
+            - `chore: update CI`
