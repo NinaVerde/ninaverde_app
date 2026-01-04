@@ -49,11 +49,14 @@ class _ContactNinaVerdePageState extends State<ContactNinaVerdePage> {
                       const Text(
                         'Niña Verde AI Assistant',
                         style: TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
                       ),
                       const CircleAvatar(
                         radius: 24,
-                        backgroundImage: AssetImage('assets/images/nina_verde_avatar.png'),
+                        backgroundImage:
+                            AssetImage('assets/images/nina_verde_avatar.png'),
                       ),
                     ],
                   ),
@@ -78,7 +81,10 @@ Would you like me to:
 • Take your order?
 • Connect you with our management?
 • Transfer you to a live agent? 📞💬''',
-                              style: TextStyle(color: Colors.white, fontSize: 16, height: 1.3),
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  height: 1.3),
                             ),
                           ),
                         ),
@@ -94,7 +100,8 @@ Would you like me to:
                               ),
                               child: Text(
                                 userMessage,
-                                style: const TextStyle(color: Colors.white, fontSize: 15),
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 15),
                               ),
                             ),
                           ),
@@ -126,7 +133,8 @@ Would you like me to:
                               hintStyle: TextStyle(color: Colors.white70),
                               border: InputBorder.none,
                             ),
-                            onChanged: (t) => setState(() => isTyping = t.trim().isNotEmpty),
+                            onChanged: (t) =>
+                                setState(() => isTyping = t.trim().isNotEmpty),
                             onSubmitted: (_) => isTyping ? handleSend() : null,
                           ),
                         ),
@@ -172,7 +180,8 @@ Would you like me to:
         ),
         child: Text(
           label,
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+          style:
+              const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
         ),
       ),
     );

@@ -1,4 +1,4 @@
-﻿// lib/screens/splash_to_login.dart
+// lib/screens/splash_to_login.dart
 // INTRO LOGO POP → FLASH0 (NV) → POWERED → FLASH1 (Biz) → BY → FLASH2 (Biz)
 // → BIZ APPS VIDEO (enlarged + bloom + trimmed end matte) → FINAL NV REVEAL → Login
 
@@ -33,7 +33,17 @@ class SplashToLoginScreen extends StatefulWidget {
   State<SplashToLoginScreen> createState() => _SplashToLoginScreenState();
 }
 
-enum _Phase { introLogo, flash0, powered, flash1, by, flash2, video, finalReveal, done }
+enum _Phase {
+  introLogo,
+  flash0,
+  powered,
+  flash1,
+  by,
+  flash2,
+  video,
+  finalReveal,
+  done
+}
 
 class _SplashToLoginScreenState extends State<SplashToLoginScreen>
     with TickerProviderStateMixin {
@@ -86,8 +96,8 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
       });
 
     // Bloom/settle
-    _videoBloom =
-        AnimationController(vsync: this, duration: const Duration(milliseconds: 520));
+    _videoBloom = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 520));
     _videoScale = Tween<double>(begin: 1.06, end: 1.0).animate(
       CurvedAnimation(parent: _videoBloom, curve: Curves.easeOutCubic),
     );
@@ -120,7 +130,8 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
     } catch (_) {}
     // dispose when done (and also after a timeout as a safety)
     unawaited(p.onPlayerComplete.first.then((_) => p.dispose()));
-    unawaited(Future.delayed(const Duration(seconds: 4)).then((_) => p.dispose()));
+    unawaited(
+        Future.delayed(const Duration(seconds: 4)).then((_) => p.dispose()));
   }
 
   Future<void> _runSequence() async {
@@ -184,7 +195,9 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
     unawaited(_waitForVideoEnd());
 
     // Watchdog: ensure we never hang here (duration + ~2s, clamped)
-    final dur = _video.value.isInitialized ? _video.value.duration : const Duration(seconds: 5);
+    final dur = _video.value.isInitialized
+        ? _video.value.duration
+        : const Duration(seconds: 5);
     final watchdogDelay = Duration(
       milliseconds: (dur.inMilliseconds + 2000).clamp(3000, 12000),
     );
@@ -205,7 +218,8 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
           final remain = dur - pos;
 
           // Final whoosh ~1.0s before the wipe
-          if (!_finalWhooshSent && remain <= const Duration(milliseconds: 1000)) {
+          if (!_finalWhooshSent &&
+              remain <= const Duration(milliseconds: 1000)) {
             _finalWhooshSent = true;
             unawaited(_playWhoosh(1.0));
           }
@@ -276,19 +290,23 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
           children: [
             switch (_phase) {
               _Phase.introLogo => _IntroLogoPop(controller: _introLogoCtrl),
-              _Phase.powered   => const _TitleCard(text: 'POWERED', isBiz: true),
-              _Phase.by        => const _TitleCard(text: 'BY', isBiz: true),
-              _Phase.video     => _VideoStage(
-                    controller: _video,
-                    scale: _videoScale,
-                    glowStrength: _videoGlow,
-                    baseWidthFactor: 0.78,
-                    enlarge: 1.5,          // +50%
-                    maxWidthFactor: 0.98,
-                    verticalOffset: -0.02, // slight lift
-                  ),
-              _Phase.flash0 || _Phase.flash1 || _Phase.flash2 || _Phase.finalReveal || _Phase.done
-                => const SizedBox.shrink(),
+              _Phase.powered => const _TitleCard(text: 'POWERED', isBiz: true),
+              _Phase.by => const _TitleCard(text: 'BY', isBiz: true),
+              _Phase.video => _VideoStage(
+                  controller: _video,
+                  scale: _videoScale,
+                  glowStrength: _videoGlow,
+                  baseWidthFactor: 0.78,
+                  enlarge: 1.5, // +50%
+                  maxWidthFactor: 0.98,
+                  verticalOffset: -0.02, // slight lift
+                ),
+              _Phase.flash0 ||
+              _Phase.flash1 ||
+              _Phase.flash2 ||
+              _Phase.finalReveal ||
+              _Phase.done =>
+                const SizedBox.shrink(),
             },
 
             if (_phase == _Phase.flash0)
@@ -333,8 +351,10 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.white,
                   backgroundColor: Colors.white.withOpacity(0.12),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
                 onPressed: _goToLogin,
                 child: const Text('Skip'),
@@ -347,7 +367,8 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
               right: 0,
               bottom: 0,
               height: 8,
-              child: DecoratedBox(decoration: BoxDecoration(color: Colors.black)),
+              child:
+                  DecoratedBox(decoration: BoxDecoration(color: Colors.black)),
             ),
           ],
         ),
@@ -365,8 +386,8 @@ class _IntroLogoPop extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!controller.isAnimating) controller.forward();
-    final scale = Tween<double>(begin: 0.86, end: 1.0)
-        .animate(CurvedAnimation(parent: controller, curve: Curves.easeOutCubic));
+    final scale = Tween<double>(begin: 0.86, end: 1.0).animate(
+        CurvedAnimation(parent: controller, curve: Curves.easeOutCubic));
     final flash = CurvedAnimation(
       parent: controller,
       curve: const Interval(0.35, 0.75, curve: Curves.easeOut),
@@ -384,7 +405,8 @@ class _IntroLogoPop extends StatelessWidget {
                 scale: scale.value,
                 child: SizedBox(
                   width: MediaQuery.of(context).size.shortestSide * 0.38,
-                  child: Image.asset('assets/images/app_icon_foreground.png', fit: BoxFit.contain),
+                  child: Image.asset('assets/images/app_icon_foreground.png',
+                      fit: BoxFit.contain),
                 ),
               ),
             ),
@@ -396,8 +418,10 @@ class _IntroLogoPop extends StatelessWidget {
                     center: Alignment.center,
                     radius: ui.lerpDouble(0.05, 1.15, flash.value)!,
                     colors: [
-                      Colors.white.withOpacity(ui.lerpDouble(1.0, 0.0, flash.value)!),
-                      Colors.white.withOpacity(ui.lerpDouble(0.85, 0.0, flash.value)!),
+                      Colors.white
+                          .withOpacity(ui.lerpDouble(1.0, 0.0, flash.value)!),
+                      Colors.white
+                          .withOpacity(ui.lerpDouble(0.85, 0.0, flash.value)!),
                       Colors.transparent,
                     ],
                     stops: const [0.0, 0.35, 1.0],
@@ -422,7 +446,8 @@ class _TitleCard extends StatefulWidget {
   State<_TitleCard> createState() => _TitleCardState();
 }
 
-class _TitleCardState extends State<_TitleCard> with SingleTickerProviderStateMixin {
+class _TitleCardState extends State<_TitleCard>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _ctrl;
   late final Animation<double> _sheen;
   late final Animation<double> _glowDelay;
@@ -430,13 +455,21 @@ class _TitleCardState extends State<_TitleCard> with SingleTickerProviderStateMi
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 900))..forward();
-    _sheen = CurvedAnimation(parent: _ctrl, curve: const Interval(0.10, 0.80, curve: Curves.easeOutCubic));
-    _glowDelay = CurvedAnimation(parent: _ctrl, curve: const Interval(0.18, 1.0, curve: Curves.easeOut));
+    _ctrl = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 900))
+      ..forward();
+    _sheen = CurvedAnimation(
+        parent: _ctrl,
+        curve: const Interval(0.10, 0.80, curve: Curves.easeOutCubic));
+    _glowDelay = CurvedAnimation(
+        parent: _ctrl, curve: const Interval(0.18, 1.0, curve: Curves.easeOut));
   }
 
   @override
-  void dispose() { _ctrl.dispose(); super.dispose(); }
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -619,7 +652,8 @@ class _VideoStageState extends State<_VideoStage> {
   @override
   Widget build(BuildContext context) {
     final v = widget.controller.value;
-    if (!v.isInitialized) return const Center(child: CircularProgressIndicator.adaptive());
+    if (!v.isInitialized)
+      return const Center(child: CircularProgressIndicator.adaptive());
 
     final vidSize = v.size;
     final screen = MediaQuery.of(context).size;
@@ -742,8 +776,8 @@ class _RadialFlash extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!controller.isAnimating) controller.forward();
-    final curve =
-        CurvedAnimation(parent: controller, curve: const Cubic(0.2, 0.0, 0.0, 1.0));
+    final curve = CurvedAnimation(
+        parent: controller, curve: const Cubic(0.2, 0.0, 0.0, 1.0));
     return AnimatedBuilder(
       animation: curve,
       builder: (context, _) {
@@ -800,13 +834,15 @@ class _FinalBurstReveal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!controller.isAnimating) controller.forward();
-    final curve = CurvedAnimation(parent: controller, curve: Curves.easeInOutCubic);
+    final curve =
+        CurvedAnimation(parent: controller, curve: Curves.easeInOutCubic);
     return AnimatedBuilder(
       animation: curve,
       builder: (_, __) {
         final t = curve.value;
         final radius = ui.lerpDouble(0.06, 1.20, t)!;
-        final fade = CurvedAnimation(parent: controller, curve: Curves.easeOut).value;
+        final fade =
+            CurvedAnimation(parent: controller, curve: Curves.easeOut).value;
         return Stack(
           fit: StackFit.expand,
           children: [
@@ -843,8 +879,7 @@ class _RippleRing extends StatelessWidget {
   final Alignment center;
   const _RippleRing({required this.progress, required this.center});
   @override
-  Widget build(BuildContext context) =>
-      CustomPaint(
+  Widget build(BuildContext context) => CustomPaint(
         painter: _RippleRingPainter(progress: progress, center: center),
         size: Size.infinite,
       );
@@ -858,7 +893,8 @@ class _RippleRingPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (progress <= 0) return;
-    final c = Offset(size.width * (center.x * 0.5 + 0.5), size.height * (center.y * 0.5 + 0.5));
+    final c = Offset(size.width * (center.x * 0.5 + 0.5),
+        size.height * (center.y * 0.5 + 0.5));
     final maxR = size.longestSide * 0.9;
     final r = ui.lerpDouble(20, maxR, Curves.easeOut.transform(progress))!;
     final w = ui.lerpDouble(6, 1, progress)!;
@@ -879,8 +915,7 @@ class _TinySpecks extends StatelessWidget {
   final Alignment center;
   const _TinySpecks({required this.progress, required this.center});
   @override
-  Widget build(BuildContext context) =>
-      IgnorePointer(
+  Widget build(BuildContext context) => IgnorePointer(
         child: CustomPaint(
           painter: _SpeckPainter(progress: progress, center: center),
           size: Size.infinite,
@@ -892,18 +927,20 @@ class _SpeckPainter extends CustomPainter {
   final double progress;
   final Alignment center;
   static const _count = 26;
-  final List<Offset> _seeds =
-      List.generate(_count, (i) => Offset(math.cos(i) * (i + 1), math.sin(i) * (i + 1)));
+  final List<Offset> _seeds = List.generate(
+      _count, (i) => Offset(math.cos(i) * (i + 1), math.sin(i) * (i + 1)));
 
   _SpeckPainter({required this.progress, required this.center});
 
   @override
   void paint(Canvas canvas, Size size) {
     if (progress <= 0.05 || progress >= 0.95) return;
-    final origin = Offset(size.width * (center.x * 0.5 + 0.5), size.height * (center.y * 0.5 + 0.5));
+    final origin = Offset(size.width * (center.x * 0.5 + 0.5),
+        size.height * (center.y * 0.5 + 0.5));
     final rng = math.Random(7);
     final spread = ui.lerpDouble(8, size.longestSide * 0.55, progress)!;
-    final alpha = (ui.lerpDouble(0.65, 0.0, progress)! * 255).clamp(0, 255).toInt();
+    final alpha =
+        (ui.lerpDouble(0.65, 0.0, progress)! * 255).clamp(0, 255).toInt();
     final paint = Paint()
       ..color = Colors.white.withAlpha(alpha)
       ..style = PaintingStyle.fill;

@@ -3,10 +3,8 @@ name: ci
 on:
   pull_request:
     branches: [main, develop]
-    types: [opened, synchronize, reopened, ready_for_review]
   push:
     branches: [main, develop]
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -19,7 +17,7 @@ jobs:
   ci:
     name: ci
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,7 +38,7 @@ jobs:
         run: flutter analyze
 
       - name: Run tests
-        run: flutter test --machine
+        run: flutter test
 
       - name: Build web
         run: flutter build web --release

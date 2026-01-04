@@ -6,27 +6,25 @@
 }
 
 android {
-    // Namespace must be declared here (NOT in AndroidManifest.xml)
     namespace = "com.nicaraguaninaverde.theapp"
 
-    // Use Flutterâ€™s provided SDK/NDK values
+    // Use Flutter’s provided SDK/NDK values
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
+    // ✅ Keep Java 8 for maximum plugin compatibility (fixes JVM target mismatch)
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 
+    // ✅ Kotlin target matches Java target
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
+        jvmTarget = "1.8"
     }
 
     defaultConfig {
-        // Application ID (separate from namespace)
         applicationId = "com.nicaraguaninaverde.theapp"
-
-        // SDK levels and versioning passed through from Flutter
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -35,15 +33,11 @@ android {
 
     buildTypes {
         debug {
-            // Debug builds should NOT shrink or obfuscate
             isMinifyEnabled = false
             isShrinkResources = false
         }
         release {
-            // You can replace this with a proper release signing config later
             signingConfig = signingConfigs.getByName("debug")
-
-            // Enable code + resource shrinking for optimized release builds
             isMinifyEnabled = true
             isShrinkResources = true
 
@@ -58,5 +52,3 @@ android {
 flutter {
     source = "../.."
 }
-
-

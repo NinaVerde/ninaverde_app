@@ -64,8 +64,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '615971922286',
     projectId: 'e-commerce-nina-verde-vy-451f6',
     storageBucket: 'e-commerce-nina-verde-vy-451f6.firebasestorage.app',
-    androidClientId: '615971922286-00shfu8caqeophjnov67tt23obp5qucs.apps.googleusercontent.com',
-    iosClientId: '615971922286-227liageocvlmd4elaa1tn3jhrojtrl6.apps.googleusercontent.com',
+    androidClientId:
+        '615971922286-00shfu8caqeophjnov67tt23obp5qucs.apps.googleusercontent.com',
+    iosClientId:
+        '615971922286-227liageocvlmd4elaa1tn3jhrojtrl6.apps.googleusercontent.com',
     iosBundleId: 'com.nicaraguaninaverde.theapp',
   );
 
@@ -75,8 +77,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '615971922286',
     projectId: 'e-commerce-nina-verde-vy-451f6',
     storageBucket: 'e-commerce-nina-verde-vy-451f6.firebasestorage.app',
-    androidClientId: '615971922286-00shfu8caqeophjnov67tt23obp5qucs.apps.googleusercontent.com',
-    iosClientId: '615971922286-u8pgdiie70hqas7s03dh4fp8ndb3u4g4.apps.googleusercontent.com',
+    androidClientId:
+        '615971922286-00shfu8caqeophjnov67tt23obp5qucs.apps.googleusercontent.com',
+    iosClientId:
+        '615971922286-u8pgdiie70hqas7s03dh4fp8ndb3u4g4.apps.googleusercontent.com',
     iosBundleId: 'com.example.ninaverdeApp',
   );
 

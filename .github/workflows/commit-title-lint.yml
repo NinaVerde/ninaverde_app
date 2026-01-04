@@ -1,4 +1,4 @@
-﻿name: PR title lint
+name: PR title lint
 
 on:
   pull_request_target:
