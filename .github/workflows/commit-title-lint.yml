@@ -2,12 +2,10 @@
 
 on:
   pull_request_target:
-    types: [opened, edited, synchronize, reopened, ready_for_review]
+    types: [opened, edited, synchronize, reopened]
 
 permissions:
-  contents: read
-  pull-requests: write
-  issues: write
+  pull-requests: read
 
 jobs:
   lint:
@@ -30,18 +28,3 @@ jobs:
           requireScope: false
           subjectPattern: ".+"
           subjectPatternError: "PR title must include a subject after the type, e.g. `chore: update CI`"
-
-  comment:
-    name: comment
-    needs: lint
-    if: ${{ always() && needs.lint.result == 'failure' }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: thollander/actions-comment-pull-request@v2
-        with:
-          message: |
-            **PR title check** found an issue.
-            Please rename to Conventional Commits style, e.g.:
-            - `feat: add profile page`
-            - `fix: handle null token`
-            - `chore: update CI`
