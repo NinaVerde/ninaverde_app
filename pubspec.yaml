@@ -12,6 +12,9 @@ dependencies:
   # UI / Icons
   cupertino_icons: ^1.0.8
   font_awesome_flutter: ^10.7.0
+  cached_network_image: ^3.3.1
+  provider: ^6.1.2
+  shimmer: ^3.0.0
 
   # Core / Utils
   url_launcher: ^6.3.2
