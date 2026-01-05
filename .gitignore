@@ -51,3 +51,6 @@ app.*.map.json
 *.bak-*
 *.kts.bak_*
 *.dart.bak*
+
+# FVM Version Cache
+.fvm/
