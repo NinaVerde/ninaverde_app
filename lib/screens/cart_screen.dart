@@ -106,10 +106,10 @@ class CartScreen extends StatelessWidget {
                     onPressed: () {
                       // Checkout logic here
                     },
-                    child: const Text('Checkout'),
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 50),
                     ),
+                    child: const Text('Checkout'),
                   ),
                 )
               ],

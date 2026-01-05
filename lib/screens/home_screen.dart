@@ -1,4 +1,4 @@
-
+// lib/screens/home_screen.dart
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,7 +14,7 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
@@ -53,13 +53,15 @@ class _HomeScreenState extends State<HomeScreen> {
               actions: [
                 Consumer<CartProvider>(
                   builder: (_, cart, ch) => Badge(
-                    label: Text(cart.itemCount.toString()),
-                    child: ch,
+                    value: cart.itemCount.toString(),
+                    child: ch ?? const SizedBox.shrink(),
                   ),
                   child: IconButton(
                     icon: const Icon(Icons.shopping_cart),
                     onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => const CartScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => const CartScreen(),
+                      ),
                     ),
                   ),
                 ),
@@ -170,24 +172,31 @@ class _HomeScreenState extends State<HomeScreen> {
           return _buildProductGridShimmer(theme);
         }
         if (snapshot.hasError) {
-          return SliverToBoxAdapter(child: Center(child: Text('Error: ${snapshot.error}')));
+          return SliverToBoxAdapter(
+              child: Center(child: Text('Error: ${snapshot.error}')));
         }
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const SliverToBoxAdapter(child: Center(child: Text('No products found')));
+          return const SliverToBoxAdapter(
+              child: Center(child: Text('No products found')));
         }
 
         var products = snapshot.data!;
 
         if (_searchQuery.isNotEmpty) {
-          products = products.where((p) => p.name.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
+          products = products
+              .where((p) =>
+                  p.name.toLowerCase().contains(_searchQuery.toLowerCase()))
+              .toList();
         }
 
         if (_selectedCategory != 'All') {
-          products = products.where((p) => p.category == _selectedCategory).toList();
+          products =
+              products.where((p) => p.category == _selectedCategory).toList();
         }
 
         if (products.isEmpty) {
-          return const SliverToBoxAdapter(child: Center(child: Text('No products match your search')));
+          return const SliverToBoxAdapter(
+              child: Center(child: Text('No products match your search')));
         }
 
         return SliverGrid(
@@ -233,7 +242,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(width: double.infinity, height: 16, color: Colors.white),
+                        Container(
+                            width: double.infinity,
+                            height: 16,
+                            color: Colors.white),
                         const SizedBox(height: 5),
                         Container(width: 100, height: 14, color: Colors.white),
                       ],
@@ -272,7 +284,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   placeholder: (context, url) => Container(
                     color: Colors.grey[300],
                   ),
-                  errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.red),
+                  errorWidget: (context, url, error) =>
+                      const Icon(Icons.error, color: Colors.red),
                 ),
               ),
             ),
@@ -299,6 +312,9 @@ class _HomeScreenState extends State<HomeScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4.0),
               child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 36),
+                ),
                 onPressed: () {
                   cart.addItem(product);
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -309,9 +325,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 },
                 child: const Text('Add'),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 36),
-                ),
               ),
             ),
           ],
@@ -321,13 +334,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-
 class Badge extends StatelessWidget {
-  final Widget child;
   final String value;
+  final Widget child;
   final Color? color;
 
-  const Badge({Key? key, required this.child, required this.value, this.color}) : super(key: key);
+  const Badge({Key? key, required this.value, required this.child, this.color})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
