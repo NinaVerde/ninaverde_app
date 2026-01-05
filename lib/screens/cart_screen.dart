@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
@@ -28,7 +27,8 @@ class CartScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.shopping_cart_outlined, size: 80, color: Colors.grey),
+                  Icon(Icons.shopping_cart_outlined,
+                      size: 80, color: Colors.grey),
                   const SizedBox(height: 16),
                   Text(
                     'Your cart is empty',
@@ -45,7 +45,8 @@ class CartScreen extends StatelessWidget {
                     itemBuilder: (ctx, i) {
                       final cartItem = cart.items.values.toList()[i];
                       return Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 4),
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 15, vertical: 4),
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: ListTile(
@@ -54,22 +55,27 @@ class CartScreen extends StatelessWidget {
                               width: 50,
                               height: 50,
                               fit: BoxFit.cover,
-                              placeholder: (context, url) => const CircularProgressIndicator(),
-                              errorWidget: (context, url, error) => const Icon(Icons.error),
+                              placeholder: (context, url) =>
+                                  const CircularProgressIndicator(),
+                              errorWidget: (context, url, error) =>
+                                  const Icon(Icons.error),
                             ),
                             title: Text(cartItem.product.name),
-                            subtitle: Text('Subtotal: \$${cartItem.subtotal.toStringAsFixed(2)}'),
+                            subtitle: Text(
+                                'Subtotal: \$${cartItem.subtotal.toStringAsFixed(2)}'),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 IconButton(
                                   icon: const Icon(Icons.remove),
-                                  onPressed: () => cart.removeSingleItem(cartItem.product.id),
+                                  onPressed: () => cart
+                                      .removeSingleItem(cartItem.product.id),
                                 ),
                                 Text('${cartItem.quantity}'),
                                 IconButton(
                                   icon: const Icon(Icons.add),
-                                  onPressed: () => cart.addItem(cartItem.product),
+                                  onPressed: () =>
+                                      cart.addItem(cartItem.product),
                                 ),
                               ],
                             ),

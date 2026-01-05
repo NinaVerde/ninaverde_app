@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/product_model.dart';
 
@@ -20,7 +19,9 @@ class FirestoreService {
   }
 
   Stream<List<String>> getCategories() {
-    return _db.collection('categories').snapshots().map((snapshot) =>
-        snapshot.docs.map((doc) => doc.id).toList());
+    return _db
+        .collection('categories')
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => doc.id).toList());
   }
 }
