@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../models/product_model.dart';
 import '../services/firestore_service.dart';
 import '../providers/cart_provider.dart';
@@ -23,6 +24,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String _selectedCategory = 'All';
 
   late Future<List<String>> _categoriesFuture;
+  final GlobalKey _cartKey = GlobalKey();
+  final Map<String, GlobalKey> _productKeys = {};
 
   @override
   void initState() {
@@ -34,6 +37,57 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _categoriesFuture = _firestoreService.getCategories().first;
     });
+  }
+
+  void _runAddToCartAnimation(GlobalKey productKey) {
+    if (productKey.currentContext == null) return;
+    final RenderBox productBox =
+        productKey.currentContext!.findRenderObject() as RenderBox;
+    final RenderBox cartBox =
+        _cartKey.currentContext!.findRenderObject() as RenderBox;
+
+    final productPosition = productBox.localToGlobal(Offset.zero);
+    final cartPosition = cartBox.localToGlobal(Offset.zero);
+
+    final overlay = Overlay.of(context);
+    final entry = OverlayEntry(
+      builder: (context) {
+        return _buildAddToCartAnimation(
+            productPosition, cartPosition, productBox.size);
+      },
+    );
+
+    overlay.insert(entry);
+    Timer(const Duration(milliseconds: 800), () => entry.remove());
+  }
+
+  Widget _buildAddToCartAnimation(
+      Offset start, Offset end, Size productSize) {
+    return TweenAnimationBuilder(
+      tween: Tween<double>(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 800),
+      builder: (context, value, child) {
+        final position = Offset.lerp(start, end, value)!;
+        final size = Size.lerp(productSize, const Size(24, 24), value)!;
+
+        return Positioned(
+          left: position.dx,
+          top: position.dy,
+          child: Opacity(
+            opacity: 1.0 - (value * 0.5),
+            child: Container(
+              width: size.width,
+              height: size.height,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.secondary,
+                borderRadius: BorderRadius.circular(size.width / 2),
+              ),
+              child: const Icon(Icons.shopping_bag, color: Colors.white, size: 14),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -53,8 +107,9 @@ class _HomeScreenState extends State<HomeScreen> {
               actions: [
                 Consumer<CartProvider>(
                   builder: (_, cart, ch) => Badge(
+                    key: _cartKey,
                     value: cart.itemCount.toString(),
-                    child: ch ?? const SizedBox.shrink(),
+                    child: ch!,
                   ),
                   child: IconButton(
                     icon: const Icon(Icons.shopping_cart),
@@ -180,41 +235,49 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Center(child: Text('No products found')));
         }
 
-        var products = snapshot.data!;
-
-        if (_searchQuery.isNotEmpty) {
-          products = products
-              .where((p) =>
-                  p.name.toLowerCase().contains(_searchQuery.toLowerCase()))
-              .toList();
+        var allProducts = snapshot.data!;
+        for (var p in allProducts) {
+          _productKeys.putIfAbsent(p.id, () => GlobalKey());
         }
 
-        if (_selectedCategory != 'All') {
-          products =
-              products.where((p) => p.category == _selectedCategory).toList();
-        }
+        final filteredProducts = allProducts.where((p) {
+          final matchesCategory = _selectedCategory == 'All' || p.category == _selectedCategory;
+          final matchesSearch = _searchQuery.isEmpty || p.name.toLowerCase().contains(_searchQuery.toLowerCase());
+          return matchesCategory && matchesSearch;
+        }).toList();
 
-        if (products.isEmpty) {
+        if (filteredProducts.isEmpty) {
           return const SliverToBoxAdapter(
               child: Center(child: Text('No products match your search')));
         }
 
-        return SliverGrid(
+        return SliverAnimatedGrid(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             childAspectRatio: 0.75,
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
           ),
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              final product = products[index];
-              return _buildProductCard(theme, product);
-            },
-            childCount: products.length,
-          ),
+          initialItemCount: filteredProducts.length,
+          itemBuilder: (context, index, animation) {
+            final product = filteredProducts[index];
+            return _buildAnimatedProductCard(theme, product, animation);
+          },
         );
       },
+    );
+  }
+  
+  Widget _buildAnimatedProductCard(ThemeData theme, Product product, Animation<double> animation) {
+    return FadeTransition(
+      opacity: animation,
+      child: SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0, 0.3),
+          end: Offset.zero,
+        ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
+        child: _buildProductCard(theme, product),
+      ),
     );
   }
 
@@ -263,6 +326,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildProductCard(ThemeData theme, Product product) {
     final cart = Provider.of<CartProvider>(context, listen: false);
+    final productKey = _productKeys[product.id]!;
+
     return GestureDetector(
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute(
@@ -270,6 +335,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       child: Card(
+        key: productKey,
         clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -317,6 +383,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 onPressed: () {
                   cart.addItem(product);
+                  _runAddToCartAnimation(productKey);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Added ${product.name} to cart'),
