@@ -1,10 +1,9 @@
 // lib/screens/document_webview.dart
-import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:webview_flutter_android/webview_flutter_android.dart';
-import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
+import 'package:provider/provider.dart';
+
+import '../main.dart'; // AppState + NvAppBar
 
 class DocumentWebView extends StatefulWidget {
   final String titleEn;
@@ -26,32 +25,12 @@ class DocumentWebView extends StatefulWidget {
 
 class _DocumentWebViewState extends State<DocumentWebView> {
   late final WebViewController _controller;
+  String _htmlContent = '';
+  bool _isLoading = true;
 
   @override
-  void initState() {
-    super.initState();
-
-    late final PlatformWebViewControllerCreationParams params;
-    if (WebViewPlatform.instance is WebKitWebViewPlatform) {
-      params = const PlatformWebViewControllerCreationParams();
-    } else {
-      params = const PlatformWebViewControllerCreationParams();
-    }
-
-    final controller = WebViewController.fromPlatformCreationParams(params)
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(Colors.white)
-      ..setNavigationDelegate(NavigationDelegate(
-        onNavigationRequest: (req) => NavigationDecision.navigate,
-      ));
-
-    // ✅ Enable iOS-specific features
-    if (controller.platform is WebKitWebViewController) {
-      final iosController = controller.platform as WebKitWebViewController;
-      iosController.setAllowsBackForwardNavigationGestures(true);
-    }
-
-    _controller = controller;
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     _loadLocalizedDoc();
   }
 
@@ -59,18 +38,45 @@ class _DocumentWebViewState extends State<DocumentWebView> {
     final locale = Localizations.localeOf(context).languageCode;
     final path = locale == 'es' ? widget.assetEs : widget.assetEn;
 
-    final html = await DefaultAssetBundle.of(context).loadString(path);
-    await _controller.loadHtmlString(html, baseUrl: 'asset:///$path');
+    try {
+      final html = await DefaultAssetBundle.of(context).loadString(path);
+      if (mounted) {
+        setState(() {
+          _htmlContent = html;
+          _controller.loadHtmlString(_htmlContent);
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _htmlContent =
+              '<html><body><p>Error loading content.</p></body></html>';
+          _controller.loadHtmlString(_htmlContent);
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(Colors.transparent);
   }
 
   @override
   Widget build(BuildContext context) {
-    final locale = Localizations.localeOf(context).languageCode;
-    final title = locale == 'es' ? widget.titleEs : widget.titleEn;
+    final appState = context.watch<AppState>();
+    final title = appState.isSpanish.value ? widget.titleEs : widget.titleEn;
 
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: WebViewWidget(controller: _controller),
+      appBar: NvAppBar(title: title),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : WebViewWidget(controller: _controller),
     );
   }
 }
