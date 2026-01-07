@@ -90,6 +90,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -110,6 +112,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     key: _cartKey,
                     value: cart.itemCount.toString(),
                     child: ch!,
+                    value: cart.itemCount.toString(),
+                    child: ch ?? const SizedBox.shrink(),
                   ),
                   child: IconButton(
                     icon: const Icon(Icons.shopping_cart),
@@ -247,6 +251,28 @@ class _HomeScreenState extends State<HomeScreen> {
         }).toList();
 
         return SliverAnimatedGrid(
+        }
+
+        var products = snapshot.data!;
+
+        if (_searchQuery.isNotEmpty) {
+          products = products
+              .where((p) =>
+                  p.name.toLowerCase().contains(_searchQuery.toLowerCase()))
+              .toList();
+        }
+
+        if (_selectedCategory != 'All') {
+          products =
+              products.where((p) => p.category == _selectedCategory).toList();
+        }
+
+        if (products.isEmpty) {
+          return const SliverToBoxAdapter(
+              child: Center(child: Text('No products match your search')));
+        }
+
+        return SliverGrid(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             childAspectRatio: 0.75,
@@ -273,6 +299,17 @@ class _HomeScreenState extends State<HomeScreen> {
         ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
         child: _buildProductCard(theme, product),
       ),
+    );
+  }
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              final product = products[index];
+              return _buildProductCard(theme, product);
+            },
+            childCount: products.length,
+          ),
+        );
+      },
     );
   }
 
@@ -323,6 +360,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final cart = Provider.of<CartProvider>(context, listen: false);
     final productKey = _productKeys[product.id]!;
 
+
+  Widget _buildProductCard(ThemeData theme, Product product) {
+    final cart = Provider.of<CartProvider>(context, listen: false);
     return GestureDetector(
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute(
