@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
 
 // WebView (universal, with per-platform creation params)
 import 'package:webview_flutter/webview_flutter.dart';
@@ -19,6 +20,7 @@ import 'screens/document_webview.dart'
     show DocumentWebView; // standalone WebView screen
 import 'screens/contact_nina_verde_page.dart'
     show ContactNinaVerdePage; // <-- NEW: AI Contact page
+import 'providers/cart_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,7 +32,12 @@ Future<void> main() async {
   FirebaseFirestore.instance.settings =
       const Settings(persistenceEnabled: true);
 
-  runApp(const NinaVerdeApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => CartProvider(),
+      child: const NinaVerdeApp(),
+    ),
+  );
 }
 
 /// ---------- Global app state ----------
