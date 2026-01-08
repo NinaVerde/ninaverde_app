@@ -524,15 +524,13 @@ class _LoginScreenState extends State<LoginScreen>
 
     final yt = YoutubePlayerController.fromVideoId(
       videoId: id,
+      autoPlay: true,
       params: const YoutubePlayerParams(
         playsInline: true,
         showFullscreenButton: true,
         strictRelatedVideos: true,
       ),
     );
-
-    // Start playback after first build
-    WidgetsBinding.instance.addPostFrameCallback((_) => yt.playVideo());
 
     final ctrl = AnimationController(
       vsync: this,
@@ -626,10 +624,11 @@ class _LoginScreenState extends State<LoginScreen>
     if (u.host.contains('youtu.be') && u.pathSegments.isNotEmpty) {
       return u.pathSegments.first;
     }
-    // youtube.com/watch?v=<id> (and shorts/<id>)
-    if (u.host.contains('youtube.com')) {
-      final shorts = u.pathSegments;
-      if (shorts.length >= 2 && shorts[0] == 'shorts') return shorts[1];
+    // youtube.com/watch?v=<id> (and shorts/<id>, embed/<id>)
+    if (u.host.contains('youtube.com') || u.host.contains('youtube-nocookie')) {
+      final segments = u.pathSegments;
+      if (segments.length >= 2 && segments[0] == 'shorts') return segments[1];
+      if (segments.length >= 2 && segments[0] == 'embed') return segments[1];
       return u.queryParameters['v'];
     }
     // raw id
