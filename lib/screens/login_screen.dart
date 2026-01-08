@@ -118,44 +118,44 @@ class _LoginScreenState extends State<LoginScreen>
     final es = AppState.of(context).isSpanish.value;
 
     const esMap = {
-      'title': 'Nia Verde  Iniciar sesin',
+      'title': 'Iniciar sesión',
       'email': 'Correo',
-      'password': 'Contrasea',
-      'login': 'Acceder',
-      'forgot': 'Olvidaste tu contrasea?',
+      'password': 'Contraseña',
+      'login': 'Iniciar sesión',
+      'forgot': '¿Olvidaste tu contraseña?',
       'google': 'Google',
       'facebook': 'Facebook',
       'apple': 'Apple',
       'microsoft': 'Microsoft',
       'guest': 'Continuar como invitado',
-      'noAccount': 'No tienes cuenta? Regstrate!',
-      'contact': 'Contctenos',
-      'privacy': 'Poltica de Privacidad',
-      'deletion': 'Eliminacin de Datos',
+      'noAccount': '¿No tienes cuenta? Regístrate!',
+      'contact': 'Contáctenos',
+      'privacy': 'Política de Privacidad',
+      'deletion': 'Eliminación de Datos',
       'show': 'Mostrar',
       'hide': 'Ocultar',
       'enter_email': 'Ingresa tu correo',
-      'enter_password': 'Ingresa tu contrasea',
-      'reset_title': 'Restablecer contrasea',
+      'enter_password': 'Ingresa tu contraseña',
+      'reset_title': 'Restablecer contraseña',
       'send': 'Enviar',
       'cancel': 'Cancelar',
       'reset_sent': 'Correo de restablecimiento enviado.',
-      'err_invalid_email': 'Correo invlido.',
+      'err_invalid_email': 'Correo inválido.',
       'err_user_not_found': 'No existe un usuario con ese correo.',
-      'err_wrong_password': 'Contrasea incorrecta.',
+      'err_wrong_password': 'Contraseña incorrecta.',
       'err_network': 'Error de red. Intenta de nuevo.',
-      'err_generic': 'Error al iniciar sesin',
+      'err_generic': 'Error al iniciar sesión.',
       'fb_no_email':
-          'No recibimos tu email de Facebook. Por favor, otorga el permiso de email.',
-      'fb_cancelled': 'Inicio de sesin con Facebook cancelado.',
-      'play_video': 'Reproducir video de introduccin',
-      'or_rapid': 'Inicio rpido con',
-      'video_url_hint': 'Pega URL de YouTube (https://youtu.be/ o watch?v=)',
-      'logo_url_hint': 'Pega URL del logo (https:// .png/.jpg)',
+          'No recibimos tu correo electrónico de Facebook. Por favor, otorga el permiso de correo electrónico.',
+      'fb_cancelled': 'Inicio de sesión con Facebook cancelado.',
+      'play_video': 'Reproducir video de introducción',
+      'or_rapid': 'O inicia sesión con',
+      'video_url_hint': 'Pega la URL de YouTube (https://youtu.be/ o watch?v=)',
+      'logo_url_hint': 'Pega la URL del logo (https:// .png/.jpg)',
       // Popup dialog:
-      'popup_title': 'Configuracin del Popup',
+      'popup_title': 'Configuración del popup',
       'yt_label': 'URL de YouTube',
-      'logo_label': 'URL del Logo (opcional)',
+      'logo_label': 'URL del logo (opcional)',
       'save_btn': 'Guardar',
       'saving_btn': 'Guardando',
       'make_default_btn': 'Hacer predeterminado',
@@ -166,10 +166,10 @@ class _LoginScreenState extends State<LoginScreen>
     };
 
     const enMap = {
-      'title': 'Nia Verde  Sign In',
+      'title': 'Login',
       'email': 'Email',
       'password': 'Password',
-      'login': 'Login',
+      'login': 'Log in',
       'forgot': 'Forgot password?',
       'google': 'Google',
       'facebook': 'Facebook',
@@ -197,7 +197,7 @@ class _LoginScreenState extends State<LoginScreen>
           'We did not receive your Facebook email. Please ensure the email permission is granted.',
       'fb_cancelled': 'Facebook sign-in cancelled.',
       'play_video': 'Play intro video',
-      'or_rapid': 'Or Rapid Sign In With',
+      'or_rapid': 'Or sign in with',
       'video_url_hint': 'Paste YouTube URL (https://youtu.be/ or watch?v=)',
       'logo_url_hint': 'Paste logo image URL (https:// .png/.jpg)',
       // Popup dialog:
@@ -914,6 +914,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 final idx = s.lastIndexOf(' ');
                                 if (idx <= 0) return Text(s);
                                 final left = s.substring(0, idx + 1);
+                                final right = s.substring(idx + 1);
                                 return RichText(
                                   text: TextSpan(
                                     style: DefaultTextStyle.of(ctx)
@@ -921,10 +922,10 @@ class _LoginScreenState extends State<LoginScreen>
                                         .copyWith(fontWeight: FontWeight.w700),
                                     children: [
                                       TextSpan(text: left),
-                                      const TextSpan(
-                                        text: 'Regstrate!',
+                                      TextSpan(
+                                        text: right,
                                         style:
-                                            TextStyle(color: kNvAccentOrange),
+                                            const TextStyle(color: kNvAccentOrange),
                                       ),
                                     ],
                                   ),
