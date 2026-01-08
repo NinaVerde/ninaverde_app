@@ -72,11 +72,7 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
   _Phase _phase = _Phase.introLogo;
   bool _navigated = false;
 
-  // Final whoosh guard
-  bool _finalWhooshSent = false;
-
   // Watchdog so "video" phase can’t hang
-  DateTime? _videoPhaseStart;
   Timer? _videoWatchdog;
 
   @override
@@ -90,7 +86,7 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
       ..setLooping(false)
       ..initialize().then((_) async {
         try {
-          await _video.setVolume(1.0);
+          await _video.setVolume(0.4);
         } catch (_) {}
         if (mounted) setState(() => _videoReady = true);
       });
@@ -124,7 +120,7 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
       await p.setReleaseMode(ReleaseMode.stop);
       await p.setPlayerMode(PlayerMode.lowLatency);
       await p.play(
-        AssetSource('videos/648538__audiopapkin__cinematic-woosh-sfx-001.wav'),
+        AssetSource('audio/648538__audiopapkin__cinematic-woosh-sfx-001.wav'),
         volume: volume.clamp(0.0, 1.0),
       );
     } catch (_) {}
@@ -145,33 +141,33 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
     _introLogoCtrl.reset();
 
     // FLASH 0 (NV) — intro → POWERED
-    await _playWhoosh(1.0);
     setState(() => _phase = _Phase.flash0);
     await _flash0.forward();
     _flash0.reset();
 
     // POWERED (holds)
     setState(() => _phase = _Phase.powered);
+    unawaited(_playWhoosh(1.0));
     await Future.delayed(poweredDuration);
 
     // FLASH 1 (Biz) — POWERED → BY
-    await _playWhoosh(1.0);
     setState(() => _phase = _Phase.flash1);
     await _flash1.forward();
     _flash1.reset();
 
     // BY (holds)
     setState(() => _phase = _Phase.by);
+    unawaited(_playWhoosh(1.0));
     await Future.delayed(byDuration);
 
     // FLASH 2 (Biz) — BY → Video
-    await _playWhoosh(1.0);
     setState(() => _phase = _Phase.flash2);
     await _flash2.forward();
     _flash2.reset();
 
     // Video
     setState(() => _phase = _Phase.video);
+    unawaited(_playWhoosh(1.0));
     if (_videoReady) {
       _enterVideoPhase();
     } else {
@@ -182,9 +178,6 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
   }
 
   void _enterVideoPhase() {
-    _finalWhooshSent = false;
-    _videoPhaseStart = DateTime.now();
-
     // Kick playback + bloom
     try {
       _video.play();
@@ -217,13 +210,6 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
         if (dur > Duration.zero) {
           final remain = dur - pos;
 
-          // Final whoosh ~1.0s before the wipe
-          if (!_finalWhooshSent &&
-              remain <= const Duration(milliseconds: 1000)) {
-            _finalWhooshSent = true;
-            unawaited(_playWhoosh(1.0));
-          }
-
           // Start final reveal near the end
           if (remain <= const Duration(milliseconds: 140)) {
             break;
@@ -242,7 +228,7 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
     _videoWatchdog?.cancel();
     _videoWatchdog = null;
 
-    // Do NOT replay whoosh here; it already fired ~1s earlier.
+    unawaited(_playWhoosh(1.0));
     setState(() => _phase = _Phase.finalReveal);
     await _finalReveal.forward();
     _finalReveal.reset();
@@ -296,9 +282,6 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
                   controller: _video,
                   scale: _videoScale,
                   glowStrength: _videoGlow,
-                  baseWidthFactor: 0.78,
-                  enlarge: 1.5, // +50%
-                  maxWidthFactor: 0.98,
                   verticalOffset: -0.02, // slight lift
                 ),
               _Phase.flash0 ||
@@ -337,7 +320,7 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
               _FinalBurstReveal(
                 controller: _finalReveal,
                 login: loginPreview,
-                center: Alignment.center,
+                center: const Alignment(0.0, -0.32),
                 coreColor: Colors.white,
                 tintInner: kNvOrange,
                 tintOuter: kNvGreenDark.withOpacity(0.75),
@@ -582,23 +565,17 @@ class _TitleCardState extends State<_TitleCard>
   }
 }
 
-// Video stage with +50% enlarge and trimmed end matte (no center scrub)
+// Video stage with fullscreen cover and trimmed end matte (no center scrub)
 class _VideoStage extends StatefulWidget {
   final VideoPlayerController controller;
   final Animation<double> scale;
   final Animation<double> glowStrength;
-  final double baseWidthFactor;
-  final double enlarge;
-  final double maxWidthFactor;
   final double verticalOffset;
 
   const _VideoStage({
     required this.controller,
     required this.scale,
     required this.glowStrength,
-    this.baseWidthFactor = 0.78,
-    this.enlarge = 1.5,
-    this.maxWidthFactor = 0.98,
     this.verticalOffset = -0.02,
     Key? key,
   }) : super(key: key);
@@ -655,12 +632,7 @@ class _VideoStageState extends State<_VideoStage> {
     if (!v.isInitialized)
       return const Center(child: CircularProgressIndicator.adaptive());
 
-    final vidSize = v.size;
     final screen = MediaQuery.of(context).size;
-
-    final desiredW = screen.width * widget.baseWidthFactor * widget.enlarge;
-    final targetW = desiredW.clamp(0.0, screen.width * widget.maxWidthFactor);
-    final targetH = targetW * (vidSize.height / vidSize.width);
 
     return Container(
       color: Colors.black,
@@ -675,12 +647,19 @@ class _VideoStageState extends State<_VideoStage> {
                 offset: Offset(0, screen.height * widget.verticalOffset),
                 child: Transform.scale(
                   scale: widget.scale.value,
-                  child: SizedBox(
-                    width: targetW,
-                    height: targetH,
+                  child: SizedBox.expand(
                     child: Stack(
                       children: [
-                        Positioned.fill(child: VideoPlayer(widget.controller)),
+                        Positioned.fill(
+                          child: FittedBox(
+                            fit: BoxFit.cover,
+                            child: SizedBox(
+                              width: v.size.width,
+                              height: v.size.height,
+                              child: VideoPlayer(widget.controller),
+                            ),
+                          ),
+                        ),
 
                         // very subtle radial edge matte (kept away from logo center)
                         const IgnorePointer(
@@ -709,7 +688,7 @@ class _VideoStageState extends State<_VideoStage> {
                             child: Align(
                               alignment: Alignment.bottomCenter,
                               child: Container(
-                                height: targetH * 0.16, // was 0.22
+                                height: screen.height * 0.16, // was 0.22
                                 decoration: const BoxDecoration(
                                   gradient: LinearGradient(
                                     begin: Alignment.topCenter,
