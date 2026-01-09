@@ -124,14 +124,14 @@ class _DocumentWebViewState extends State<DocumentWebView> {
             gradient: LinearGradient(
               colors: isDark
                   ? [
-                      scaffoldBg,
-                      scheme.surface,
+                      AppState.nvGreenDark,
+                      AppState.nvDarkSurface,
                       Colors.black,
                     ]
                   : [
                       const Color(0xFFF6FFF6),
-                      scheme.surface,
-                      scheme.surfaceVariant,
+                      Theme.of(context).colorScheme.surface,
+                      const Color(0xFFE0F2E3),
                     ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
