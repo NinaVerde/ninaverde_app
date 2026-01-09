@@ -106,6 +106,8 @@ class _DocumentWebViewState extends State<DocumentWebView> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final backLabel = _t(context, 'back');
     final caption = _t(context, 'caption');
+    final scheme = Theme.of(context).colorScheme;
+    final scaffoldBg = Theme.of(context).scaffoldBackgroundColor;
     final targetAsset =
         appState.isSpanish.value ? widget.assetEs : widget.assetEn;
     if (targetAsset != _activeAsset) {
