@@ -22,6 +22,9 @@ import 'screens/contact_nina_verde_page.dart'
     show ContactNinaVerdePage; // <-- NEW: AI Contact page
 import 'providers/cart_provider.dart';
 
+const Color kNvGreenDark = Color(0xFF022F18);
+const Color kNvDarkSurface = Color(0xFF0B2C1E);
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -96,6 +99,9 @@ class AppState extends InheritedWidget {
 
   static AppState of(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<AppState>()!;
+
+  Color get nvGreenDark => kNvGreenDark;
+  Color get nvDarkSurface => kNvDarkSurface;
 
   @override
   bool updateShouldNotify(covariant AppState old) =>
@@ -180,10 +186,6 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
   final textDark = ValueNotifier<Color>(Colors.white);
 
   final isManager = ValueNotifier<bool>(true);
-
-  // Brand colors for themes
-  static const Color nvGreenDark = Color(0xFF022F18);
-  static const Color nvDarkSurface = Color(0xFF0B2C1E);
 
   // --------- Firestore persistence ----------
   static const _cfgCol = 'app_config';
@@ -331,7 +333,7 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
                 theme: ThemeData(
                   useMaterial3: true,
                   colorScheme: ColorScheme.fromSeed(
-                    seedColor: nvGreenDark,
+                    seedColor: kNvGreenDark,
                     surface: const Color(0xFFE9F6E9),
                   ),
                   appBarTheme: const AppBarTheme(centerTitle: true),
@@ -340,13 +342,13 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
                   useMaterial3: true,
                   brightness: Brightness.dark,
                   colorScheme: ColorScheme.fromSeed(
-                    seedColor: nvGreenDark,
+                    seedColor: kNvGreenDark,
                     brightness: Brightness.dark,
-                    surface: nvDarkSurface,
+                    surface: kNvDarkSurface,
                   ),
-                  scaffoldBackgroundColor: nvGreenDark,
+                  scaffoldBackgroundColor: kNvGreenDark,
                   appBarTheme: const AppBarTheme(
-                    backgroundColor: nvGreenDark,
+                    backgroundColor: kNvGreenDark,
                     centerTitle: true,
                   ),
                 ),
@@ -1388,16 +1390,6 @@ class _TickerSettingsPageState extends State<TickerSettingsPage>
       },
     );
   }
-}
-
-/// Centralized brand colors (fallback defaults)
-class _NinaVerdeColors {
-  static const nvGreenDark = Color(0xFF022F18);
-  static const nvOrange = Color(0xFFE8792F);
-
-  // Ticker-specific (from logo)
-  static const nvTickerOrange = Color(0xFFF3A70B); // #f3a70b
-  static const nvTickerBrown = Color(0xFFA24011); // #a24011
 }
 
 /// ===== Pop-up widget using WebView (fresh session each open) =====
