@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
 
 // WebView (universal, with per-platform creation params)
 import 'package:webview_flutter/webview_flutter.dart';
@@ -19,6 +20,7 @@ import 'screens/document_webview.dart'
     show DocumentWebView; // standalone WebView screen
 import 'screens/contact_nina_verde_page.dart'
     show ContactNinaVerdePage; // <-- NEW: AI Contact page
+import 'providers/cart_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,7 +32,12 @@ Future<void> main() async {
   FirebaseFirestore.instance.settings =
       const Settings(persistenceEnabled: true);
 
-  runApp(const NinaVerdeApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => CartProvider(),
+      child: const NinaVerdeApp(),
+    ),
+  );
 }
 
 /// ---------- Global app state ----------
@@ -66,6 +73,10 @@ class AppState extends InheritedWidget {
 
   /// Convenience: open the video pop-up
   final void Function(BuildContext ctx) openPip;
+
+  /// Brand colors shared across screens and themes.
+  static const Color nvGreenDark = Color(0xFF022F18);
+  static const Color nvDarkSurface = Color(0xFF0B2C1E);
 
   const AppState({
     super.key,
@@ -123,24 +134,24 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
 
   // ----- Default messages (EN) -----
   static List<String> _defaultsEn() => const [
-        "Naturally, Welcome to Nicaragua Niña Verde!",
-        "Login to collect points.",
+        "Naturally, welcome to Nicaragua Niña Verde!",
+        "Log in to collect points.",
         "Get exclusive offers.",
         "Earn rewards.",
         "Enjoy free services.",
         "Tune into the best entertainment.",
         "Engage the community.",
         "Catch the _VYBZ!_",
-        "Come for the food, Stay for the _VYBZ!_",
+        "Come for the food, stay for the _VYBZ!_",
       ];
 
   static List<String> _defaultsEsFromEn(List<String> en) {
     String tr(String s) {
       return s
-          .replaceAll("Naturally, Welcome to Nicaragua Niña Verde!",
+          .replaceAll("Naturally, welcome to Nicaragua Niña Verde!",
               "Naturalmente, ¡Bienvenido a Nicaragua Niña Verde!")
           .replaceAll(
-              "Login to collect points.", "Inicia sesión para acumular puntos.")
+              "Log in to collect points.", "Inicia sesión para acumular puntos.")
           .replaceAll("Get exclusive offers.", "Obtén ofertas exclusivas.")
           .replaceAll("Earn rewards.", "Gana recompensas.")
           .replaceAll("Enjoy free services.", "Disfruta servicios gratis.")
@@ -148,8 +159,8 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
               "Sintoniza el mejor entretenimiento.")
           .replaceAll("Engage the community.", "Participa en la comunidad.")
           .replaceAll("Catch the _VYBZ!_", "¡Atrapa el _VYBZ!_")
-          .replaceAll("Come for the food, Stay for the _VYBZ!_",
-              "Ven por la comida, quédate por el _VYBZ!");
+          .replaceAll("Come for the food, stay for the _VYBZ!_",
+              "Ven por la comida, quédate por el _VYBZ!_");
     }
 
     return en.map(tr).toList();
@@ -173,10 +184,6 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
   final textDark = ValueNotifier<Color>(Colors.white);
 
   final isManager = ValueNotifier<bool>(true);
-
-  // Brand colors for themes
-  static const Color nvGreenDark = Color(0xFF022F18);
-  static const Color nvDarkSurface = Color(0xFF0B2C1E);
 
   // --------- Firestore persistence ----------
   static const _cfgCol = 'app_config';
@@ -324,7 +331,7 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
                 theme: ThemeData(
                   useMaterial3: true,
                   colorScheme: ColorScheme.fromSeed(
-                    seedColor: nvGreenDark,
+                    seedColor: AppState.nvGreenDark,
                     surface: const Color(0xFFE9F6E9),
                   ),
                   appBarTheme: const AppBarTheme(centerTitle: true),
@@ -333,13 +340,13 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
                   useMaterial3: true,
                   brightness: Brightness.dark,
                   colorScheme: ColorScheme.fromSeed(
-                    seedColor: nvGreenDark,
+                    seedColor: AppState.nvGreenDark,
                     brightness: Brightness.dark,
-                    surface: nvDarkSurface,
+                    surface: AppState.nvDarkSurface,
                   ),
-                  scaffoldBackgroundColor: nvGreenDark,
+                  scaffoldBackgroundColor: AppState.nvGreenDark,
                   appBarTheme: const AppBarTheme(
-                    backgroundColor: nvGreenDark,
+                    backgroundColor: AppState.nvGreenDark,
                     centerTitle: true,
                   ),
                 ),
@@ -395,15 +402,15 @@ class NvAppBar extends StatelessWidget implements PreferredSizeWidget {
     const esMap = {
       'dark': 'Oscuro',
       'light': 'Claro',
-      'lang_tip_es': 'Cambiar a Inglés (mantener para ajustes)',
-      'lang_tip_en': 'Switch to Español (mantener para ajustes)',
+      'lang_tip_es': 'Cambiar a inglés (mantener para ajustes)',
+      'lang_tip_en': 'Cambiar a español (mantener para ajustes)',
       'cur_tip': 'Mantener para ajustes de moneda',
     };
     const enMap = {
       'dark': 'Dark',
       'light': 'Light',
       'lang_tip_es': 'Switch to English (long-press for settings)',
-      'lang_tip_en': 'Cambiar a Español (mantener para ajustes)',
+      'lang_tip_en': 'Switch to Spanish (long-press for settings)',
       'cur_tip': 'Long-press for currency settings',
     };
     return (es ? esMap : enMap)[key]!;
@@ -800,7 +807,7 @@ class CurrencySettingsPage extends StatelessWidget {
             value: 'NIO',
             groupValue: app.currencyCode.value,
             onChanged: (v) => app.currencyCode.value = v!,
-            title: const Text('NIO — Córdoba (Nicaragua)'),
+            title: const Text('NIO — Nicaraguan Córdoba'),
           ),
         ],
       ),
