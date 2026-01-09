@@ -33,6 +33,7 @@ class _LoginScreenState extends State<LoginScreen>
   final formKey = GlobalKey<FormState>();
   bool obscured = true;
   bool busy = false;
+  final Future<void> _googleInit = GoogleSignIn.instance.initialize();
 
   // --- Video & logo config (Firestore: app_config/video) ----
   static const _cfgCol = 'app_config';
@@ -248,9 +249,10 @@ class _LoginScreenState extends State<LoginScreen>
     setState(() => busy = true);
     try {
       final g = GoogleSignIn.instance;
+      await _googleInit;
 
       // New API: authenticate() replaces signIn/signInSilently
-      final account = await g.authenticate();
+      final account = await g.authenticate(scopeHint: const ['email']);
       if (account == null) return;
 
       // New API: authentication is sync (no await)

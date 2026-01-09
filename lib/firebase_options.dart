@@ -40,57 +40,68 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDtPEEwLdVQgjMqB1xVaiJ1ZX0bEhBtKk4',
-    appId: '1:615971922286:web:b83d41ce4213dc413e217f',
-    messagingSenderId: '615971922286',
-    projectId: 'e-commerce-nina-verde-vy-451f6',
-    authDomain: 'e-commerce-nina-verde-vy-451f6.firebaseapp.com',
-    storageBucket: 'e-commerce-nina-verde-vy-451f6.firebasestorage.app',
-    measurementId: 'G-ZPQPWYR9HK',
-  );
+  static FirebaseOptions get web => FirebaseOptions(
+        apiKey: _require('FIREBASE_WEB_API_KEY'),
+        appId: _require('FIREBASE_WEB_APP_ID'),
+        messagingSenderId: _require('FIREBASE_WEB_MESSAGING_SENDER_ID'),
+        projectId: _require('FIREBASE_WEB_PROJECT_ID'),
+        authDomain: _require('FIREBASE_WEB_AUTH_DOMAIN'),
+        storageBucket: _require('FIREBASE_WEB_STORAGE_BUCKET'),
+        measurementId: _optional('FIREBASE_WEB_MEASUREMENT_ID'),
+      );
 
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDtov3s_-0XQry_wX1MS_ow1I9MK2AhQss',
-    appId: '1:615971922286:android:935491395ef212d33e217f',
-    messagingSenderId: '615971922286',
-    projectId: 'e-commerce-nina-verde-vy-451f6',
-    storageBucket: 'e-commerce-nina-verde-vy-451f6.firebasestorage.app',
-  );
+  static FirebaseOptions get android => FirebaseOptions(
+        apiKey: _require('FIREBASE_ANDROID_API_KEY'),
+        appId: _require('FIREBASE_ANDROID_APP_ID'),
+        messagingSenderId: _require('FIREBASE_ANDROID_MESSAGING_SENDER_ID'),
+        projectId: _require('FIREBASE_ANDROID_PROJECT_ID'),
+        storageBucket: _require('FIREBASE_ANDROID_STORAGE_BUCKET'),
+      );
 
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCQkHpFANwFQN186QsNHsXu_js7pRkK7gc',
-    appId: '1:615971922286:ios:54f59fdef62cb6413e217f',
-    messagingSenderId: '615971922286',
-    projectId: 'e-commerce-nina-verde-vy-451f6',
-    storageBucket: 'e-commerce-nina-verde-vy-451f6.firebasestorage.app',
-    androidClientId:
-        '615971922286-00shfu8caqeophjnov67tt23obp5qucs.apps.googleusercontent.com',
-    iosClientId:
-        '615971922286-227liageocvlmd4elaa1tn3jhrojtrl6.apps.googleusercontent.com',
-    iosBundleId: 'com.nicaraguaninaverde.theapp',
-  );
+  static FirebaseOptions get ios => FirebaseOptions(
+        apiKey: _require('FIREBASE_IOS_API_KEY'),
+        appId: _require('FIREBASE_IOS_APP_ID'),
+        messagingSenderId: _require('FIREBASE_IOS_MESSAGING_SENDER_ID'),
+        projectId: _require('FIREBASE_IOS_PROJECT_ID'),
+        storageBucket: _require('FIREBASE_IOS_STORAGE_BUCKET'),
+        androidClientId: _optional('FIREBASE_IOS_ANDROID_CLIENT_ID'),
+        iosClientId: _optional('FIREBASE_IOS_CLIENT_ID'),
+        iosBundleId: _require('FIREBASE_IOS_BUNDLE_ID'),
+      );
 
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCQkHpFANwFQN186QsNHsXu_js7pRkK7gc',
-    appId: '1:615971922286:ios:555c3a35a92bd5e13e217f',
-    messagingSenderId: '615971922286',
-    projectId: 'e-commerce-nina-verde-vy-451f6',
-    storageBucket: 'e-commerce-nina-verde-vy-451f6.firebasestorage.app',
-    androidClientId:
-        '615971922286-00shfu8caqeophjnov67tt23obp5qucs.apps.googleusercontent.com',
-    iosClientId:
-        '615971922286-u8pgdiie70hqas7s03dh4fp8ndb3u4g4.apps.googleusercontent.com',
-    iosBundleId: 'com.example.ninaverdeApp',
-  );
+  static FirebaseOptions get macos => FirebaseOptions(
+        apiKey: _require('FIREBASE_MACOS_API_KEY'),
+        appId: _require('FIREBASE_MACOS_APP_ID'),
+        messagingSenderId: _require('FIREBASE_MACOS_MESSAGING_SENDER_ID'),
+        projectId: _require('FIREBASE_MACOS_PROJECT_ID'),
+        storageBucket: _require('FIREBASE_MACOS_STORAGE_BUCKET'),
+        androidClientId: _optional('FIREBASE_MACOS_ANDROID_CLIENT_ID'),
+        iosClientId: _optional('FIREBASE_MACOS_CLIENT_ID'),
+        iosBundleId: _require('FIREBASE_MACOS_BUNDLE_ID'),
+      );
 
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyCvBoGjWPzW_kmBOXnwQPLdTRx-tRij6Bo',
-    appId: '1:615971922286:web:c82169551a49eabb3e217f',
-    messagingSenderId: '615971922286',
-    projectId: 'e-commerce-nina-verde-vy-451f6',
-    authDomain: 'e-commerce-nina-verde-vy-451f6.firebaseapp.com',
-    storageBucket: 'e-commerce-nina-verde-vy-451f6.firebasestorage.app',
-    measurementId: 'G-1ZPNDRTZ88',
-  );
+  static FirebaseOptions get windows => FirebaseOptions(
+        apiKey: _require('FIREBASE_WINDOWS_API_KEY'),
+        appId: _require('FIREBASE_WINDOWS_APP_ID'),
+        messagingSenderId: _require('FIREBASE_WINDOWS_MESSAGING_SENDER_ID'),
+        projectId: _require('FIREBASE_WINDOWS_PROJECT_ID'),
+        authDomain: _require('FIREBASE_WINDOWS_AUTH_DOMAIN'),
+        storageBucket: _require('FIREBASE_WINDOWS_STORAGE_BUCKET'),
+        measurementId: _optional('FIREBASE_WINDOWS_MEASUREMENT_ID'),
+      );
+
+  static String _require(String key) {
+    final value = String.fromEnvironment(key);
+    if (value.isEmpty) {
+      throw StateError(
+        'Missing $key. Provide it via --dart-define or your build system.',
+      );
+    }
+    return value;
+  }
+
+  static String? _optional(String key) {
+    final value = String.fromEnvironment(key);
+    return value.isEmpty ? null : value;
+  }
 }
