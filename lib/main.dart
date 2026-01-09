@@ -22,6 +22,9 @@ import 'screens/contact_nina_verde_page.dart'
     show ContactNinaVerdePage; // <-- NEW: AI Contact page
 import 'providers/cart_provider.dart';
 
+const Color kNvGreenDark = Color(0xFF022F18);
+const Color kNvDarkSurface = Color(0xFF0B2C1E);
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -1388,16 +1391,6 @@ class _TickerSettingsPageState extends State<TickerSettingsPage>
       },
     );
   }
-}
-
-/// Centralized brand colors (fallback defaults)
-class _NinaVerdeColors {
-  static const nvGreenDark = Color(0xFF022F18);
-  static const nvOrange = Color(0xFFE8792F);
-
-  // Ticker-specific (from logo)
-  static const nvTickerOrange = Color(0xFFF3A70B); // #f3a70b
-  static const nvTickerBrown = Color(0xFFA24011); // #a24011
 }
 
 /// ===== Pop-up widget using WebView (fresh session each open) =====
