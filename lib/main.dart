@@ -77,6 +77,10 @@ class AppState extends InheritedWidget {
   /// Convenience: open the video pop-up
   final void Function(BuildContext ctx) openPip;
 
+  /// Brand colors shared across screens and themes.
+  static const Color nvGreenDark = Color(0xFF022F18);
+  static const Color nvDarkSurface = Color(0xFF0B2C1E);
+
   const AppState({
     super.key,
     required this.themeMode,
@@ -333,7 +337,7 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
                 theme: ThemeData(
                   useMaterial3: true,
                   colorScheme: ColorScheme.fromSeed(
-                    seedColor: kNvGreenDark,
+                    seedColor: AppState.nvGreenDark,
                     surface: const Color(0xFFE9F6E9),
                   ),
                   appBarTheme: const AppBarTheme(centerTitle: true),
@@ -342,13 +346,13 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
                   useMaterial3: true,
                   brightness: Brightness.dark,
                   colorScheme: ColorScheme.fromSeed(
-                    seedColor: kNvGreenDark,
+                    seedColor: AppState.nvGreenDark,
                     brightness: Brightness.dark,
-                    surface: kNvDarkSurface,
+                    surface: AppState.nvDarkSurface,
                   ),
-                  scaffoldBackgroundColor: kNvGreenDark,
+                  scaffoldBackgroundColor: AppState.nvGreenDark,
                   appBarTheme: const AppBarTheme(
-                    backgroundColor: kNvGreenDark,
+                    backgroundColor: AppState.nvGreenDark,
                     centerTitle: true,
                   ),
                 ),
