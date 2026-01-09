@@ -4,6 +4,8 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, kIsWeb, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
@@ -145,6 +147,12 @@ class _LoginScreenState extends State<LoginScreen>
       'err_wrong_password': 'Contrasea incorrecta.',
       'err_network': 'Error de red. Intenta de nuevo.',
       'err_generic': 'Error al iniciar sesin',
+      'err_provider_disabled':
+          'Este proveedor no est habilitado. Configralo en Firebase.',
+      'err_provider_unsupported':
+          'Este proveedor no es compatible en esta plataforma.',
+      'err_oauth_missing':
+          'Faltan credenciales OAuth. Configura el proveedor en Firebase.',
       'fb_no_email':
           'No recibimos tu email de Facebook. Por favor, otorga el permiso de email.',
       'fb_cancelled': 'Inicio de sesin con Facebook cancelado.',
@@ -193,6 +201,12 @@ class _LoginScreenState extends State<LoginScreen>
       'err_wrong_password': 'Wrong password.',
       'err_network': 'Network error. Try again.',
       'err_generic': 'Sign-in failed',
+      'err_provider_disabled':
+          'This provider is not enabled. Configure it in Firebase.',
+      'err_provider_unsupported':
+          'This provider is not supported on this platform.',
+      'err_oauth_missing':
+          'OAuth credentials are missing. Configure the provider in Firebase.',
       'fb_no_email':
           'We did not receive your Facebook email. Please ensure the email permission is granted.',
       'fb_cancelled': 'Facebook sign-in cancelled.',
@@ -247,21 +261,29 @@ class _LoginScreenState extends State<LoginScreen>
   Future<void> signInGoogle() async {
     setState(() => busy = true);
     try {
-      final g = GoogleSignIn.instance;
+      if (kIsWeb) {
+        await FirebaseAuth.instance.signInWithPopup(GoogleAuthProvider());
+      } else if (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS ||
+          defaultTargetPlatform == TargetPlatform.macOS) {
+        final g = GoogleSignIn.instance;
 
-      // New API: authenticate() replaces signIn/signInSilently
-      final account = await g.authenticate();
-      if (account == null) return;
+        // New API: authenticate() replaces signIn/signInSilently
+        final account = await g.authenticate();
+        if (account == null) return;
 
-      // New API: authentication is sync (no await)
-      final auth = account.authentication;
+        // New API: authentication is sync (no await)
+        final auth = account.authentication;
 
-      // Firebase accepts idToken; accessToken may not exist in this API version
-      final cred = GoogleAuthProvider.credential(
-        idToken: auth.idToken,
-      );
+        // Firebase accepts idToken; accessToken may not exist in this API version
+        final cred = GoogleAuthProvider.credential(
+          idToken: auth.idToken,
+        );
 
-      await FirebaseAuth.instance.signInWithCredential(cred);
+        await FirebaseAuth.instance.signInWithCredential(cred);
+      } else {
+        await FirebaseAuth.instance.signInWithProvider(GoogleAuthProvider());
+      }
       await UserService.upsertCurrentUser();
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, '/home');
@@ -277,33 +299,41 @@ class _LoginScreenState extends State<LoginScreen>
   Future<void> signInFacebook() async {
     setState(() => busy = true);
     try {
-      final result = await FacebookAuth.instance.login(
-        permissions: const ['public_profile', 'email'],
-      );
+      if (kIsWeb) {
+        await FirebaseAuth.instance.signInWithPopup(FacebookAuthProvider());
+      } else if (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS) {
+        final result = await FacebookAuth.instance.login(
+          permissions: const ['public_profile', 'email'],
+        );
 
-      if (result.status == LoginStatus.success) {
-        final token = result.accessToken!.tokenString; // v6+
-        final cred = FacebookAuthProvider.credential(token);
-        await FirebaseAuth.instance.signInWithCredential(cred);
+        if (result.status == LoginStatus.success) {
+          final token = result.accessToken!.tokenString; // v6+
+          final cred = FacebookAuthProvider.credential(token);
+          await FirebaseAuth.instance.signInWithCredential(cred);
 
-        // Optional: sanity check for email presence
-        final userData =
-            await FacebookAuth.instance.getUserData(fields: 'email,name');
-        final u = FirebaseAuth.instance.currentUser;
-        if ((u?.email == null || (u?.email ?? '').isEmpty) &&
-            (userData['email'] == null ||
-                (userData['email'] as String?)?.isEmpty == true)) {
-          _showSnack(t(context, 'fb_no_email'));
+          // Optional: sanity check for email presence
+          final userData =
+              await FacebookAuth.instance.getUserData(fields: 'email,name');
+          final u = FirebaseAuth.instance.currentUser;
+          if ((u?.email == null || (u?.email ?? '').isEmpty) &&
+              (userData['email'] == null ||
+                  (userData['email'] as String?)?.isEmpty == true)) {
+            _showSnack(t(context, 'fb_no_email'));
+          }
+        } else if (result.status == LoginStatus.cancelled) {
+          _showSnack(t(context, 'fb_cancelled'));
+          return;
+        } else {
+          throw result.message ?? 'Facebook login failed.';
         }
-
-        await UserService.upsertCurrentUser();
-        if (!mounted) return;
-        Navigator.pushReplacementNamed(context, '/home');
-      } else if (result.status == LoginStatus.cancelled) {
-        _showSnack(t(context, 'fb_cancelled'));
       } else {
-        throw result.message ?? 'Facebook login failed.';
+        await FirebaseAuth.instance.signInWithProvider(FacebookAuthProvider());
       }
+
+      await UserService.upsertCurrentUser();
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, '/home');
     } on FirebaseAuthException catch (e) {
       _showError(_firebaseMessage(e));
     } catch (e) {
@@ -317,23 +347,31 @@ class _LoginScreenState extends State<LoginScreen>
   Future<void> signInApple() async {
     setState(() => busy = true);
     try {
-      final rawNonce = _randomNonce();
-      final nonce = _sha256ofString(rawNonce);
+      if (kIsWeb) {
+        await FirebaseAuth.instance.signInWithPopup(OAuthProvider('apple.com'));
+      } else if (defaultTargetPlatform == TargetPlatform.iOS ||
+          defaultTargetPlatform == TargetPlatform.macOS) {
+        final rawNonce = _randomNonce();
+        final nonce = _sha256ofString(rawNonce);
 
-      final appleCred = await SignInWithApple.getAppleIDCredential(
-        scopes: [
-          AppleIDAuthorizationScopes.email,
-          AppleIDAuthorizationScopes.fullName
-        ],
-        nonce: nonce,
-      );
+        final appleCred = await SignInWithApple.getAppleIDCredential(
+          scopes: [
+            AppleIDAuthorizationScopes.email,
+            AppleIDAuthorizationScopes.fullName
+          ],
+          nonce: nonce,
+        );
 
-      final oauth = OAuthProvider('apple.com').credential(
-        idToken: appleCred.identityToken,
-        rawNonce: rawNonce,
-      );
+        final oauth = OAuthProvider('apple.com').credential(
+          idToken: appleCred.identityToken,
+          rawNonce: rawNonce,
+        );
 
-      await FirebaseAuth.instance.signInWithCredential(oauth);
+        await FirebaseAuth.instance.signInWithCredential(oauth);
+      } else {
+        await FirebaseAuth.instance
+            .signInWithProvider(OAuthProvider('apple.com'));
+      }
       await UserService.upsertCurrentUser();
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, '/home');
@@ -362,7 +400,12 @@ class _LoginScreenState extends State<LoginScreen>
         ..addScope('email')
         ..addScope('User.Read');
 
-      final cred = await FirebaseAuth.instance.signInWithProvider(provider);
+      UserCredential cred;
+      if (kIsWeb) {
+        cred = await FirebaseAuth.instance.signInWithPopup(provider);
+      } else {
+        cred = await FirebaseAuth.instance.signInWithProvider(provider);
+      }
       if (cred.user == null) {
         throw FirebaseAuthException(
             code: 'microsoft-error', message: 'No user returned.');
@@ -446,6 +489,15 @@ class _LoginScreenState extends State<LoginScreen>
         return t(context, 'err_wrong_password');
       case 'network-request-failed':
         return t(context, 'err_network');
+      case 'operation-not-allowed':
+        return t(context, 'err_provider_disabled');
+      case 'invalid-oauth-client-id':
+      case 'missing-or-invalid-nonce':
+      case 'missing-client-identifier':
+      case 'unauthorized-domain':
+        return t(context, 'err_oauth_missing');
+      case 'provider-not-supported':
+        return t(context, 'err_provider_unsupported');
       default:
         return '${t(context, 'err_generic')} (${e.code})';
     }
