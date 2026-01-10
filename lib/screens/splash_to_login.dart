@@ -75,6 +75,7 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
 
   // Watchdog so "video" phase can’t hang
   Timer? _videoWatchdog;
+  Timer? _sequenceWatchdog;
 
   @override
   void initState() {
@@ -111,7 +112,17 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
     _finalReveal =
         AnimationController(vsync: this, duration: finalRevealDuration);
 
-    _runSequence();
+    _sequenceWatchdog = Timer(const Duration(seconds: 15), () {
+      if (mounted && !_navigated) {
+        _goToLogin();
+      }
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _runSequence();
+      }
+    });
   }
 
   // ------- SFX: spawn a fresh low-latency player per whoosh -------
@@ -131,50 +142,86 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
         Future.delayed(const Duration(seconds: 4)).then((_) => p.dispose()));
   }
 
+  Future<bool> _safeForward(
+    AnimationController controller, {
+    Duration? timeout,
+  }) async {
+    final forwardTimeout =
+        timeout ?? (controller.duration ?? const Duration(milliseconds: 300));
+    try {
+      await controller.forward().timeout(
+            forwardTimeout + const Duration(milliseconds: 300),
+          );
+      controller.reset();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<void> _runSequence() async {
-    // Intro pop + light whoosh during bloom (unchanged)
-    setState(() => _phase = _Phase.introLogo);
-    unawaited(() async {
-      await Future.delayed(const Duration(milliseconds: 260));
-      await _playWhoosh(0.95);
-    }());
-    await _introLogoCtrl.forward();
-    _introLogoCtrl.reset();
+    try {
+      // Intro pop + light whoosh during bloom (unchanged)
+      if (!mounted) return;
+      setState(() => _phase = _Phase.introLogo);
+      unawaited(() async {
+        await Future.delayed(const Duration(milliseconds: 260));
+        await _playWhoosh(0.95);
+      }());
+      if (!await _safeForward(_introLogoCtrl)) {
+        _goToLogin();
+        return;
+      }
 
-    // FLASH 0 (NV) — intro → POWERED
-    setState(() => _phase = _Phase.flash0);
-    await _flash0.forward();
-    _flash0.reset();
+      // FLASH 0 (NV) — intro → POWERED
+      if (!mounted) return;
+      setState(() => _phase = _Phase.flash0);
+      if (!await _safeForward(_flash0)) {
+        _goToLogin();
+        return;
+      }
 
-    // POWERED (holds)
-    setState(() => _phase = _Phase.powered);
-    unawaited(_playWhoosh(1.0));
-    await Future.delayed(poweredDuration);
+      // POWERED (holds)
+      if (!mounted) return;
+      setState(() => _phase = _Phase.powered);
+      unawaited(_playWhoosh(1.0));
+      await Future.delayed(poweredDuration);
 
-    // FLASH 1 (Biz) — POWERED → BY
-    setState(() => _phase = _Phase.flash1);
-    await _flash1.forward();
-    _flash1.reset();
+      // FLASH 1 (Biz) — POWERED → BY
+      if (!mounted) return;
+      setState(() => _phase = _Phase.flash1);
+      if (!await _safeForward(_flash1)) {
+        _goToLogin();
+        return;
+      }
 
-    // BY (holds)
-    setState(() => _phase = _Phase.by);
-    unawaited(_playWhoosh(1.0));
-    await Future.delayed(byDuration);
+      // BY (holds)
+      if (!mounted) return;
+      setState(() => _phase = _Phase.by);
+      unawaited(_playWhoosh(1.0));
+      await Future.delayed(byDuration);
 
-    // FLASH 2 (Biz) — BY → Video
-    setState(() => _phase = _Phase.flash2);
-    await _flash2.forward();
-    _flash2.reset();
+      // FLASH 2 (Biz) — BY → Video
+      if (!mounted) return;
+      setState(() => _phase = _Phase.flash2);
+      if (!await _safeForward(_flash2)) {
+        _goToLogin();
+        return;
+      }
 
-    // Video
-    setState(() => _phase = _Phase.video);
-    unawaited(_playWhoosh(1.0));
-    if (_videoReady) {
-      _enterVideoPhase();
-    } else {
-      // Fallback if init lags
-      await Future.delayed(const Duration(seconds: 2));
-      _doFinalReveal();
+      // Video
+      if (!mounted) return;
+      setState(() => _phase = _Phase.video);
+      unawaited(_playWhoosh(1.0));
+      if (_videoReady) {
+        _enterVideoPhase();
+      } else {
+        // Fallback if init lags
+        await Future.delayed(const Duration(seconds: 2));
+        _doFinalReveal();
+      }
+    } catch (_) {
+      _goToLogin();
     }
   }
 
@@ -228,6 +275,8 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
     // Stop watchdog once we move on
     _videoWatchdog?.cancel();
     _videoWatchdog = null;
+    _sequenceWatchdog?.cancel();
+    _sequenceWatchdog = null;
 
     unawaited(_playWhoosh(1.0));
     setState(() => _phase = _Phase.finalReveal);
@@ -239,6 +288,8 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
   void _goToLogin() {
     if (_navigated) return;
     _navigated = true;
+    _sequenceWatchdog?.cancel();
+    _sequenceWatchdog = null;
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
@@ -253,6 +304,7 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
   @override
   void dispose() {
     _videoWatchdog?.cancel();
+    _sequenceWatchdog?.cancel();
     _introLogoCtrl.dispose();
     _flash0.dispose();
     _flash1.dispose();
@@ -369,7 +421,6 @@ class _IntroLogoPop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!controller.isAnimating) controller.forward();
     final scale = Tween<double>(begin: 0.86, end: 1.0).animate(
         CurvedAnimation(parent: controller, curve: Curves.easeOutCubic));
     final flash = CurvedAnimation(
@@ -938,4 +989,3 @@ class _SpeckPainter extends CustomPainter {
   bool shouldRepaint(covariant _SpeckPainter old) =>
       old.progress != progress || old.center != center;
 }
-
