@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 import 'login_screen.dart';
-import '../theme/brand_colors.dart';
 
 // -------- Brand palettes --------
 const Color kBizTint = Color(0xFF2D8CFF);
@@ -25,7 +24,7 @@ class _GradientTranslate extends GradientTransform {
   const _GradientTranslate(this.offset);
   @override
   Matrix4 transform(Rect bounds, {TextDirection? textDirection}) =>
-      Matrix4.identity()..translate(offset.dx, offset.dy);
+      Matrix4.translationValues(offset.dx, offset.dy, 0);
 }
 
 class SplashToLoginScreen extends StatefulWidget {
@@ -351,7 +350,7 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
                 center: Alignment.center,
                 coreColor: Colors.white,
                 tintInner: nvAccentOrange,
-                tintOuter: nvGreenDark.withOpacity(0.85),
+                tintOuter: nvGreenDark.withValues(alpha: 0.85),
               ),
             if (_phase == _Phase.flash1)
               _RadialFlash(
@@ -376,7 +375,7 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
                 center: const Alignment(0.0, -0.32),
                 coreColor: Colors.white,
                 tintInner: nvAccentOrange,
-                tintOuter: nvGreenDark.withOpacity(0.75),
+                tintOuter: nvGreenDark.withValues(alpha: 0.75),
               ),
 
             // Skip
@@ -386,7 +385,7 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
               child: TextButton(
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.white,
-                  backgroundColor: Colors.white.withOpacity(0.12),
+                  backgroundColor: Colors.white.withValues(alpha: 0.12),
                   padding:
                       const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   shape: RoundedRectangleBorder(
@@ -454,9 +453,9 @@ class _IntroLogoPop extends StatelessWidget {
                     radius: ui.lerpDouble(0.05, 1.15, flash.value)!,
                     colors: [
                       Colors.white
-                          .withOpacity(ui.lerpDouble(1.0, 0.0, flash.value)!),
+                          .withValues(alpha: ui.lerpDouble(1.0, 0.0, flash.value)!),
                       Colors.white
-                          .withOpacity(ui.lerpDouble(0.85, 0.0, flash.value)!),
+                          .withValues(alpha: ui.lerpDouble(0.85, 0.0, flash.value)!),
                       Colors.transparent,
                     ],
                     stops: const [0.0, 0.35, 1.0],
@@ -536,19 +535,19 @@ class _TitleCardState extends State<_TitleCard>
                   color: Colors.white,
                   shadows: [
                     Shadow(
-                      color: Colors.white.withOpacity(0.85 * _glowDelay.value),
+                      color: Colors.white.withValues(alpha: 0.85 * _glowDelay.value),
                       blurRadius: ui.lerpDouble(16, 0, 1 - _glowDelay.value)!,
                     ),
                     Shadow(
-                      color: Colors.white.withOpacity(0.28 * _glowDelay.value),
+                      color: Colors.white.withValues(alpha: 0.28 * _glowDelay.value),
                       blurRadius: ui.lerpDouble(36, 0, 1 - _glowDelay.value)!,
                     ),
                   ],
                 ),
               ),
               // subtle chromatic fringe (same fontSize so no tiny duplicate text)
-              Transform.translate(
-                offset: const Offset(1.2, 0.0),
+              Transform(
+                transform: Matrix4.translationValues(1.2, 0.0, 0),
                 child: Opacity(
                   opacity: 0.08,
                   child: Text(widget.text,
@@ -562,8 +561,8 @@ class _TitleCardState extends State<_TitleCard>
                       )),
                 ),
               ),
-              Transform.translate(
-                offset: const Offset(-1.2, 0.0),
+              Transform(
+                transform: Matrix4.translationValues(-1.2, 0.0, 0),
                 child: Opacity(
                   opacity: 0.08,
                   child: Text(widget.text,
@@ -587,9 +586,9 @@ class _TitleCardState extends State<_TitleCard>
                     end: Alignment.centerRight,
                     colors: [
                       Colors.transparent,
-                      sweepA.withOpacity(0.10),
-                      sweepB.withOpacity(0.25),
-                      sweepA.withOpacity(0.10),
+                      sweepA.withValues(alpha: 0.10),
+                      sweepB.withValues(alpha: 0.25),
+                      sweepA.withValues(alpha: 0.10),
                       Colors.transparent,
                     ],
                     stops: const [0.0, 0.42, 0.5, 0.58, 1.0],
@@ -629,8 +628,7 @@ class _VideoStage extends StatefulWidget {
     required this.scale,
     required this.glowStrength,
     this.verticalOffset = -0.02,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   State<_VideoStage> createState() => _VideoStageState();
@@ -681,8 +679,9 @@ class _VideoStageState extends State<_VideoStage> {
   @override
   Widget build(BuildContext context) {
     final v = widget.controller.value;
-    if (!v.isInitialized)
+    if (!v.isInitialized) {
       return const Center(child: CircularProgressIndicator.adaptive());
+    }
 
     final screen = MediaQuery.of(context).size;
 
@@ -695,8 +694,8 @@ class _VideoStageState extends State<_VideoStage> {
           return Stack(
             alignment: Alignment.center,
             children: [
-              Transform.translate(
-                offset: Offset(0, screen.height * widget.verticalOffset),
+              Transform(
+                transform: Matrix4.translationValues(0, screen.height * widget.verticalOffset, 0),
                 child: Transform.scale(
                   scale: widget.scale.value,
                   child: SizedBox.expand(
@@ -825,9 +824,9 @@ class _RadialFlash extends StatelessWidget {
                     center: center,
                     radius: radius,
                     colors: [
-                      coreColor.withOpacity(1.0 * intensity),
-                      tintInner.withOpacity(0.65 * intensity),
-                      tintOuter.withOpacity(0.25 * intensity),
+                      coreColor.withValues(alpha: 1.0 * intensity),
+                      tintInner.withValues(alpha: 0.65 * intensity),
+                      tintOuter.withValues(alpha: 0.25 * intensity),
                       Colors.transparent,
                     ],
                     stops: const [0.0, 0.25, 0.55, 1.0],
@@ -885,9 +884,9 @@ class _FinalBurstReveal extends StatelessWidget {
                     center: center,
                     radius: radius,
                     colors: [
-                      coreColor.withOpacity(ui.lerpDouble(1.0, 0.0, t)!),
-                      tintInner.withOpacity(ui.lerpDouble(0.65, 0.0, t)!),
-                      tintOuter.withOpacity(ui.lerpDouble(0.18, 0.0, t)!),
+                      coreColor.withValues(alpha: ui.lerpDouble(1.0, 0.0, t)!),
+                      tintInner.withValues(alpha: ui.lerpDouble(0.65, 0.0, t)!),
+                      tintOuter.withValues(alpha: ui.lerpDouble(0.18, 0.0, t)!),
                       Colors.transparent,
                     ],
                     stops: const [0.0, 0.28, 0.62, 1.0],
@@ -930,7 +929,7 @@ class _RippleRingPainter extends CustomPainter {
     final r = ui.lerpDouble(20, maxR, Curves.easeOut.transform(progress))!;
     final w = ui.lerpDouble(6, 1, progress)!;
     final paint = Paint()
-      ..color = Colors.white.withOpacity((1.0 - progress) * 0.45)
+      ..color = Colors.white.withValues(alpha: (1.0 - progress) * 0.45)
       ..style = PaintingStyle.stroke
       ..strokeWidth = w;
     canvas.drawCircle(c, r, paint);
