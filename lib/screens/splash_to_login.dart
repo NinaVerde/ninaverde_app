@@ -118,7 +118,11 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
       }
     });
 
-    _runSequence();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _runSequence();
+      }
+    });
   }
 
   // ------- SFX: spawn a fresh low-latency player per whoosh -------
@@ -138,6 +142,23 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
         Future.delayed(const Duration(seconds: 4)).then((_) => p.dispose()));
   }
 
+  Future<bool> _safeForward(
+    AnimationController controller, {
+    Duration? timeout,
+  }) async {
+    final forwardTimeout =
+        timeout ?? (controller.duration ?? const Duration(milliseconds: 300));
+    try {
+      await controller.forward().timeout(
+            forwardTimeout + const Duration(milliseconds: 300),
+          );
+      controller.reset();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<void> _runSequence() async {
     try {
       // Intro pop + light whoosh during bloom (unchanged)
@@ -147,14 +168,18 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
         await Future.delayed(const Duration(milliseconds: 260));
         await _playWhoosh(0.95);
       }());
-      await _introLogoCtrl.forward();
-      _introLogoCtrl.reset();
+      if (!await _safeForward(_introLogoCtrl)) {
+        _goToLogin();
+        return;
+      }
 
       // FLASH 0 (NV) — intro → POWERED
       if (!mounted) return;
       setState(() => _phase = _Phase.flash0);
-      await _flash0.forward();
-      _flash0.reset();
+      if (!await _safeForward(_flash0)) {
+        _goToLogin();
+        return;
+      }
 
       // POWERED (holds)
       if (!mounted) return;
@@ -165,8 +190,10 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
       // FLASH 1 (Biz) — POWERED → BY
       if (!mounted) return;
       setState(() => _phase = _Phase.flash1);
-      await _flash1.forward();
-      _flash1.reset();
+      if (!await _safeForward(_flash1)) {
+        _goToLogin();
+        return;
+      }
 
       // BY (holds)
       if (!mounted) return;
@@ -177,8 +204,10 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
       // FLASH 2 (Biz) — BY → Video
       if (!mounted) return;
       setState(() => _phase = _Phase.flash2);
-      await _flash2.forward();
-      _flash2.reset();
+      if (!await _safeForward(_flash2)) {
+        _goToLogin();
+        return;
+      }
 
       // Video
       if (!mounted) return;
@@ -392,7 +421,6 @@ class _IntroLogoPop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!controller.isAnimating) controller.forward();
     final scale = Tween<double>(begin: 0.86, end: 1.0).animate(
         CurvedAnimation(parent: controller, curve: Curves.easeOutCubic));
     final flash = CurvedAnimation(
