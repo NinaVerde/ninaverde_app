@@ -11,12 +11,13 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 import 'login_screen.dart';
+import '../theme/brand_colors.dart';
 
 // -------- Brand palettes --------
 const Color kBizTint = Color(0xFF2D8CFF);
 const Color kBizTintSoft = Color(0xFF9FC2FF);
-const Color kNvOrange = Color(0xFFF3A70B);
-const Color kNvGreenDark = Color(0xFF022F18);
+const Color nvAccentOrange = Color(0xFFF3A70B);
+const Color nvGreenDark = Color(0xFF022F18);
 
 // Translate helper for gradient sheen
 class _GradientTranslate extends GradientTransform {
@@ -297,8 +298,8 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
                 controller: _flash0,
                 center: Alignment.center,
                 coreColor: Colors.white,
-                tintInner: kNvOrange,
-                tintOuter: kNvGreenDark.withOpacity(0.85),
+                tintInner: nvAccentOrange,
+                tintOuter: nvGreenDark.withOpacity(0.85),
               ),
             if (_phase == _Phase.flash1)
               _RadialFlash(
@@ -322,8 +323,8 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
                 login: loginPreview,
                 center: const Alignment(0.0, -0.32),
                 coreColor: Colors.white,
-                tintInner: kNvOrange,
-                tintOuter: kNvGreenDark.withOpacity(0.75),
+                tintInner: nvAccentOrange,
+                tintOuter: nvGreenDark.withOpacity(0.75),
               ),
 
             // Skip
@@ -459,8 +460,8 @@ class _TitleCardState extends State<_TitleCard>
     final size = MediaQuery.of(context).size;
     final fontSize = (size.shortestSide * 0.20);
 
-    final sweepA = widget.isBiz ? kBizTintSoft : kNvOrange;
-    final sweepB = widget.isBiz ? kBizTint : kNvGreenDark;
+    final sweepA = widget.isBiz ? kBizTintSoft : nvAccentOrange;
+    final sweepB = widget.isBiz ? kBizTint : nvGreenDark;
 
     return AnimatedBuilder(
       animation: _ctrl,
@@ -937,3 +938,4 @@ class _SpeckPainter extends CustomPainter {
   bool shouldRepaint(covariant _SpeckPainter old) =>
       old.progress != progress || old.center != center;
 }
+

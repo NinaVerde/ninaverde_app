@@ -21,6 +21,7 @@ import 'screens/document_webview.dart'
 import 'screens/contact_nina_verde_page.dart'
     show ContactNinaVerdePage; // <-- NEW: AI Contact page
 import 'providers/cart_provider.dart';
+import 'theme/brand_colors.dart' as brand;
 
 const Color kNvGreenDark = Color(0xFF022F18);
 const Color kNvDarkSurface = Color(0xFF0B2C1E);
@@ -333,7 +334,7 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
                 theme: ThemeData(
                   useMaterial3: true,
                   colorScheme: ColorScheme.fromSeed(
-                    seedColor: kNvGreenDark,
+                    seedColor: brand.nvGreenDark,
                     surface: const Color(0xFFE9F6E9),
                   ),
                   appBarTheme: const AppBarTheme(centerTitle: true),
@@ -342,13 +343,13 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
                   useMaterial3: true,
                   brightness: Brightness.dark,
                   colorScheme: ColorScheme.fromSeed(
-                    seedColor: kNvGreenDark,
+                    seedColor: brand.nvGreenDark,
                     brightness: Brightness.dark,
-                    surface: kNvDarkSurface,
+                    surface: brand.nvDarkSurface,
                   ),
-                  scaffoldBackgroundColor: kNvGreenDark,
+                  scaffoldBackgroundColor: brand.nvGreenDark,
                   appBarTheme: const AppBarTheme(
-                    backgroundColor: kNvGreenDark,
+                    backgroundColor: brand.nvGreenDark,
                     centerTitle: true,
                   ),
                 ),
@@ -1569,3 +1570,4 @@ class _YouTubePopupWebViewState extends State<_YouTubePopupWebView> {
     );
   }
 }
+
