@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:provider/provider.dart';
 
-import '../main.dart'; // AppState + NvAppBar
+import '../main.dart';
+import '../theme/brand_colors.dart'; // AppState + NvAppBar
 
 class DocumentWebView extends StatefulWidget {
   final String titleEn;
@@ -124,8 +125,8 @@ class _DocumentWebViewState extends State<DocumentWebView> {
             gradient: LinearGradient(
               colors: isDark
                   ? [
-                      kNvGreenDark,
-                      kNvDarkSurface,
+                      nvGreenDark,
+                      nvDarkSurface,
                       Colors.black,
                     ]
                   : [
@@ -261,3 +262,4 @@ class _DocumentWebViewState extends State<DocumentWebView> {
     );
   }
 }
+
