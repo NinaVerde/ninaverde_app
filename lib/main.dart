@@ -100,6 +100,9 @@ class AppState extends InheritedWidget {
   static AppState of(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<AppState>()!;
 
+  Color get nvGreenDark => kNvGreenDark;
+  Color get nvDarkSurface => kNvDarkSurface;
+
   @override
   bool updateShouldNotify(covariant AppState old) =>
       themeMode != old.themeMode ||
