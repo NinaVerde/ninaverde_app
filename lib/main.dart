@@ -1,6 +1,5 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
@@ -95,8 +94,8 @@ class AppState extends InheritedWidget {
     required this.textDark,
     required this.isManager,
     required this.openPip,
-    required Widget child,
-  }) : super(child: child);
+    required super.child,
+  });
 
   static AppState of(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<AppState>()!;
@@ -201,7 +200,7 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
     _loadTickerSettings();
   }
 
-  static int _colorToInt(Color c) => c.value;
+  static int _colorToInt(Color c) => c.toARGB32();
   static Color _intToColor(int v) => Color(v);
 
   Future<void> _loadTickerSettings() async {
@@ -709,8 +708,8 @@ class _TickerBandState extends State<_TickerBand>
                         text: _richSpan(_joined),
                       );
 
-                      Widget copy(double x) => Transform.translate(
-                            offset: Offset(x, 0),
+                      Widget copy(double x) => Transform(
+                            transform: Matrix4.translationValues(x, 0, 0),
                             child: SizedBox(
                               width: _contentWidth,
                               child: Center(
@@ -778,7 +777,7 @@ class LanguageSettingsPage extends StatelessWidget {
       body: ListView(
         children: [
           SwitchListTile(
-            title: const Text('Default to Español (ES)'),
+            title: const Text('Default to Espa¤ol (ES)'),
             subtitle: const Text('Show Spanish first throughout the app'),
             value: app.isSpanish.value,
             onChanged: (v) => app.isSpanish.value = v,
@@ -798,21 +797,30 @@ class CurrencySettingsPage extends StatelessWidget {
     final app = AppState.of(context);
     return Scaffold(
       appBar: const NvAppBar(title: 'Currency Settings'),
-      body: ListView(
-        children: [
-          RadioListTile<String>(
-            value: 'USD',
-            groupValue: app.currencyCode.value,
-            onChanged: (v) => app.currencyCode.value = v!,
-            title: const Text('USD — US Dollar'),
-          ),
-          RadioListTile<String>(
-            value: 'NIO',
-            groupValue: app.currencyCode.value,
-            onChanged: (v) => app.currencyCode.value = v!,
-            title: const Text('NIO — Nicaraguan Córdoba'),
-          ),
-        ],
+      body: ValueListenableBuilder<String>(
+        valueListenable: app.currencyCode,
+        builder: (context, currency, _) {
+          return RadioGroup<String>(
+            groupValue: currency,
+            onChanged: (value) {
+              if (value != null) {
+                app.currencyCode.value = value;
+              }
+            },
+            child: ListView(
+              children: const [
+                RadioListTile<String>(
+                  value: 'USD',
+                  title: Text('USD - US Dollar'),
+                ),
+                RadioListTile<String>(
+                  value: 'NIO',
+                  title: Text('NIO - Nicaraguan C¢rdoba'),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -958,8 +966,12 @@ class _TickerSettingsPageState extends State<TickerSettingsPage>
     final es = List<String>.from(app.tickerEs.value);
     final en = List<String>.from(app.tickerEn.value);
     final n = (es.length > en.length) ? es.length : en.length;
-    while (es.length < n) es.add('');
-    while (en.length < n) en.add('');
+    while (es.length < n) {
+      es.add('');
+    }
+    while (en.length < n) {
+      en.add('');
+    }
     _pairs = List.generate(n, (i) => MessagePair(en: en[i], es: es[i]));
 
     // Initial automatic clean-up so the Spanish tab actually shows Spanish.
@@ -1020,11 +1032,17 @@ class _TickerSettingsPageState extends State<TickerSettingsPage>
 
   // ----- Helpers for colors/hex -----
   static String _toHex(Color c, {bool leadingHash = true}) {
+    final argb = c.toARGB32();
+    final a = (argb >> 24) & 0xFF;
+    final r = (argb >> 16) & 0xFF;
+    final g = (argb >> 8) & 0xFF;
+    final b = argb & 0xFF;
+
     return '${leadingHash ? '#' : ''}'
-            '${c.alpha.toRadixString(16).padLeft(2, '0')}'
-            '${c.red.toRadixString(16).padLeft(2, '0')}'
-            '${c.green.toRadixString(16).padLeft(2, '0')}'
-            '${c.blue.toRadixString(16).padLeft(2, '0')}'
+            '${a.toRadixString(16).padLeft(2, '0')}'
+            '${r.toRadixString(16).padLeft(2, '0')}'
+            '${g.toRadixString(16).padLeft(2, '0')}'
+            '${b.toRadixString(16).padLeft(2, '0')}'
         .toUpperCase();
   }
 
