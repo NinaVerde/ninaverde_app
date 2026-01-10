@@ -1,4 +1,4 @@
-﻿# This file configures the analyzer, which statically analyzes Dart code to
+# This file configures the analyzer, which statically analyzes Dart code to
 # check for errors, warnings, and lints.
 #
 # The issues identified by the analyzer are surfaced in the UI of Dart-enabled
@@ -26,18 +26,4 @@ linter:
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
-
-analyzer:
-  errors:
-    unused_element_parameter: ignore
-    unused_element: ignore
-    deprecated_member_use: ignore
-    use_build_context_synchronously: ignore
-    unused_import: ignore
-    unused_field: ignore
-    unused_local_variable: ignore
-    curly_braces_in_flow_control_structures: ignore
-    unnecessary_null_comparison: ignore
-    no_leading_underscores_for_local_identifiers: ignore
-    use_super_parameters: ignore
 

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../models/product_model.dart';
 import '../services/firestore_service.dart';
 import '../providers/cart_provider.dart';
@@ -12,7 +11,7 @@ import '../screens/product_detail_screen.dart';
 import '../screens/cart_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -406,8 +405,7 @@ class Badge extends StatelessWidget {
   final Widget child;
   final Color? color;
 
-  const Badge({Key? key, required this.value, required this.child, this.color})
-      : super(key: key);
+  const Badge({super.key, required this.value, required this.child, this.color});
 
   @override
   Widget build(BuildContext context) {

@@ -35,7 +35,6 @@ class _LoginScreenState extends State<LoginScreen>
   final formKey = GlobalKey<FormState>();
   bool obscured = true;
   bool busy = false;
-  final Future<void> _googleInit = GoogleSignIn.instance.initialize();
 
   // --- Video & logo config (Firestore: app_config/video) ----
   static const _cfgCol = 'app_config';
@@ -101,6 +100,7 @@ class _LoginScreenState extends State<LoginScreen>
         .doc(_videoDoc)
         .set(payload, SetOptions(merge: true));
 
+    if (!mounted) return;
     setState(() {
       if (url != null) _videoUrl = url.trim();
       if (logo != null) _logoUrl = logo.trim();
@@ -271,7 +271,6 @@ class _LoginScreenState extends State<LoginScreen>
 
         // New API: authenticate() replaces signIn/signInSilently
         final account = await g.authenticate();
-        if (account == null) return;
 
         // New API: authentication is sync (no await)
         final auth = account.authentication;
@@ -320,9 +319,11 @@ class _LoginScreenState extends State<LoginScreen>
           if ((u?.email == null || (u?.email ?? '').isEmpty) &&
               (userData['email'] == null ||
                   (userData['email'] as String?)?.isEmpty == true)) {
+            if (!mounted) return;
             _showSnack(t(context, 'fb_no_email'));
           }
         } else if (result.status == LoginStatus.cancelled) {
+          if (!mounted) return;
           _showSnack(t(context, 'fb_cancelled'));
           return;
         } else {
@@ -536,7 +537,7 @@ class _LoginScreenState extends State<LoginScreen>
     final id =
         _extractYoutubeId(_videoUrl ?? _appDefaultYouTubeUrl) ?? 'ZczKlWNp5qY';
 
-    final overlay = Overlay.of(context);
+    final overlay = Overlay.maybeOf(context);
     if (overlay == null) return;
 
     // Where is the logo on screen?
@@ -702,6 +703,7 @@ class _LoginScreenState extends State<LoginScreen>
         .doc(_videoDoc)
         .get();
     final data = doc.data() ?? <String, dynamic>{};
+    if (!mounted) return;
 
     final urlCtl = TextEditingController(text: _videoUrl ?? '');
     final logoCtl = TextEditingController(text: _logoUrl ?? '');
@@ -715,7 +717,7 @@ class _LoginScreenState extends State<LoginScreen>
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) {
-        String tr(String k) => t(context, k);
+        String tr(String k) => t(ctx, k);
         return StatefulBuilder(
           builder: (ctx, setLocal) => AlertDialog(
             title: Text(tr('popup_title')),
@@ -727,7 +729,7 @@ class _LoginScreenState extends State<LoginScreen>
                     controller: urlCtl,
                     decoration: InputDecoration(
                       labelText: tr('yt_label'),
-                      helperText: t(context, 'video_url_hint'),
+                      helperText: t(ctx, 'video_url_hint'),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -735,7 +737,7 @@ class _LoginScreenState extends State<LoginScreen>
                     controller: logoCtl,
                     decoration: InputDecoration(
                       labelText: tr('logo_label'),
-                      helperText: t(context, 'logo_url_hint'),
+                      helperText: t(ctx, 'logo_url_hint'),
                     ),
                   ),
                 ],
@@ -761,9 +763,16 @@ class _LoginScreenState extends State<LoginScreen>
                             logo: logoCtl.text,
                             setAsDefault: true,
                           );
-                          if (mounted) Navigator.pop(ctx, true);
+                          if (!ctx.mounted) return;
+                          Navigator.pop(ctx, true);
                         } catch (e) {
-                          _showError('${t(context, 'save_failed')}: $e');
+                          if (!ctx.mounted) return;
+                          ScaffoldMessenger.of(ctx).showSnackBar(
+                            SnackBar(
+                              backgroundColor: Colors.red.shade700,
+                              content: Text('${t(ctx, 'save_failed')}: $e'),
+                            ),
+                          );
                         } finally {
                           if (mounted) setLocal(() => saving = false);
                         }
@@ -773,7 +782,7 @@ class _LoginScreenState extends State<LoginScreen>
               const SizedBox(width: 8),
               TextButton(
                 onPressed: saving ? null : () => Navigator.pop(ctx, false),
-                child: Text(t(context, 'cancel')),
+                child: Text(t(ctx, 'cancel')),
               ),
               FilledButton(
                 onPressed: saving
@@ -786,15 +795,22 @@ class _LoginScreenState extends State<LoginScreen>
                             logo: logoCtl.text,
                             setAsDefault: false,
                           );
-                          if (mounted) Navigator.pop(ctx, true);
+                          if (!ctx.mounted) return;
+                          Navigator.pop(ctx, true);
                         } catch (e) {
-                          _showError('${t(context, 'save_failed')}: $e');
+                          if (!ctx.mounted) return;
+                          ScaffoldMessenger.of(ctx).showSnackBar(
+                            SnackBar(
+                              backgroundColor: Colors.red.shade700,
+                              content: Text('${t(ctx, 'save_failed')}: $e'),
+                            ),
+                          );
                         } finally {
                           if (mounted) setLocal(() => saving = false);
                         }
                       },
                 child: Text(
-                    saving ? t(context, 'saving_btn') : t(context, 'save_btn')),
+                    saving ? t(ctx, 'saving_btn') : t(ctx, 'save_btn')),
               ),
             ],
           ),
@@ -1054,7 +1070,7 @@ class _LoginScreenState extends State<LoginScreen>
                             // Guest (full width)
                             _SocialButton(
                               onPressed: busy ? null : signInGuest,
-                              bg: Theme.of(context).colorScheme.surfaceVariant,
+                              bg: Theme.of(context).colorScheme.surfaceContainerHighest,
                               fg: Theme.of(context)
                                   .colorScheme
                                   .onSurfaceVariant,
@@ -1178,7 +1194,7 @@ class _GoogleButton extends StatelessWidget {
     const yellow = Color(0xFFFBBC05);
     const green = Color(0xFF34A853);
 
-    TextSpan _wordmark() => const TextSpan(children: [
+    TextSpan wordmark() => const TextSpan(children: [
           TextSpan(
               text: 'G',
               style: TextStyle(color: blue, fontWeight: FontWeight.w700)),
@@ -1226,7 +1242,7 @@ class _GoogleButton extends StatelessWidget {
           RichText(
             text: TextSpan(
               style: const TextStyle(fontSize: 16, letterSpacing: 0.2),
-              children: [_wordmark()],
+              children: [wordmark()],
             ),
           ),
         ],

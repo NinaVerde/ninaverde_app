@@ -24,7 +24,7 @@ class _ContactNinaVerdePageState extends State<ContactNinaVerdePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black.withOpacity(0.92),
+      backgroundColor: Colors.black.withValues(alpha: 0.92),
       body: Stack(
         children: [
           // Background ambience (image placeholder)
@@ -71,7 +71,7 @@ class _ContactNinaVerdePageState extends State<ContactNinaVerdePage> {
                             margin: const EdgeInsets.symmetric(vertical: 10),
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF2E7D32).withOpacity(0.9),
+                              color: const Color(0xFF2E7D32).withValues(alpha: 0.9),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: const Text(
@@ -95,7 +95,7 @@ Would you like me to:
                               margin: const EdgeInsets.symmetric(vertical: 8),
                               padding: const EdgeInsets.all(14),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.18),
+                                color: Colors.white.withValues(alpha: 0.18),
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
@@ -112,7 +112,7 @@ Would you like me to:
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.10),
+                      color: Colors.white.withValues(alpha: 0.10),
                       borderRadius: BorderRadius.circular(25),
                       border: Border.all(color: Colors.white24),
                     ),
@@ -174,7 +174,7 @@ Would you like me to:
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.10),
+          color: Colors.white.withValues(alpha: 0.10),
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: Colors.white30),
         ),

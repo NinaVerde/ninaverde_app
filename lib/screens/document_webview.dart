@@ -107,8 +107,6 @@ class _DocumentWebViewState extends State<DocumentWebView> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final backLabel = _t(context, 'back');
     final caption = _t(context, 'caption');
-    final scheme = Theme.of(context).colorScheme;
-    final scaffoldBg = Theme.of(context).scaffoldBackgroundColor;
     final targetAsset =
         appState.isSpanish.value ? widget.assetEs : widget.assetEn;
     if (targetAsset != _activeAsset) {
@@ -163,7 +161,7 @@ class _DocumentWebViewState extends State<DocumentWebView> {
                       borderRadius: BorderRadius.circular(18),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(isDark ? 0.3 : 0.12),
+                          color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.12),
                           blurRadius: 24,
                           offset: const Offset(0, 12),
                         ),
@@ -205,7 +203,7 @@ class _DocumentWebViewState extends State<DocumentWebView> {
                                       color: Theme.of(context)
                                           .colorScheme
                                           .onSurface
-                                          .withOpacity(0.7),
+                                          .withValues(alpha: 0.7),
                                     ),
                               ),
                             ],
