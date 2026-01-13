@@ -1,1 +1,45 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"e-commerce-nina-verde-vy-451f6","appId":"1:615971922286:android:935491395ef212d33e217f","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"e-commerce-nina-verde-vy-451f6","configurations":{"android":"1:615971922286:android:935491395ef212d33e217f","ios":"1:615971922286:ios:54f59fdef62cb6413e217f","macos":"1:615971922286:ios:555c3a35a92bd5e13e217f","web":"1:615971922286:web:b83d41ce4213dc413e217f","windows":"1:615971922286:web:c82169551a49eabb3e217f"}}}}}}
+{
+  "functions": [
+    {
+      "source": "functions"
+    }
+  ],
+  "hosting": {
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "e-commerce-nina-verde-vy-451f6",
+          "appId": "1:615971922286:android:935491395ef212d33e217f",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "e-commerce-nina-verde-vy-451f6",
+          "configurations": {
+            "android": "1:615971922286:android:935491395ef212d33e217f",
+            "ios": "1:615971922286:ios:54f59fdef62cb6413e217f",
+            "macos": "1:615971922286:ios:555c3a35a92bd5e13e217f",
+            "web": "1:615971922286:web:b83d41ce4213dc413e217f",
+            "windows": "1:615971922286:web:c82169551a49eabb3e217f"
+          }
+        }
+      }
+    }
+  }
+}

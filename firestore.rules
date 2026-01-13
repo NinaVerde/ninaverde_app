@@ -1,0 +1,73 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true ||
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+    }
+
+    match /products/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /categories/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /events_promotions/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /product_reviews/{productId}/items/{reviewId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    match /users/{userId} {
+      allow read: if isSignedIn() && request.auth.uid == userId;
+      allow write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    match /users/{userId}/prefs/{docId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    match /app_config/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /crm_favorites/{docId} {
+      allow read: if isAdmin();
+      allow write: if isSignedIn();
+    }
+
+    match /crm_favorites_events/{docId} {
+      allow read: if isAdmin();
+      allow write: if isSignedIn();
+    }
+
+    match /campaigns/{docId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    match /leads/{docId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /push_tokens/{docId} {
+      allow read: if isAdmin();
+      allow write: if isSignedIn();
+    }
+  }
+}

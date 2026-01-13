@@ -50,12 +50,12 @@ class DefaultFirebaseOptions {
         measurementId: _optional('FIREBASE_WEB_MEASUREMENT_ID'),
       );
 
-  static FirebaseOptions get android => FirebaseOptions(
-        apiKey: _require('FIREBASE_ANDROID_API_KEY'),
-        appId: _require('FIREBASE_ANDROID_APP_ID'),
-        messagingSenderId: _require('FIREBASE_ANDROID_MESSAGING_SENDER_ID'),
-        projectId: _require('FIREBASE_ANDROID_PROJECT_ID'),
-        storageBucket: _require('FIREBASE_ANDROID_STORAGE_BUCKET'),
+  static FirebaseOptions get android => const FirebaseOptions(
+        apiKey: 'AIzaSyDtov3s_-0XQry_wX1MS_ow1I9MK2AhQss',
+        appId: '1:615971922286:android:935491395ef212d33e217f',
+        messagingSenderId: '615971922286',
+        projectId: 'e-commerce-nina-verde-vy-451f6',
+        storageBucket: 'e-commerce-nina-verde-vy-451f6.firebasestorage.app',
       );
 
   static FirebaseOptions get ios => FirebaseOptions(

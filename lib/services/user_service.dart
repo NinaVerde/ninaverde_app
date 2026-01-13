@@ -15,6 +15,8 @@ class UserService {
     if (user == null) return;
 
     final userRef = _db.collection('users').doc(user.uid);
+    final snap = await userRef.get();
+    final hasCreated = snap.data()?['createdAt'] != null;
 
     await userRef.set({
       'uid': user.uid,
@@ -22,6 +24,10 @@ class UserService {
       'displayName': user.displayName,
       'photoURL': user.photoURL,
       'phoneNumber': user.phoneNumber,
+      'optInEmail': true,
+      'optInSms': true,
+      'optInPush': false,
+      if (!hasCreated) 'createdAt': FieldValue.serverTimestamp(),
       'lastSignIn': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
   }

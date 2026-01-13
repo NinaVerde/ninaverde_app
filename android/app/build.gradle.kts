@@ -1,4 +1,4 @@
-﻿plugins {
+plugins {
     id("com.android.application")
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
@@ -14,13 +14,13 @@ android {
 
     // ✅ Keep Java 8 for maximum plugin compatibility (fixes JVM target mismatch)
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     // ✅ Kotlin target matches Java target
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
 
     defaultConfig {
@@ -52,3 +52,8 @@ android {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    implementation("com.facebook.android:facebook-login:latest.release")
+}
+
