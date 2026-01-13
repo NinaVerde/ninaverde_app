@@ -1,8 +1,10 @@
 // lib/main.dart
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 // WebView (universal, with per-platform creation params)
 import 'package:webview_flutter/webview_flutter.dart';
@@ -14,22 +16,58 @@ import 'firebase_options.dart';
 // Screens (disambiguate imports with `show`)
 import 'screens/login_screen.dart' show LoginScreen;
 import 'screens/home_screen.dart' show HomeScreen;
+import 'screens/cart_screen.dart' show CartScreen;
 import 'screens/splash_to_login.dart' show SplashToLoginScreen; // boot splash
 import 'screens/document_webview.dart'
     show DocumentWebView; // standalone WebView screen
 import 'screens/contact_nina_verde_page.dart'
     show ContactNinaVerdePage; // <-- NEW: AI Contact page
+import 'screens/angelina_admin_screen.dart'
+    show AngelinaAdminScreen;
+import 'screens/owner_dashboard_screen.dart'
+    show OwnerDashboardScreen;
+import 'screens/app_settings_admin_screen.dart'
+    show AppSettingsAdminScreen;
+import 'screens/reviews_admin_screen.dart'
+    show ReviewsAdminScreen;
+import 'screens/favorites_admin_screen.dart'
+    show FavoritesAdminScreen;
+import 'screens/catalog_admin_screen.dart'
+    show CatalogAdminScreen;
+import 'screens/event_promo_admin_screen.dart'
+    show EventPromoAdminScreen;
+import 'screens/rewards_admin_screen.dart'
+    show RewardsAdminScreen;
+import 'screens/notification_preferences_screen.dart'
+    show NotificationPreferencesScreen;
+import 'screens/leads_admin_screen.dart'
+    show LeadsAdminScreen;
+import 'screens/comms_campaigns_screen.dart'
+    show CommsCampaignsScreen;
+import 'screens/comms_settings_admin_screen.dart'
+    show CommsSettingsAdminScreen;
+import 'screens/kids_zone_screen.dart' show KidsZoneScreen;
+import 'screens/kids/coloring_sandbox_screen.dart'
+    show ColoringSandboxScreen;
+import 'screens/kids/slider_puzzle_screen.dart' show SliderPuzzleScreen;
+import 'screens/kids/maze_runner_screen.dart' show MazeRunnerScreen;
+import 'screens/kids/memory_match_screen.dart' show MemoryMatchScreen;
+import 'screens/intro_settings_screen.dart' show IntroSettingsScreen;
 import 'providers/cart_provider.dart';
 import 'theme/brand_colors.dart' as brand;
-
-const Color kNvGreenDark = Color(0xFF022F18);
-const Color kNvDarkSurface = Color(0xFF0B2C1E);
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Enforce logout on every fresh app start
+  try {
+    await FirebaseAuth.instance.signOut();
+  } catch (_) {
+    // Ignore sign-out errors on startup
+  }
 
   // Keep local cache so values survive flaky network / quick restarts
   FirebaseFirestore.instance.settings =
@@ -47,11 +85,17 @@ Future<void> main() async {
 class AppState extends InheritedWidget {
   final ValueNotifier<ThemeMode> themeMode;
 
-  /// Language: true=ES (default), false=EN
-  final ValueNotifier<bool> isSpanish;
+  /// Language code (default: es)
+  final ValueNotifier<String> languageCode;
+
+  /// Supported languages and labels
+  final ValueNotifier<List<String>> languageOptions;
+  final ValueNotifier<Map<String, String>> languageLabels;
 
   /// Currency toggle: "USD" (default) <-> "NIO"
   final ValueNotifier<String> currencyCode;
+  final ValueNotifier<List<String>> currencyOptions;
+  final ValueNotifier<Map<String, CurrencyConfig>> currencyConfigs;
 
   /// Ticker visibility
   final ValueNotifier<bool> showTicker;
@@ -80,8 +124,12 @@ class AppState extends InheritedWidget {
   const AppState({
     super.key,
     required this.themeMode,
-    required this.isSpanish,
+    required this.languageCode,
+    required this.languageOptions,
+    required this.languageLabels,
     required this.currencyCode,
+    required this.currencyOptions,
+    required this.currencyConfigs,
     required this.showTicker,
     required this.tickerEs,
     required this.tickerEn,
@@ -100,14 +148,18 @@ class AppState extends InheritedWidget {
   static AppState of(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<AppState>()!;
 
-  Color get nvGreenDark => kNvGreenDark;
-  Color get nvDarkSurface => kNvDarkSurface;
+  Color get nvGreenDark => brand.nvGreenDark;
+  Color get nvDarkSurface => brand.nvDarkSurface;
 
   @override
   bool updateShouldNotify(covariant AppState old) =>
       themeMode != old.themeMode ||
-      isSpanish != old.isSpanish ||
+      languageCode != old.languageCode ||
+      languageOptions != old.languageOptions ||
+      languageLabels != old.languageLabels ||
       currencyCode != old.currencyCode ||
+      currencyOptions != old.currencyOptions ||
+      currencyConfigs != old.currencyConfigs ||
       showTicker != old.showTicker ||
       tickerEs != old.tickerEs ||
       tickerEn != old.tickerEn ||
@@ -122,6 +174,35 @@ class AppState extends InheritedWidget {
       openPip != old.openPip;
 }
 
+class CurrencyConfig {
+  final String code;
+  final String symbol;
+  final double rateFromUsd;
+  final int fractionDigits;
+
+  const CurrencyConfig({
+    required this.code,
+    required this.symbol,
+    required this.rateFromUsd,
+    this.fractionDigits = 2,
+  });
+}
+
+String formatCurrency(BuildContext context, double usdAmount) {
+  final app = AppState.of(context);
+  final code = app.currencyCode.value;
+  final cfg = app.currencyConfigs.value[code] ??
+      app.currencyConfigs.value['USD'] ??
+      const CurrencyConfig(code: 'USD', symbol: '\$', rateFromUsd: 1.0);
+  final value = usdAmount * cfg.rateFromUsd;
+  return '${cfg.symbol}${value.toStringAsFixed(cfg.fractionDigits)}';
+}
+
+String tr(BuildContext context, {required String en, required String es}) {
+  final isEs = AppState.of(context).languageCode.value == 'es';
+  return isEs ? es : en;
+}
+
 class NinaVerdeApp extends StatefulWidget {
   const NinaVerdeApp({super.key});
   @override
@@ -130,16 +211,34 @@ class NinaVerdeApp extends StatefulWidget {
 
 class _NinaVerdeAppState extends State<NinaVerdeApp> {
   final themeMode = ValueNotifier<ThemeMode>(ThemeMode.light);
-  final isSpanish = ValueNotifier<bool>(true); // ES default
+  final languageCode = ValueNotifier<String>('es');
+  final languageOptions = ValueNotifier<List<String>>(['es', 'en']);
+  final languageLabels = ValueNotifier<Map<String, String>>({
+    'es': 'Espanol',
+    'en': 'English',
+  });
   final currencyCode = ValueNotifier<String>('USD');
+  final currencyOptions = ValueNotifier<List<String>>(['USD', 'NIO']);
+  final currencyConfigs = ValueNotifier<Map<String, CurrencyConfig>>({
+    'USD': const CurrencyConfig(
+      code: 'USD',
+      symbol: '\$',
+      rateFromUsd: 1.0,
+    ),
+    'NIO': const CurrencyConfig(
+      code: 'NIO',
+      symbol: 'C\$',
+      rateFromUsd: 36.5,
+    ),
+  });
   final showTicker = ValueNotifier<bool>(true);
 
   // ----- Default messages (EN) -----
   static List<String> _defaultsEn() => const [
         "Naturally, welcome to Nicaragua Niña Verde!",
-        "Log in to collect points.",
+        "Log in to collect NV Coins.",
         "Get exclusive offers.",
-        "Earn rewards.",
+        "Earn NV Coins.",
         "Enjoy free services.",
         "Tune into the best entertainment.",
         "Engage the community.",
@@ -153,9 +252,9 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
           .replaceAll("Naturally, welcome to Nicaragua Niña Verde!",
               "Naturalmente, ¡Bienvenido a Nicaragua Niña Verde!")
           .replaceAll(
-              "Log in to collect points.", "Inicia sesión para acumular puntos.")
+              "Log in to collect NV Coins.", "Inicia sesion para ganar Monedas NV.")
           .replaceAll("Get exclusive offers.", "Obtén ofertas exclusivas.")
-          .replaceAll("Earn rewards.", "Gana recompensas.")
+          .replaceAll("Earn NV Coins.", "Gana Monedas NV.")
           .replaceAll("Enjoy free services.", "Disfruta servicios gratis.")
           .replaceAll("Tune into the best entertainment.",
               "Sintoniza el mejor entretenimiento.")
@@ -185,19 +284,57 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
   final textLight = ValueNotifier<Color>(Colors.white);
   final textDark = ValueNotifier<Color>(Colors.white);
 
-  final isManager = ValueNotifier<bool>(true);
+  final isManager = ValueNotifier<bool>(false);
+  StreamSubscription? _authSub;
+  StreamSubscription? _userSub;
 
   // --------- Firestore persistence ----------
   static const _cfgCol = 'app_config';
   static const _tickerDoc = 'ticker';
+  static const _localeDoc = 'localization';
 
   static DocumentReference<Map<String, dynamic>> _tickerRef() =>
       FirebaseFirestore.instance.collection(_cfgCol).doc(_tickerDoc);
+  static DocumentReference<Map<String, dynamic>> _localeRef() =>
+      FirebaseFirestore.instance.collection(_cfgCol).doc(_localeDoc);
 
   @override
   void initState() {
     super.initState();
     _loadTickerSettings();
+    _loadLocalizationSettings();
+    _listenToAuth();
+  }
+
+  @override
+  void dispose() {
+    _authSub?.cancel();
+    _userSub?.cancel();
+    super.dispose();
+  }
+
+  void _listenToAuth() {
+    _authSub = FirebaseAuth.instance.authStateChanges().listen((user) {
+      _userSub?.cancel();
+      if (user == null) {
+        isManager.value = false;
+      } else {
+        _userSub = FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .snapshots()
+            .listen((snap) {
+          final data = snap.data();
+          if (data != null) {
+            final admin = data['isAdmin'] == true ||
+                (data['role'] as String?)?.toLowerCase() == 'admin';
+            isManager.value = admin;
+          } else {
+            isManager.value = false;
+          }
+        });
+      }
+    });
   }
 
   static int _colorToInt(Color c) => c.toARGB32();
@@ -236,6 +373,61 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
       if (rd != null) railDark.value = _intToColor(rd);
       if (tl != null) textLight.value = _intToColor(tl);
       if (td != null) textDark.value = _intToColor(td);
+    } catch (_) {
+      // Silent fallback to defaults
+    }
+  }
+
+  Future<void> _loadLocalizationSettings() async {
+    try {
+      final doc = await _localeRef().get();
+      if (!doc.exists) return;
+      final data = doc.data()!;
+
+      final langs = (data['languages'] as List?)?.cast<String>();
+      final labels = (data['languageLabels'] as Map?)?.cast<String, String>();
+      if (langs != null && langs.isNotEmpty) {
+        languageOptions.value = List<String>.from(langs);
+      }
+      if (labels != null && labels.isNotEmpty) {
+        languageLabels.value = Map<String, String>.from(labels);
+      }
+      if (data['defaultLanguage'] is String) {
+        languageCode.value = data['defaultLanguage'] as String;
+      }
+      if (!languageOptions.value.contains(languageCode.value) &&
+          languageOptions.value.isNotEmpty) {
+        languageCode.value = languageOptions.value.first;
+      }
+
+      final currencies = (data['currencies'] as List?)?.cast<String>();
+      final cfgs = data['currencyConfigs'] as Map?;
+      if (currencies != null && currencies.isNotEmpty) {
+        currencyOptions.value = List<String>.from(currencies);
+      }
+      if (cfgs != null) {
+        final out = <String, CurrencyConfig>{};
+        cfgs.forEach((key, value) {
+          if (key is! String || value is! Map) return;
+          final map = value.cast<String, dynamic>();
+          out[key] = CurrencyConfig(
+            code: key,
+            symbol: (map['symbol'] as String?) ?? key,
+            rateFromUsd: (map['rateFromUsd'] as num?)?.toDouble() ?? 1.0,
+            fractionDigits: (map['fractionDigits'] as num?)?.toInt() ?? 2,
+          );
+        });
+        if (out.isNotEmpty) {
+          currencyConfigs.value = out;
+        }
+      }
+      if (data['defaultCurrency'] is String) {
+        currencyCode.value = data['defaultCurrency'] as String;
+      }
+      if (!currencyOptions.value.contains(currencyCode.value) &&
+          currencyOptions.value.isNotEmpty) {
+        currencyCode.value = currencyOptions.value.first;
+      }
     } catch (_) {
       // Silent fallback to defaults
     }
@@ -305,8 +497,12 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
   Widget build(BuildContext context) {
     return AppState(
       themeMode: themeMode,
-      isSpanish: isSpanish,
+      languageCode: languageCode,
+      languageOptions: languageOptions,
+      languageLabels: languageLabels,
       currencyCode: currencyCode,
+      currencyOptions: currencyOptions,
+      currencyConfigs: currencyConfigs,
       showTicker: showTicker,
       tickerEs: tickerEs,
       tickerEn: tickerEn,
@@ -319,8 +515,8 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
       textDark: textDark,
       isManager: isManager,
       openPip: _openPip,
-      child: ValueListenableBuilder<bool>(
-        valueListenable: isSpanish,
+      child: ValueListenableBuilder<String>(
+        valueListenable: languageCode,
         builder: (_, __, ___) => ValueListenableBuilder<String>(
           valueListenable: currencyCode,
           builder: (_, __, ___) => ValueListenableBuilder<ThemeMode>(
@@ -358,19 +554,46 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
                   '/login': (_) =>
                       LoginScreen(), // non-const for dynamic logo/video
                   '/home': (_) => const HomeScreen(),
-                  '/forgot': (_) =>
-                      const PlaceholderPage(title: 'Forgot Password'),
-                  '/register': (_) => const PlaceholderPage(title: 'Register'),
+                  '/cart': (_) => const CartScreen(),
+                  '/kids': (_) => const KidsZoneScreen(),
+                  '/kids/coloring': (_) => const ColoringSandboxScreen(),
+                  '/kids/puzzle': (_) => const SliderPuzzleScreen(),
+                  '/kids/maze': (_) => const MazeRunnerScreen(),
+                  '/kids/memory': (_) => const MemoryMatchScreen(),
+                  '/forgot': (_) => const PlaceholderPage(
+                        titleEn: 'Forgot Password',
+                        titleEs: 'Olvide mi contrasena',
+                      ),
+                  '/register': (_) => const PlaceholderPage(
+                        titleEn: 'Register',
+                        titleEs: 'Registro',
+                      ),
                   '/contact': (_) =>
                       const ContactNinaVerdePage(), // <-- AI contact page
+                  '/angelina-admin': (_) => const AngelinaAdminScreen(),
+                  '/app-settings': (_) => const OwnerDashboardScreen(),
+                  '/app-settings/localization': (_) =>
+                      const AppSettingsAdminScreen(),
+                  '/app-settings/reviews': (_) => const ReviewsAdminScreen(),
+                  '/app-settings/favorites': (_) => const FavoritesAdminScreen(),
+                  '/app-settings/catalog': (_) => const CatalogAdminScreen(),
+                  '/app-settings/events': (_) => const EventPromoAdminScreen(),
+                  '/app-settings/rewards': (_) => const RewardsAdminScreen(),
+                  '/preferences/notifications': (_) =>
+                      const NotificationPreferencesScreen(),
+                  '/app-settings/leads': (_) => const LeadsAdminScreen(),
+                  '/app-settings/campaigns': (_) => const CommsCampaignsScreen(),
+                  '/app-settings/comms-settings': (_) =>
+                      const CommsSettingsAdminScreen(),
+                  '/app-settings/intro': (_) => const IntroSettingsScreen(),
                   '/privacy': (_) => const DocumentWebView(
-                        titleEs: 'Política de Privacidad',
+                        titleEs: 'Politica de Privacidad',
                         titleEn: 'Privacy Policy',
                         assetEs: 'assets/legal/privacy-policy.es.html',
                         assetEn: 'assets/legal/privacy-policy.en.html',
                       ),
                   '/data-deletion': (_) => const DocumentWebView(
-                        titleEs: 'Eliminación de Datos',
+                        titleEs: 'Eliminacion de Datos',
                         titleEn: 'Data Deletion',
                         assetEs: 'assets/legal/data-deletion.es.html',
                         assetEn: 'assets/legal/data-deletion.en.html',
@@ -391,7 +614,16 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
 /// ---------- AppBar with ticker in bottom ----------
 class NvAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
-  const NvAppBar({super.key, required this.title});
+  final bool centerTitle;
+  final bool showBack;
+  final List<Widget> extraActions;
+  const NvAppBar({
+    super.key,
+    required this.title,
+    this.centerTitle = true,
+    this.showBack = false,
+    this.extraActions = const [],
+  });
 
   static const double tickerHeight = 54;
 
@@ -399,28 +631,9 @@ class NvAppBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize =>
       const Size.fromHeight(kToolbarHeight + tickerHeight);
 
-  String _t(BuildContext context, String key) {
-    final es = AppState.of(context).isSpanish.value;
-    const esMap = {
-      'dark': 'Oscuro',
-      'light': 'Claro',
-      'lang_tip_es': 'Cambiar a inglés (mantener para ajustes)',
-      'lang_tip_en': 'Cambiar a español (mantener para ajustes)',
-      'cur_tip': 'Mantener para ajustes de moneda',
-    };
-    const enMap = {
-      'dark': 'Dark',
-      'light': 'Light',
-      'lang_tip_es': 'Switch to English (long-press for settings)',
-      'lang_tip_en': 'Switch to Spanish (long-press for settings)',
-      'cur_tip': 'Long-press for currency settings',
-    };
-    return (es ? esMap : enMap)[key]!;
-  }
-
   List<String> _messages(AppState app) {
-    final es = app.isSpanish.value;
-    return List<String>.from(es ? app.tickerEs.value : app.tickerEn.value);
+    final isEs = app.languageCode.value == 'es';
+    return List<String>.from(isEs ? app.tickerEs.value : app.tickerEn.value);
   }
 
   @override
@@ -437,15 +650,26 @@ class NvAppBar extends StatelessWidget implements PreferredSizeWidget {
         ? app.textDark.value
         : app.textLight.value;
 
-    // Ensure "Niña Verde — " prefix exactly once
+    // Ensure "Niña Verde - " prefix exactly once
     String visibleTitle = title.replaceFirst('Nicaragua ', '');
     final normalized = visibleTitle.toLowerCase();
-    final hasPrefix = normalized.startsWith('niña verde —') ||
-        normalized.startsWith('nina verde —') || // ascii fallback
-        normalized.startsWith('niña verde-') ||
-        normalized.startsWith('nina verde-');
-    if (!hasPrefix) {
-      visibleTitle = 'Niña Verde — $visibleTitle';
+    
+    // Check for existing prefixes (case-insensitive)
+    final bool hasCorrectPrefix = normalized.startsWith('niña verde -') || 
+                                  normalized.startsWith('niña verde-');
+    final bool hasIncorrectPrefix = normalized.startsWith('nina verde -') || 
+                                    normalized.startsWith('nina verde-');
+
+    if (hasIncorrectPrefix) {
+      // Replace the incorrect "Nina Verde" with "Niña Verde"
+      if (normalized.startsWith('nina verde -')) {
+        visibleTitle = visibleTitle.replaceFirst(RegExp(r'nina verde -', caseSensitive: false), 'Niña Verde -');
+      } else {
+        visibleTitle = visibleTitle.replaceFirst(RegExp(r'nina verde-', caseSensitive: false), 'Niña Verde-');
+      }
+    } else if (!hasCorrectPrefix) {
+      // Prepend "Niña Verde - " if no prefix exists
+      visibleTitle = 'Niña Verde - $visibleTitle';
     }
 
     return AppBar(
@@ -453,50 +677,13 @@ class NvAppBar extends StatelessWidget implements PreferredSizeWidget {
         visibleTitle,
         style: const TextStyle(fontWeight: FontWeight.w700),
       ),
-      centerTitle: true,
-      automaticallyImplyLeading: false,
+      centerTitle: centerTitle,
+      automaticallyImplyLeading: showBack,
       actions: [
-        // Language toggle; long-press -> settings
-        ValueListenableBuilder<bool>(
-          valueListenable: app.isSpanish,
-          builder: (_, es, __) => IconButton(
-            tooltip:
-                es ? _t(context, 'lang_tip_es') : _t(context, 'lang_tip_en'),
-            onPressed: () => app.isSpanish.value = !es,
-            onLongPress: () =>
-                Navigator.pushNamed(context, '/language-settings'),
-            icon: Text(es ? 'ES' : 'EN',
-                style: const TextStyle(fontWeight: FontWeight.bold)),
-          ),
-        ),
-        // Currency toggle; long-press -> settings
-        ValueListenableBuilder<String>(
-          valueListenable: app.currencyCode,
-          builder: (_, code, __) => IconButton(
-            tooltip: _t(context, 'cur_tip'),
-            onPressed: () =>
-                app.currencyCode.value = (code == 'USD') ? 'NIO' : 'USD',
-            onLongPress: () =>
-                Navigator.pushNamed(context, '/currency-settings'),
-            icon:
-                Text(code, style: const TextStyle(fontWeight: FontWeight.bold)),
-          ),
-        ),
-        // Theme toggle
-        ValueListenableBuilder<ThemeMode>(
-          valueListenable: app.themeMode,
-          builder: (_, mode, __) {
-            final isDark = mode == ThemeMode.dark;
-            return IconButton(
-              tooltip: isDark ? _t(context, 'light') : _t(context, 'dark'),
-              onPressed: () => app.themeMode.value =
-                  isDark ? ThemeMode.light : ThemeMode.dark,
-              icon: Icon(isDark
-                  ? Icons.light_mode_outlined
-                  : Icons.dark_mode_outlined),
-            );
-          },
-        ),
+        ...extraActions,
+        const NvLanguageToggle(),
+        const NvCurrencyToggle(),
+        const NvThemeToggle(),
       ],
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(tickerHeight),
@@ -508,10 +695,18 @@ class NvAppBar extends StatelessWidget implements PreferredSizeWidget {
               return GestureDetector(
                 onLongPress: () {
                   if (app.isManager.value) {
-                    Navigator.pushNamed(context, '/ticker-settings');
+                    Navigator.pushNamed(context, '/app-settings');
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Insufficient permissions')),
+                      SnackBar(
+                        content: Text(
+                          tr(
+                            context,
+                            en: 'Insufficient permissions',
+                            es: 'Permisos insuficientes',
+                          ),
+                        ),
+                      ),
                     );
                   }
                 },
@@ -529,10 +724,18 @@ class NvAppBar extends StatelessWidget implements PreferredSizeWidget {
                 speedPxPerSec: spx,
                 onLongPress: () {
                   if (app.isManager.value) {
-                    Navigator.pushNamed(context, '/ticker-settings');
+                    Navigator.pushNamed(context, '/app-settings');
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Insufficient permissions')),
+                      SnackBar(
+                        content: Text(
+                          tr(
+                            context,
+                            en: 'Insufficient permissions',
+                            es: 'Permisos insuficientes',
+                          ),
+                        ),
+                      ),
                     );
                   }
                 },
@@ -541,6 +744,114 @@ class NvAppBar extends StatelessWidget implements PreferredSizeWidget {
           },
         ),
       ),
+    );
+  }
+}
+
+class NvLanguageToggle extends StatelessWidget {
+  const NvLanguageToggle({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final app = AppState.of(context);
+    return ValueListenableBuilder<List<String>>(
+      valueListenable: app.languageOptions,
+      builder: (_, options, __) => ValueListenableBuilder<Map<String, String>>(
+        valueListenable: app.languageLabels,
+        builder: (_, labels, __) => ValueListenableBuilder<String>(
+          valueListenable: app.languageCode,
+          builder: (_, code, __) {
+            final label = labels[code] ??
+                (code.isNotEmpty ? code.toUpperCase() : 'LANG');
+            final next = options.isEmpty
+                ? code
+                : options[(options.indexOf(code) + 1) % options.length];
+            return IconButton(
+              tooltip: tr(context, en: 'Language', es: 'Idioma'),
+              onPressed: () => app.languageCode.value = next,
+              onLongPress: () =>
+                  Navigator.pushNamed(context, '/language-settings'),
+              icon: Text(label,
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class NvCurrencyToggle extends StatelessWidget {
+  const NvCurrencyToggle({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final app = AppState.of(context);
+    return ValueListenableBuilder<List<String>>(
+      valueListenable: app.currencyOptions,
+      builder: (_, options, __) => ValueListenableBuilder<String>(
+        valueListenable: app.currencyCode,
+        builder: (_, code, __) {
+          final next = options.isEmpty
+              ? code
+              : options[(options.indexOf(code) + 1) % options.length];
+          return IconButton(
+            tooltip: tr(context, en: 'Currency', es: 'Moneda'),
+            onPressed: () => app.currencyCode.value = next,
+            onLongPress: () =>
+                Navigator.pushNamed(context, '/currency-settings'),
+            icon:
+                Text(code, style: const TextStyle(fontWeight: FontWeight.bold)),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class NvThemeToggle extends StatelessWidget {
+  const NvThemeToggle({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final app = AppState.of(context);
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: app.themeMode,
+      builder: (_, mode, __) {
+        final isDark = mode == ThemeMode.dark;
+        return IconButton(
+          tooltip: tr(
+            context,
+            en: isDark ? 'Light' : 'Dark',
+            es: isDark ? 'Claro' : 'Oscuro',
+          ),
+          onPressed: () => app.themeMode.value =
+              isDark ? ThemeMode.light : ThemeMode.dark,
+          icon: Icon(
+            isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+          ),
+        );
+      },
+    );
+  }
+}
+
+class NvInlineToggles extends StatelessWidget {
+  const NvInlineToggles({super.key, this.spacing = 4});
+
+  final double spacing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const NvLanguageToggle(),
+        SizedBox(width: spacing),
+        const NvCurrencyToggle(),
+        SizedBox(width: spacing),
+        const NvThemeToggle(),
+      ],
     );
   }
 }
@@ -748,16 +1059,26 @@ class _TickerBandState extends State<_TickerBand>
 
 /// ---------- Placeholder ----------
 class PlaceholderPage extends StatelessWidget {
-  final String title;
-  const PlaceholderPage({super.key, required this.title});
+  final String titleEn;
+  final String titleEs;
+  const PlaceholderPage({
+    super.key,
+    required this.titleEn,
+    required this.titleEs,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final title = tr(context, en: titleEn, es: titleEs);
     return Scaffold(
-      appBar: NvAppBar(title: title),
+      appBar: NvAppBar(title: title, showBack: true),
       body: Center(
         child: Text(
-          '$title — placeholder screen',
+          tr(
+            context,
+            en: '$title - placeholder screen',
+            es: '$title - pantalla en construccion',
+          ),
           style: Theme.of(context).textTheme.titleLarge,
         ),
       ),
@@ -772,18 +1093,50 @@ class LanguageSettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final app = AppState.of(context);
-    return Scaffold(
-      appBar: const NvAppBar(title: 'Language Settings'),
-      body: ListView(
-        children: [
-          SwitchListTile(
-            title: const Text('Default to Espa¤ol (ES)'),
-            subtitle: const Text('Show Spanish first throughout the app'),
-            value: app.isSpanish.value,
-            onChanged: (v) => app.isSpanish.value = v,
+    return ValueListenableBuilder<String>(
+      valueListenable: app.languageCode,
+      builder: (_, __, ___) {
+        final title = tr(
+          context,
+          en: 'Language Settings',
+          es: 'Configuracion de idiomas',
+        );
+        return Scaffold(
+          appBar: NvAppBar(title: title, showBack: true),
+          body: ValueListenableBuilder<List<String>>(
+            valueListenable: app.languageOptions,
+            builder: (context, options, _) {
+              return ValueListenableBuilder<Map<String, String>>(
+                valueListenable: app.languageLabels,
+                builder: (context, labels, _) {
+                  return ValueListenableBuilder<String>(
+                    valueListenable: app.languageCode,
+                    builder: (context, code, _) {
+                      return RadioGroup<String>(
+                        groupValue: code,
+                        onChanged: (value) {
+                          if (value != null) {
+                            app.languageCode.value = value;
+                          }
+                        },
+                        child: ListView(
+                          children: options.map((lang) {
+                            final label = labels[lang] ?? lang.toUpperCase();
+                            return RadioListTile<String>(
+                              value: lang,
+                              title: Text(label),
+                            );
+                          }).toList(),
+                        ),
+                      );
+                    },
+                  );
+                },
+              );
+            },
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -795,33 +1148,54 @@ class CurrencySettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final app = AppState.of(context);
-    return Scaffold(
-      appBar: const NvAppBar(title: 'Currency Settings'),
-      body: ValueListenableBuilder<String>(
-        valueListenable: app.currencyCode,
-        builder: (context, currency, _) {
-          return RadioGroup<String>(
-            groupValue: currency,
-            onChanged: (value) {
-              if (value != null) {
-                app.currencyCode.value = value;
-              }
+    return ValueListenableBuilder<String>(
+      valueListenable: app.languageCode,
+      builder: (_, __, ___) {
+        final title = tr(
+          context,
+          en: 'Currency Settings',
+          es: 'Configuracion de monedas',
+        );
+        return Scaffold(
+          appBar: NvAppBar(title: title, showBack: true),
+          body: ValueListenableBuilder<List<String>>(
+            valueListenable: app.currencyOptions,
+            builder: (context, options, _) {
+              return ValueListenableBuilder<Map<String, CurrencyConfig>>(
+                valueListenable: app.currencyConfigs,
+                builder: (context, configs, _) {
+                  return ValueListenableBuilder<String>(
+                    valueListenable: app.currencyCode,
+                    builder: (context, currency, _) {
+                      final rateLabel = tr(context, en: 'rate', es: 'tasa');
+                      return RadioGroup<String>(
+                        groupValue: currency,
+                        onChanged: (value) {
+                          if (value != null) {
+                            app.currencyCode.value = value;
+                          }
+                        },
+                        child: ListView(
+                          children: options.map((code) {
+                            final cfg = configs[code];
+                            final label = cfg == null
+                                ? code
+                                : '${cfg.code} - ${cfg.symbol} ($rateLabel ${cfg.rateFromUsd.toStringAsFixed(2)})';
+                            return RadioListTile<String>(
+                              value: code,
+                              title: Text(label),
+                            );
+                          }).toList(),
+                        ),
+                      );
+                    },
+                  );
+                },
+              );
             },
-            child: ListView(
-              children: const [
-                RadioListTile<String>(
-                  value: 'USD',
-                  title: Text('USD - US Dollar'),
-                ),
-                RadioListTile<String>(
-                  value: 'NIO',
-                  title: Text('NIO - Nicaraguan C¢rdoba'),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -865,15 +1239,15 @@ class _TickerSettingsPageState extends State<TickerSettingsPage>
     'hello': 'hola',
     'cat': 'gato',
     'dog': 'perro',
-    'earn rewards.': 'gana recompensas.',
-    'get exclusive offers.': 'obtén ofertas exclusivas.',
-    'login to collect points.': 'inicia sesión para acumular puntos.',
+    'earn nv coins.': 'gana monedas nv.',
+    'get exclusive offers.': 'obten ofertas exclusivas.',
+    'login to collect nv coins.': 'inicia sesion para ganar monedas nv.',
     'enjoy free services.': 'disfruta servicios gratis.',
     'tune into the best entertainment.': 'sintoniza el mejor entretenimiento.',
     'engage the community.': 'participa en la comunidad.',
-    'catch the _vybz!_': '¡atrapa el _vybz!_',
+    'catch the _vybz!_': 'atrapa el _vybz!_',
     'come for the food, stay for the _vybz!_':
-        'ven por la comida, quédate por el _vybz!_',
+        'ven por la comida, quedate por el _vybz!_',
   };
 
   String _translateEnToEs(String input) {
@@ -894,7 +1268,7 @@ class _TickerSettingsPageState extends State<TickerSettingsPage>
   bool _looksSpanish(String s) {
     final t = s.trim().toLowerCase();
     if (t.isEmpty) return false;
-    if (RegExp(r'[áéíóúñ¡¿]').hasMatch(t)) return true;
+    if (RegExp(r'[¡¿]').hasMatch(t)) return true;
     const hits = [
       ' el ',
       ' la ',
@@ -902,14 +1276,15 @@ class _TickerSettingsPageState extends State<TickerSettingsPage>
       ' las ',
       ' de ',
       ' para ',
-      ' sesión',
+      ' sesion',
       ' ofertas',
       ' recompensas',
       ' gratis',
       ' sintoniza',
       ' participa',
       ' bienvenido',
-      ' naturalmente'
+      ' naturalmente',
+      ' quedate',
     ];
     return hits.any((w) => t.contains(w));
   }
@@ -960,7 +1335,7 @@ class _TickerSettingsPageState extends State<TickerSettingsPage>
     _textLightLocal = app.textLight.value;
     _textDarkLocal = app.textDark.value;
 
-    _editingSpanish = app.isSpanish.value;
+    _editingSpanish = app.languageCode.value == 'es';
 
     // Build paired list from current app lists (always align by index)
     final es = List<String>.from(app.tickerEs.value);
@@ -1015,7 +1390,15 @@ class _TickerSettingsPageState extends State<TickerSettingsPage>
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ticker settings saved')),
+          SnackBar(
+            content: Text(
+              tr(
+                context,
+                en: 'Ticker settings saved',
+                es: 'Ajustes del ticker guardados',
+              ),
+            ),
+          ),
         );
         Navigator.pop(context);
       }
@@ -1024,7 +1407,13 @@ class _TickerSettingsPageState extends State<TickerSettingsPage>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red.shade700,
-          content: Text('Save failed: $e'),
+          content: Text(
+            tr(
+              context,
+              en: 'Save failed: $e',
+              es: 'Error al guardar: $e',
+            ),
+          ),
         ),
       );
     }
@@ -1063,15 +1452,27 @@ class _TickerSettingsPageState extends State<TickerSettingsPage>
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Remove message?'),
-        content: const Text('This will delete the message in both languages.'),
+        title: Text(
+          tr(
+            context,
+            en: 'Remove message?',
+            es: 'Eliminar mensaje?',
+          ),
+        ),
+        content: Text(
+          tr(
+            context,
+            en: 'This will delete the message in both languages.',
+            es: 'Esto eliminara el mensaje en ambos idiomas.',
+          ),
+        ),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('No')),
+              child: Text(tr(context, en: 'No', es: 'No'))),
           FilledButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Yes')),
+              child: Text(tr(context, en: 'Yes', es: 'Si'))),
         ],
       ),
     );
@@ -1144,7 +1545,11 @@ class _TickerSettingsPageState extends State<TickerSettingsPage>
             controller: ctl,
             decoration: InputDecoration(
               labelText: label,
-              helperText: 'Hex ARGB (#AARRGGBB or #RRGGBB)',
+              helperText: tr(
+                context,
+                en: 'Hex ARGB (#AARRGGBB or #RRGGBB)',
+                es: 'Hex ARGB (#AARRGGBB o #RRGGBB)',
+              ),
               isDense: true,
               border: const OutlineInputBorder(),
             ),
@@ -1159,8 +1564,8 @@ class _TickerSettingsPageState extends State<TickerSettingsPage>
     final isEs = _editingSpanish;
 
     final labelEs = isEsUI ? 'Mensajes' : 'Messages';
-    final chipEs = isEsUI ? 'Español (ES)' : 'Spanish (ES)';
-    final chipEn = isEsUI ? 'Inglés (EN)' : 'English (EN)';
+    final chipEs = isEsUI ? 'Espanol (ES)' : 'Spanish (ES)';
+    final chipEn = isEsUI ? 'Ingles (EN)' : 'English (EN)';
     final addMsg = isEsUI ? 'Agregar mensaje' : 'Add message';
     final fixMix = isEsUI ? 'Auto-corregir mezcla' : 'Auto-fix mix';
     final fillMissing =
@@ -1219,9 +1624,13 @@ class _TickerSettingsPageState extends State<TickerSettingsPage>
                   initialValue: visibleText,
                   maxLines: 6,
                   minLines: 1,
-                  decoration: const InputDecoration(
-                    hintText: 'Message text… Use _VYBZ!_ to style VYBZ!',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    hintText: tr(
+                      context,
+                      en: 'Message text. Use _VYBZ!_ to style VYBZ!',
+                      es: 'Texto del mensaje. Usa _VYBZ!_ para estilo.',
+                    ),
+                    border: const OutlineInputBorder(),
                     isDense: true,
                   ),
                   onChanged: (v) => _editMsg(
@@ -1231,7 +1640,7 @@ class _TickerSettingsPageState extends State<TickerSettingsPage>
                   ),
                 ),
                 trailing: IconButton(
-                  tooltip: 'Remove',
+                  tooltip: tr(context, en: 'Remove', es: 'Eliminar'),
                   onPressed: () => _confirmRemove(i),
                   icon: const Icon(Icons.delete_outline),
                 ),
@@ -1256,16 +1665,17 @@ class _TickerSettingsPageState extends State<TickerSettingsPage>
   Widget build(BuildContext context) {
     final app = AppState.of(context);
 
-    return ValueListenableBuilder<bool>(
-      valueListenable: app.isSpanish,
-      builder: (context, isEsUI, _) {
+    return ValueListenableBuilder<String>(
+      valueListenable: app.languageCode,
+      builder: (context, code, _) {
+        final isEsUI = code == 'es';
         final title = isEsUI ? 'Ajustes del Ticker' : 'Ticker Settings';
         final tabMsg = isEsUI ? 'Mensajes' : 'Messages';
         final tabApp = isEsUI ? 'Apariencia' : 'Appearance';
         final showTickerLbl = isEsUI ? 'Mostrar ticker' : 'Show ticker';
         final showHint = isEsUI
-            ? 'Cambia la vista previa aquí; solo se aplica al guardar.'
-            : 'Changes preview while here; only applies on “Save”.';
+            ? 'Cambia la vista previa aqui; solo se aplica al guardar.'
+            : 'Changes preview while here; only applies on "Save".';
         final speedLbl = isEsUI ? 'Velocidad' : 'Speed';
         final pxs = isEsUI ? 'px/s' : 'px/s';
         final colorsLight =
@@ -1273,13 +1683,13 @@ class _TickerSettingsPageState extends State<TickerSettingsPage>
         final colorsDark =
             isEsUI ? 'Colores — Modo Oscuro' : 'Colors — Dark Mode';
         final laneLbl = isEsUI ? 'Pista (naranja)' : 'Lane (orange)';
-        final railLbl = isEsUI ? 'Rieles (marrón)' : 'Rails (brown)';
+        final railLbl = isEsUI ? 'Rieles (marron)' : 'Rails (brown)';
         final textLbl = isEsUI ? 'Color de texto' : 'Text color';
         final cancel = isEsUI ? 'Cancelar' : 'Cancel';
         final save = isEsUI ? 'Guardar' : 'Save';
 
         return Scaffold(
-          appBar: NvAppBar(title: title),
+          appBar: NvAppBar(title: title, showBack: true),
           body: DefaultTabController(
             length: 2,
             child: Column(
@@ -1588,4 +1998,15 @@ class _YouTubePopupWebViewState extends State<_YouTubePopupWebView> {
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
 
