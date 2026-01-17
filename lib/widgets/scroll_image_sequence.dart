@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
-import 'dart:ui';
+// import 'package:flutter/scheduler.dart'; // Unused
+// import 'dart:ui'; // Unnecessary
 import 'dart:math' as math;
 import '../state/app_state.dart';
 
@@ -159,13 +159,10 @@ class _ScrollImageSequenceState extends State<ScrollImageSequence>
         final double introProgress = _introController.value;
         final double warpPulse = _warpController.value;
         
-        // Rotation: Intro spins in, then subtle breathing rotation
-        final double baseRotation = _introPlayed 
-            ? (warpPulse * 0.02) // Subtle breathing
-            : (introProgress * math.pi * 2); // Spin in during intro
-        
-        final double scrollRotation = scrollProgress * 0.15;
-        final double totalRotation = baseRotation + scrollRotation;
+        // Rotation removed as per request
+        // final double baseRotation = ...
+        // final double scrollRotation = ...
+        // final double totalRotation = ...
         
         // Scale: Grows during intro, then breathes
         final double introScale = _introPlayed
@@ -177,7 +174,7 @@ class _ScrollImageSequenceState extends State<ScrollImageSequence>
         final double totalScale = introScale * breathingScale * scrollScale;
         
         // Opacity: Always visible once loaded
-        const double opacity = 1.0;
+        // const double opacity = 1.0; // Unused
 
         final assetPath = _cachedImagePath ?? 'assets/images/sequences/${widget.folder}/frame_000.png';
 
@@ -193,14 +190,13 @@ class _ScrollImageSequenceState extends State<ScrollImageSequence>
                 fit: StackFit.expand,
                 children: [
                   // Background image - must have explicit size
-                  Container(
+                  SizedBox(
                     width: width,
                     height: widget.height,
                     // removed color: Colors.black to avoid black box borders when scaled
                     child: Transform(
                       alignment: Alignment.center,
                       transform: Matrix4.identity()
-                        ..rotateZ(totalRotation)
                         ..scale(totalScale, totalScale),
                       child: Image.asset(
                         assetPath,
