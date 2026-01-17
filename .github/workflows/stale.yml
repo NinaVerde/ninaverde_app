@@ -1,4 +1,4 @@
-﻿name: Stale bot
+name: Stale bot
 on:
   schedule: [{ cron: "0 9 * * *" }] # daily 09:00 UTC
 permissions:
@@ -8,7 +8,7 @@ jobs:
   stale:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@v9
+      - uses: actions/stale@v10
         with:
           days-before-stale: 30
           days-before-close: 7
