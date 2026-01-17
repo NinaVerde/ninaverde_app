@@ -88,6 +88,7 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
   // Watchdog so "video" phase can't hang
   Timer? _videoWatchdog;
   Timer? _sequenceWatchdog;
+  bool _finalWhooshPrimed = false;
 
   @override
   void initState() {

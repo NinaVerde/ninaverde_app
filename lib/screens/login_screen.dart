@@ -818,6 +818,10 @@ class _LoginScreenState extends State<LoginScreen>
         ),
       );
     }
+
+    // 3. Regex fallback
+    final reg = RegExp(r'(?:v=|\/|embed\/|shorts\/|live\/|^)([A-Za-z0-9_-]{11})(?:[?&]|$)');
+    return reg.firstMatch(trimmed)?.group(1);
   }
 
   // ---- UI ------------------------------------------------------------------

@@ -70,6 +70,35 @@ Future<void> main() async {
 }
 
 
+class CurrencyConfig {
+  final String code;
+  final String symbol;
+  final double rateFromUsd;
+  final int fractionDigits;
+
+  const CurrencyConfig({
+    required this.code,
+    required this.symbol,
+    required this.rateFromUsd,
+    this.fractionDigits = 2,
+  });
+}
+
+String formatCurrency(BuildContext context, double usdAmount) {
+  final app = AppState.of(context);
+  final code = app.currencyCode.value;
+  final cfg = app.currencyConfigs.value[code] ??
+      app.currencyConfigs.value['USD'] ??
+      const CurrencyConfig(code: 'USD', symbol: '\$', rateFromUsd: 1.0);
+  final value = usdAmount * cfg.rateFromUsd;
+  return '${cfg.symbol}${value.toStringAsFixed(cfg.fractionDigits)}';
+}
+
+String tr(BuildContext context, {required String en, required String es}) {
+  final isEs = AppState.of(context).languageCode.value == 'es';
+  return isEs ? es : en;
+}
+
 class NinaVerdeApp extends StatefulWidget {
   const NinaVerdeApp({super.key});
   @override
@@ -362,6 +391,17 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
