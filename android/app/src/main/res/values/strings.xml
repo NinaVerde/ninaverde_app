@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Niña Verde</string>
+    <string name="facebook_app_id">1449626349514795</string>
+    <string name="facebook_client_token">9ca8cb1113725c94268ee347af5bc1f9</string>
+    <string name="fb_login_protocol_scheme">fb1449626349514795</string>
+</resources>

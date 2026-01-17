@@ -1,0 +1,16 @@
+Analyzing ninaverde_app...                                      
+
+   info - Unnecessary braces in a string interpolation - lib\screens\document_webview.dart:95:27 - unnecessary_brace_in_string_interps
+   info - Unnecessary braces in a string interpolation - lib\screens\document_webview.dart:99:68 - unnecessary_brace_in_string_interps
+   info - 'onPopInvoked' is deprecated and shouldn't be used. Use onPopInvokedWithResult instead. This feature was deprecated after v3.22.0-12.0.pre - lib\screens\home_screen.dart:204:15 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\intro_settings_screen.dart:244:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\intro_settings_screen.dart:246:47 - deprecated_member_use
+warning - The value of the field '_debugYouTube' isn't used - lib\screens\login_screen.dart:49:21 - unused_field
+warning - The value of the field '_debugYouTubeUrl' isn't used - lib\screens\login_screen.dart:50:23 - unused_field
+   info - Don't use 'BuildContext's across async gaps - lib\screens\login_screen.dart:477:22 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\login_screen.dart:479:35 - use_build_context_synchronously
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\login_screen.dart:819:56 - deprecated_member_use
+warning - The declaration '_openYoutubeExternal' isn't referenced - lib\screens\login_screen.dart:891:16 - unused_element
+warning - The value of the field 'whooshDelayFirst' isn't used - lib\screens\splash_to_login.dart:59:16 - unused_field
+warning - The value of the field 'whooshLeadSecond' isn't used - lib\screens\splash_to_login.dart:60:16 - unused_field
+

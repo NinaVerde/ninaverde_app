@@ -6,11 +6,12 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
-import 'package:audioplayers/audioplayers.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 import 'login_screen.dart';
+import '../main.dart';
 
 // -------- Brand palettes --------
 const Color kBizTint = Color(0xFF2D8CFF);
@@ -54,9 +55,12 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
   static const introLogoDuration = Duration(milliseconds: 720);
   static const finalRevealDuration = Duration(milliseconds: 900);
 
+
   // Video
   late final VideoPlayerController _video;
+  late final Future<void> _videoInit;
   bool _videoReady = false;
+  bool _useVideo = true;
   late final AnimationController _videoBloom;
   late final Animation<double> _videoScale;
   late final Animation<double> _videoGlow;
@@ -67,14 +71,21 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
   late final AnimationController _flash1;
   late final AnimationController _flash2;
   late final AnimationController _finalReveal;
+  late final AnimationController _bizLogoCtrl;
+
+  // Audio
+  static const _whooshAsset =
+      '648538__audiopapkin__cinematic-woosh-sfx-001.wav';
+  late final Future<AudioPool> _whooshPool;
 
   // Phase + navigation guard
   _Phase _phase = _Phase.introLogo;
   bool _navigated = false;
 
-  // Watchdog so "video" phase can’t hang
+  // Watchdog so "video" phase can't hang
   Timer? _videoWatchdog;
   Timer? _sequenceWatchdog;
+  bool _finalWhooshPrimed = false;
 
   @override
   void initState() {
@@ -84,13 +95,13 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
     _video = VideoPlayerController.asset(
       'assets/videos/Illuminated_Circles_Remastered_1080p.mp4',
     )
-      ..setLooping(false)
-      ..initialize().then((_) async {
-        try {
-          await _video.setVolume(0.4);
-        } catch (_) {}
-        if (mounted) setState(() => _videoReady = true);
-      });
+      ..setLooping(false);
+      _videoInit = _video.initialize().then((_) async {
+      try {
+        await _video.setVolume(0.2);
+      } catch (_) {}
+      if (mounted) setState(() => _videoReady = true);
+    });
 
     // Bloom/settle
     _videoBloom = AnimationController(
@@ -110,6 +121,14 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
     _flash2 = AnimationController(vsync: this, duration: flashDuration);
     _finalReveal =
         AnimationController(vsync: this, duration: finalRevealDuration);
+    _bizLogoCtrl =
+        AnimationController(vsync: this, duration: const Duration(milliseconds: 1100));
+
+    _whooshPool = FlameAudio.createPool(
+      _whooshAsset,
+      minPlayers: 1,
+      maxPlayers: 3,
+    );
 
     _sequenceWatchdog = Timer(const Duration(seconds: 15), () {
       if (mounted && !_navigated) {
@@ -117,28 +136,28 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
       }
     });
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      try {
+        await _whooshPool;
+      } catch (_) {}
       if (mounted) {
         _runSequence();
       }
     });
   }
 
-  // ------- SFX: spawn a fresh low-latency player per whoosh -------
+  // ------- SFX: preloaded low-latency whoosh -------
   Future<void> _playWhoosh([double volume = 1.0]) async {
-    final p = AudioPlayer();
     try {
-      await p.setReleaseMode(ReleaseMode.stop);
-      await p.setPlayerMode(PlayerMode.lowLatency);
-      await p.play(
-        AssetSource('audio/648538__audiopapkin__cinematic-woosh-sfx-001.wav'),
-        volume: volume.clamp(0.0, 1.0),
-      );
+      final pool = await _whooshPool;
+      await pool.start(volume: volume.clamp(0.0, 1.0));
     } catch (_) {}
-    // dispose when done (and also after a timeout as a safety)
-    unawaited(p.onPlayerComplete.first.then((_) => p.dispose()));
-    unawaited(
-        Future.delayed(const Duration(seconds: 4)).then((_) => p.dispose()));
+  }
+
+  void _fireWhoosh() {
+    // Fire immediately to avoid delayed playback.
+    unawaited(_playWhoosh(1.0));
   }
 
   Future<bool> _safeForward(
@@ -160,19 +179,18 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
 
   Future<void> _runSequence() async {
     try {
-      // Intro pop + light whoosh during bloom (unchanged)
+      // First swoosh: fires immediately as the sequence begins
+      _fireWhoosh();
+
+      // Intro pop
       if (!mounted) return;
       setState(() => _phase = _Phase.introLogo);
-      unawaited(() async {
-        await Future.delayed(const Duration(milliseconds: 260));
-        await _playWhoosh(0.95);
-      }());
       if (!await _safeForward(_introLogoCtrl)) {
         _goToLogin();
         return;
       }
 
-      // FLASH 0 (NV) — intro → POWERED
+      // FLASH 0 (NV) - intro → POWERED
       if (!mounted) return;
       setState(() => _phase = _Phase.flash0);
       if (!await _safeForward(_flash0)) {
@@ -183,10 +201,9 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
       // POWERED (holds)
       if (!mounted) return;
       setState(() => _phase = _Phase.powered);
-      unawaited(_playWhoosh(1.0));
       await Future.delayed(poweredDuration);
 
-      // FLASH 1 (Biz) — POWERED → BY
+      // FLASH 1 (Biz) - POWERED → BY
       if (!mounted) return;
       setState(() => _phase = _Phase.flash1);
       if (!await _safeForward(_flash1)) {
@@ -197,10 +214,9 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
       // BY (holds)
       if (!mounted) return;
       setState(() => _phase = _Phase.by);
-      unawaited(_playWhoosh(1.0));
       await Future.delayed(byDuration);
 
-      // FLASH 2 (Biz) — BY → Video
+      // FLASH 2 (Biz) - BY → Video
       if (!mounted) return;
       setState(() => _phase = _Phase.flash2);
       if (!await _safeForward(_flash2)) {
@@ -208,19 +224,38 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
         return;
       }
 
-      // Video
+      // Biz Apps animation (video or fallback)
       if (!mounted) return;
-      setState(() => _phase = _Phase.video);
-      unawaited(_playWhoosh(1.0));
-      if (_videoReady) {
+      setState(() {
+        _phase = _Phase.video;
+        _useVideo = _videoReady;
+      });
+      final videoReady = await _awaitVideoReady();
+      if (videoReady) {
+        _useVideo = true;
+        if (mounted) setState(() {});
         _enterVideoPhase();
       } else {
-        // Fallback if init lags
-        await Future.delayed(const Duration(seconds: 2));
-        _doFinalReveal();
+        _useVideo = false;
+        if (mounted) setState(() {});
+        _bizLogoCtrl.forward(from: 0);
+        final fallbackDuration =
+            _bizLogoCtrl.duration ?? const Duration(milliseconds: 1100);
+        await Future.delayed(fallbackDuration);
+        _doFinalReveal(fireWhoosh: false);
       }
     } catch (_) {
       _goToLogin();
+    }
+  }
+
+  Future<bool> _awaitVideoReady() async {
+    if (_videoReady) return true;
+    try {
+      await _videoInit.timeout(const Duration(seconds: 2));
+      return _videoReady;
+    } catch (_) {
+      return false;
     }
   }
 
@@ -265,10 +300,10 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
       }
       await Future.delayed(const Duration(milliseconds: 100));
     }
-    if (mounted) _doFinalReveal();
+    if (mounted) _doFinalReveal(fireWhoosh: false);
   }
 
-  Future<void> _doFinalReveal() async {
+  Future<void> _doFinalReveal({bool fireWhoosh = false}) async {
     if (!mounted) return;
 
     // Stop watchdog once we move on
@@ -277,7 +312,10 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
     _sequenceWatchdog?.cancel();
     _sequenceWatchdog = null;
 
-    unawaited(_playWhoosh(1.0));
+    if (fireWhoosh && !_finalWhooshPrimed) {
+      _finalWhooshPrimed = true;
+      _fireWhoosh();
+    }
     setState(() => _phase = _Phase.finalReveal);
     await _finalReveal.forward();
     _finalReveal.reset();
@@ -309,14 +347,17 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
     _flash1.dispose();
     _flash2.dispose();
     _finalReveal.dispose();
+    _bizLogoCtrl.dispose();
     _videoBloom.dispose();
     _video.dispose();
+    _whooshPool.then((p) => p.dispose());
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final loginPreview = const LoginScreen();
+    final skipLabel = tr(context, en: 'Skip', es: 'Saltar');
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -330,12 +371,14 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
               _Phase.introLogo => _IntroLogoPop(controller: _introLogoCtrl),
               _Phase.powered => const _TitleCard(text: 'POWERED', isBiz: true),
               _Phase.by => const _TitleCard(text: 'BY', isBiz: true),
-              _Phase.video => _VideoStage(
-                  controller: _video,
-                  scale: _videoScale,
-                  glowStrength: _videoGlow,
-                  verticalOffset: -0.02, // slight lift
-                ),
+              _Phase.video => _useVideo
+                  ? _VideoStage(
+                      controller: _video,
+                      scale: _videoScale,
+                      glowStrength: _videoGlow,
+                      verticalOffset: -0.10,
+                    )
+                  : _BizLogoStage(controller: _bizLogoCtrl),
               _Phase.flash0 ||
               _Phase.flash1 ||
               _Phase.flash2 ||
@@ -372,7 +415,7 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
               _FinalBurstReveal(
                 controller: _finalReveal,
                 login: loginPreview,
-                center: const Alignment(0.0, -0.32),
+                center: const Alignment(0.0, -0.38),
                 coreColor: Colors.white,
                 tintInner: nvAccentOrange,
                 tintOuter: nvGreenDark.withValues(alpha: 0.75),
@@ -392,7 +435,7 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
                       borderRadius: BorderRadius.circular(12)),
                 ),
                 onPressed: _goToLogin,
-                child: const Text('Skip'),
+                child: Text(skipLabel),
               ),
             ),
 
@@ -616,6 +659,82 @@ class _TitleCardState extends State<_TitleCard>
   }
 }
 
+class _BizLogoStage extends StatelessWidget {
+  final AnimationController controller;
+  const _BizLogoStage({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    final scale = Tween<double>(begin: 0.92, end: 1.0).animate(
+      CurvedAnimation(parent: controller, curve: Curves.easeOutCubic),
+    );
+    final fade = CurvedAnimation(
+      parent: controller,
+      curve: const Interval(0.10, 0.90, curve: Curves.easeOut),
+    );
+
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (_, __) {
+        return Container(
+          color: Colors.black,
+          alignment: Alignment.center,
+          child: Opacity(
+            opacity: fade.value,
+            child: Transform.scale(
+              scale: scale.value,
+              child: SizedBox(
+                width: MediaQuery.of(context).size.shortestSide * 0.24,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'BIZ APPS',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'BebasNeue',
+                        fontSize:
+                            MediaQuery.of(context).size.shortestSide * 0.06,
+                        letterSpacing: 2.0,
+                        color: Colors.white,
+                        shadows: [
+                          Shadow(
+                            color: kBizTintSoft.withValues(alpha: 0.7),
+                            blurRadius: 24,
+                          ),
+                          Shadow(
+                            color: kBizTint.withValues(alpha: 0.45),
+                            blurRadius: 42,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: 40,
+                      height: 3,
+                      decoration: BoxDecoration(
+                        color: kBizTintSoft,
+                        borderRadius: BorderRadius.circular(999),
+                        boxShadow: [
+                          BoxShadow(
+                            color: kBizTint.withValues(alpha: 0.5),
+                            blurRadius: 12,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
 // Video stage with fullscreen cover and trimmed end matte (no center scrub)
 class _VideoStage extends StatefulWidget {
   final VideoPlayerController controller;
@@ -697,7 +816,7 @@ class _VideoStageState extends State<_VideoStage> {
               Transform(
                 transform: Matrix4.translationValues(0, screen.height * widget.verticalOffset, 0),
                 child: Transform.scale(
-                  scale: widget.scale.value,
+                  scale: widget.scale.value * 0.325,
                   child: SizedBox.expand(
                     child: Stack(
                       children: [
