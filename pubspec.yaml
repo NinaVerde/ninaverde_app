@@ -59,6 +59,13 @@ dependencies:
   # Game / Stage
   flame: ^1.34.0
   flame_audio: ^2.11.12
+  shared_preferences: ^2.5.4
+  permission_handler: ^12.0.1
+  
+  # Notifications & Scheduling
+  flutter_local_notifications: ^19.5.0
+  timezone: ^0.10.1
+  google_fonts: ^7.0.2
 
 dev_dependencies:
   flutter_test:
@@ -67,12 +74,7 @@ dev_dependencies:
   flutter_native_splash: ^2.4.7
   flutter_launcher_icons: ^0.14.4
 
-dependency_overrides:
-  characters: ^1.4.1
-  matcher: ^0.12.18
-  material_color_utilities: ^0.13.0
-  share_plus_platform_interface: ^6.1.0
-  test_api: ^0.7.9
+
 
 flutter:
   uses-material-design: true
@@ -81,10 +83,24 @@ flutter:
     - assets/images/
     - assets/images/kitchen/
     - assets/images/avatar/
+    - assets/images/angelina/
+    - assets/images/sequences/
+    # Explicit carousel sequence folders for reliable loading
+    - assets/images/sequences/vybz_eventos/
+    - assets/images/sequences/desayuno_wtf/
+    - assets/images/sequences/cafes/
+    - assets/images/sequences/la_parrillada/
+    - assets/images/sequences/la_cocina/
+    - assets/images/sequences/smoothies/
+    - assets/images/sequences/los_postres/
+    - assets/images/sequences/los_helados/
+    - assets/images/sequences/microgreens/
+    - assets/images/sequences/equipo/
+    - assets/images/sequences/minoristas/
     - assets/lottie/
     - assets/legal/
     - assets/videos/Illuminated_Circles_Remastered_1080p.mp4
-    - "assets/videos/Nina Verde Delicia Halada (Baila Conmingo).mp4"
+    - assets/videos/nina_verde_intro.mp4
     - assets/audio/
 
   fonts:

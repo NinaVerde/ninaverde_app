@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../models/product_model.dart';
+import '../services/user_prefs_service.dart';
+import '../services/firestore_service.dart';
 
 class CartItem {
   final Product product;
@@ -12,6 +14,30 @@ class CartItem {
 
 class CartProvider with ChangeNotifier {
   final Map<String, CartItem> _items = {};
+
+  CartProvider() {
+    _loadCart();
+  }
+
+  Future<void> _loadCart() async {
+    // We need products to reconstruct the cart objects
+    // Quick load from Firestore to get product data.
+    // In a larger app, we might cache product data locally too.
+    try {
+        final products = await FirestoreService().getProducts().first;
+        final savedItems = UserPrefsService.loadCart(products);
+        for (final item in savedItems) {
+            _items[item.product.id] = item;
+        }
+        notifyListeners();
+    } catch (e) {
+        debugPrint('Error loading cart: $e');
+    }
+  }
+  
+  void _saveCart() {
+    UserPrefsService.saveCart(_items);
+  }
 
   Map<String, CartItem> get items => {..._items};
 
@@ -41,11 +67,13 @@ class CartProvider with ChangeNotifier {
       );
     }
     notifyListeners();
+    _saveCart();
   }
 
   void removeItem(String productId) {
     _items.remove(productId);
     notifyListeners();
+    _saveCart();
   }
 
   void removeSingleItem(String productId) {
@@ -63,10 +91,12 @@ class CartProvider with ChangeNotifier {
       _items.remove(productId);
     }
     notifyListeners();
+    _saveCart();
   }
 
   void clear() {
     _items.clear();
     notifyListeners();
+    _saveCart();
   }
 }

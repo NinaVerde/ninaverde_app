@@ -3,7 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../main.dart';
+import '../state/app_state.dart';
 import '../services/rewards_service.dart';
+import '../widgets/nv_widgets.dart';
 
 class RewardsAdminScreen extends StatefulWidget {
   const RewardsAdminScreen({super.key});

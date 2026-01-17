@@ -9,9 +9,15 @@ import 'package:share_plus/share_plus.dart';
 import '../models/product_model.dart';
 import '../providers/cart_provider.dart';
 import '../main.dart';
+import '../state/app_state.dart';
 import '../services/user_prefs_service.dart';
 import '../services/review_service.dart';
 import '../models/review_model.dart';
+import '../widgets/nv_widgets.dart';
+import '../services/analytics_service.dart';
+import '../widgets/angelina_widget.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'dart:math';
 
 class ProductDetailScreen extends StatefulWidget {
   final Product product;
@@ -44,6 +50,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           }
         });
     }
+    
+    // Log View
+    AnalyticsService.logProductView(widget.product.id, widget.product.name);
   }
 
   @override
@@ -67,7 +76,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     final app = AppState.of(context);
 
     final heroTag = 'product_${widget.product.id}';
-    final description = widget.product.description.trim();
+    // Localization logic
+    final isEs = app.languageCode.value == 'es';
+    final localizedName = isEs && widget.product.nameEs.isNotEmpty 
+        ? widget.product.nameEs 
+        : widget.product.nameEn.isNotEmpty ? widget.product.nameEn : widget.product.name;
+    
+    final rawDesc = isEs && widget.product.descriptionEs.isNotEmpty
+        ? widget.product.descriptionEs
+        : widget.product.descriptionEn.isNotEmpty ? widget.product.descriptionEn : widget.product.description;
+    
+    final description = rawDesc.trim();
 
     final nameStyle = (theme.textTheme.headlineMedium?.copyWith(
           fontWeight: FontWeight.bold,
@@ -92,6 +111,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           Listenable.merge([app.languageCode, app.currencyCode, app.currencyConfigs]),
       builder: (_, __) {
         final addLabel = tr(context, en: 'Add to Cart', es: 'Agregar');
+        
+        // Re-evaluate localization if language changed inside builder
+        final currentIsEs = app.languageCode.value == 'es';
+        final currentName = currentIsEs && widget.product.nameEs.isNotEmpty 
+            ? widget.product.nameEs 
+            : widget.product.nameEn.isNotEmpty ? widget.product.nameEn : widget.product.name;
+            
+        final currentRawDesc = currentIsEs && widget.product.descriptionEs.isNotEmpty
+            ? widget.product.descriptionEs
+            : widget.product.descriptionEn.isNotEmpty ? widget.product.descriptionEn : widget.product.description;
+        final currentDesc = currentRawDesc.trim();
+
         return StreamBuilder<Map<String, dynamic>>(
           stream: _prefsService.prefsStream(),
           builder: (context, prefsSnap) {
@@ -100,16 +131,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             final isFavorite = favorites.contains(widget.product.id);
             return Scaffold(
               appBar: NvAppBar(
-                title: widget.product.name,
+                title: currentName, 
                 showBack: true,
                 extraActions: [
                   IconButton(
                     onPressed: () {
+                      final text = currentIsEs
+                         ? '¡Tenés que probar *$currentName* en Niña Verde! 🌮🔥'
+                         : 'You have to try *$currentName* at Niña Verde! 🌮🔥';
                       SharePlus.instance.share(
-                        ShareParams(
-                          text: 'Check out ${widget.product.name} at Niña Verde.',
-                        ),
+                        ShareParams(text: text),
                       );
+                      AnalyticsService.logShare('product', widget.product.id);
                     },
                     icon: const Icon(Icons.share),
                   ),
@@ -130,14 +163,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         );
                         return;
                       }
-                      final updated = Set<String>.from(favorites);
                       final willFavorite = !isFavorite;
-                      if (willFavorite) {
-                        updated.add(widget.product.id);
-                      } else {
-                        updated.remove(widget.product.id);
-                      }
-                      await _prefsService.saveFavorites(updated);
                       await _prefsService.toggleFavorite(
                         productId: widget.product.id,
                         isFavorite: willFavorite,
@@ -179,8 +205,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            widget.product.name,
+                          TranslatedText(
+                            currentName,
                             style: nameStyle,
                           ),
                           if (widget.product.ratingCount > 0)
@@ -208,9 +234,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               ),
                             ),
                           const SizedBox(height: 8),
-                          if (description.isNotEmpty) ...[
-                            Text(
-                              description,
+                          if (currentDesc.isNotEmpty) ...[
+                            TranslatedText(
+                              currentDesc,
                               style: theme.textTheme.bodyLarge,
                             ),
                             const SizedBox(height: 16),
@@ -245,6 +271,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             ],
                           ),
                           const SizedBox(height: 24),
+                          _buildHostessTip(context),
+                          const SizedBox(height: 24),
                           if (widget.product.videoUrl.isNotEmpty)
                             _buildVideoSection(context),
                           if (widget.product.videoUrl.isNotEmpty)
@@ -272,6 +300,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       for (int i = 0; i < _quantity; i++) {
                         cart.addItem(widget.product);
                       }
+                      
+                      AnalyticsService.logAddToCart(
+                        widget.product.id, 
+                        widget.product.name, 
+                        widget.product.price
+                      );
 
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -360,31 +394,50 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   : () async {
                       final text = _reviewCtl.text.trim();
                       if (text.isEmpty) return;
-                      final snackText = tr(
-                        context,
-                        en: 'Review submitted for approval.',
-                        es: 'Resena enviada para aprobacion.',
-                      );
-                      final canShare = _reviewRating >= 3;
                       setState(() => _submittingReview = true);
-                      await _reviewService.submitReview(
-                        productId: widget.product.id,
-                        rating: _reviewRating,
-                        comment: text,
-                      );
-                      if (!context.mounted) return;
-                      setState(() {
-                        _submittingReview = false;
-                        _reviewCtl.clear();
-                        _reviewRating = 5;
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(snackText),
-                        ),
-                      );
-                      if (canShare) {
-                        _showSharePrompt(context, text);
+                      
+                      try {
+                        await _reviewService.submitReview(
+                          productId: widget.product.id,
+                          rating: _reviewRating,
+                          comment: text,
+                        );
+                        
+                        if (!context.mounted) return;
+                        
+                        final snackText = tr(
+                          context,
+                          en: 'Review submitted for approval.',
+                          es: 'Resena enviada para aprobacion.',
+                        );
+                        
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(snackText)),
+                        );
+
+                        final canShare = _reviewRating >= 3;
+                        if (canShare) {
+                          _showSharePrompt(context, text);
+                        }
+
+                        // Clear form on success
+                        setState(() {
+                          _reviewCtl.clear();
+                          _reviewRating = 5;
+                        });
+
+                      } catch (e) {
+                         if (!context.mounted) return;
+                         ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(tr(context, en: 'Error saving review.', es: 'Error al guardar.')),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      } finally {
+                        if (mounted) {
+                          setState(() => _submittingReview = false);
+                        }
                       }
                     },
               child: _submittingReview
@@ -444,7 +497,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         }),
                       ),
                       const SizedBox(height: 6),
-                      Text(review.comment),
+                      TranslatedText(review.comment),
                       const SizedBox(height: 6),
                       Text(
                         review.userName.isEmpty ? 'Guest' : review.userName,
@@ -564,5 +617,102 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         ),
       ],
     );
+
+  }
+
+  Widget _buildHostessTip(BuildContext context) {
+    // Random tip logic - simple implementation
+    final tipsEn = [
+      "This is one of my favorites!",
+      "Perfect choice, darling.",
+      "You're going to love this.",
+      "Great for sharing!"
+    ];
+    final tipsEs = [
+      "¡Este está tuani!",
+      "¡Perfecto para compartir, amor!",
+      "¡Deacachimba elección!",
+      "¡Te va a encantar, corazón!"
+    ];
+    
+    // Use product ID hash to keep tip consistent per product, but different across products
+    final index = widget.product.id.hashCode.abs() % 4;
+    final tip = tr(context, en: tipsEn[index], es: tipsEs[index]);
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        // Dynamic "Sunset" Gradient
+        gradient: LinearGradient(
+          colors: [
+            Colors.orange.withValues(alpha: 0.15),
+            Colors.pink.withValues(alpha: 0.08),
+            Colors.purple.withValues(alpha: 0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.orange.withValues(alpha: 0.3), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.orange.withValues(alpha: 0.1),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Angelina Enters First
+          SizedBox(
+            height: 110,
+            child: AngelinaWidget(
+              pose: AngelinaPose.waitressMenu, 
+              compact: false, 
+              height: 110,
+            ),
+          ).animate().fadeIn(duration: 500.ms).slideX(begin: -0.2, end: 0, curve: Curves.easeOutBack),
+          
+          const SizedBox(width: 16),
+          
+          // Tip Card Slides in Second (Staggered)
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    tr(context, en: "Angelina's Tip", es: "Consejo de Angelina"),
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: Colors.orange[800],
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '"$tip"',
+                  style: const TextStyle(
+                    fontStyle: FontStyle.italic,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    height: 1.3,
+                  ),
+                ),
+              ],
+            ).animate(delay: 300.ms).fadeIn().slideX(begin: 0.2, end: 0, curve: Curves.easeOut),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(duration: 800.ms); // Whole container fades in
   }
 }

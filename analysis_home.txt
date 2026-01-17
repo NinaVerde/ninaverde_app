@@ -1,0 +1,54 @@
+Analyzing home_screen.dart...                                   
+
+  error - The named parameter 'onLongPress' isn't defined - lib\screens\home_screen.dart:619:21 - undefined_named_parameter
+  error - Undefined name 'app' - lib\screens\home_screen.dart:620:27 - undefined_identifier
+  error - The method 'getPrefs' isn't defined for the type 'UserPrefsService' - lib\screens\home_screen.dart:875:61 - undefined_method
+  error - The method 'saveFavorites' isn't defined for the type 'UserPrefsService' - lib\screens\home_screen.dart:886:47 - undefined_method
+  error - Expected to find ')' - lib\screens\home_screen.dart:1103:6 - expected_token
+  error - Missing concrete implementation of 'abstract class State<T extends StatefulWidget> with Diagnosticable.build' - lib\screens\home_screen.dart:1155:7 - non_abstract_class_inherits_abstract_member
+warning - The value of the field '_pulse' isn't used - lib\screens\home_screen.dart:1157:34 - unused_field
+warning - The value of the field '_docRef' isn't used - lib\screens\home_screen.dart:1158:9 - unused_field
+  error - 'class' can't be used as an identifier because it's a keyword - lib\screens\home_screen.dart:1159:1 - expected_identifier_but_got_keyword
+  error - Expected to find ';' - lib\screens\home_screen.dart:1159:1 - expected_token
+  error - Undefined name 'class' - lib\screens\home_screen.dart:1159:1 - undefined_identifier
+   info - An uninitialized field should have an explicit type annotation - lib\screens\home_screen.dart:1159:7 - prefer_typing_uninitialized_variables
+   info - Missing type annotation - lib\screens\home_screen.dart:1159:7 - strict_top_level_inference
+   info - The variable name '_HostessOverlay' isn't a lowerCamelCase identifier - lib\screens\home_screen.dart:1159:7 - non_constant_identifier_names
+warning - The value of the field '_HostessOverlay' isn't used - lib\screens\home_screen.dart:1159:7 - unused_field
+  error - Expected to find ';' - lib\screens\home_screen.dart:1159:7 - expected_token
+  error - Variables must be declared using the keywords 'const', 'final', 'var' or a type name - lib\screens\home_screen.dart:1159:7 - missing_const_final_var_or_type
+  error - Expected a class member - lib\screens\home_screen.dart:1159:23 - expected_class_member
+   info - Missing type annotation - lib\screens\home_screen.dart:1159:31 - strict_top_level_inference
+   info - The variable name 'StatefulWidget' isn't a lowerCamelCase identifier - lib\screens\home_screen.dart:1159:31 - non_constant_identifier_names
+  error - Methods must have an explicit list of parameters - lib\screens\home_screen.dart:1159:31 - missing_method_parameters
+  error - The name '_HostessOverlay' isn't a class - lib\screens\home_screen.dart:1160:9 - creation_with_non_type
+  error - State isn't a type - lib\screens\home_screen.dart:1163:3 - not_a_type
+  error - The name '_HostessOverlay' isn't a type, so it can't be used as a type argument - lib\screens\home_screen.dart:1163:9 - non_type_as_type_argument
+warning - The declaration 'createState' isn't referenced - lib\screens\home_screen.dart:1163:26 - unused_element
+  error - Classes can't be declared inside other classes - lib\screens\home_screen.dart:1166:1 - class_in_class
+  error - Expected a class member - lib\screens\home_screen.dart:1166:28 - expected_class_member
+   info - Missing type annotation - lib\screens\home_screen.dart:1166:36 - strict_top_level_inference
+   info - The variable name 'State' isn't a lowerCamelCase identifier - lib\screens\home_screen.dart:1166:36 - non_constant_identifier_names
+  error - Methods must have an explicit list of parameters - lib\screens\home_screen.dart:1166:36 - missing_method_parameters
+   info - The type parameter name '_HostessOverlay' matches a visible type name - lib\screens\home_screen.dart:1166:42 - avoid_types_as_parameter_names
+  error - A function body must be provided - lib\screens\home_screen.dart:1167:5 - missing_function_body
+  error - Expected a class member - lib\screens\home_screen.dart:1167:5 - expected_class_member
+   info - Missing type annotation - lib\screens\home_screen.dart:1167:10 - strict_top_level_inference
+   info - The variable name 'SingleTickerProviderStateMixin' isn't a lowerCamelCase identifier - lib\screens\home_screen.dart:1167:10 - non_constant_identifier_names
+  error - Methods must have an explicit list of parameters - lib\screens\home_screen.dart:1167:10 - missing_method_parameters
+   info - The local variable '_pulse' starts with an underscore - lib\screens\home_screen.dart:1168:28 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_dragOffset' starts with an underscore - lib\screens\home_screen.dart:1169:10 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_minimized' starts with an underscore - lib\screens\home_screen.dart:1170:8 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_hidden' starts with an underscore - lib\screens\home_screen.dart:1171:8 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_greetingTimer' starts with an underscore - lib\screens\home_screen.dart:1172:10 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_greeting' starts with an underscore - lib\screens\home_screen.dart:1173:11 - no_leading_underscores_for_local_identifiers
+warning - The declaration 'initState' isn't referenced - lib\screens\home_screen.dart:1176:8 - unused_element
+  error - Local variable '_getGreeting' can't be referenced before it is declared - lib\screens\home_screen.dart:1186:23 - referenced_before_declaration
+   info - The local variable '_getGreeting' starts with an underscore - lib\screens\home_screen.dart:1196:10 - no_leading_underscores_for_local_identifiers
+warning - The declaration 'dispose' isn't referenced - lib\screens\home_screen.dart:1212:8 - unused_element
+   info - The local variable '_restore' starts with an underscore - lib\screens\home_screen.dart:1218:8 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_handleDragEnd' starts with an underscore - lib\screens\home_screen.dart:1227:8 - no_leading_underscores_for_local_identifiers
+warning - The declaration 'build' isn't referenced - lib\screens\home_screen.dart:1241:10 - unused_element
+  error - The method 'animate' isn't defined for the type 'Container' - lib\screens\home_screen.dart:1303:21 - undefined_method
+  error - Expected to find '}' - lib\screens\home_screen.dart:1338:1 - expected_token
+

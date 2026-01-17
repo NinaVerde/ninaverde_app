@@ -1,0 +1,14 @@
+Analyzing 4 items...                                            
+
+warning - Unused import: '../main.dart' - lib\screens\contact_nina_verde_page.dart:14:8 - unused_import
+warning - Unused import: '../services/translation_service.dart' - lib\screens\contact_nina_verde_page.dart:18:8 - unused_import
+warning - Unused import: 'package:cloud_firestore/cloud_firestore.dart' - lib\screens\home_screen.dart:3:8 - unused_import
+warning - Unused import: '../widgets/nv_widgets.dart' - lib\screens\home_screen.dart:11:8 - unused_import
+warning - Unused import: 'catalog_admin_screen.dart' - lib\screens\home_screen.dart:27:8 - unused_import
+  error - The named parameter 'onLongPress' isn't defined - lib\screens\home_screen.dart:619:21 - undefined_named_parameter
+  error - Expected to find ')' - lib\screens\home_screen.dart:1092:6 - expected_token
+  error - The method 'animate' isn't defined for the type 'Container' - lib\screens\home_screen.dart:1281:21 - undefined_method
+warning - Unused import: '../main.dart' - lib\screens\product_detail_screen.dart:11:8 - unused_import
+warning - Unused import: 'dart:math' - lib\screens\product_detail_screen.dart:19:8 - unused_import
+  error - The method 'saveFavorites' isn't defined for the type 'UserPrefsService' - lib\screens\product_detail_screen.dart:153:43 - undefined_method
+

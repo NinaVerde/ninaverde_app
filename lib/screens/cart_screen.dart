@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../main.dart';
+import '../state/app_state.dart';
+import '../widgets/nv_widgets.dart';
+import 'checkout_screen.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -77,7 +80,16 @@ class CartScreen extends StatelessWidget {
                                   errorWidget: (context, url, error) =>
                                       const Icon(Icons.error),
                                 ),
-                                title: Text(cartItem.product.name),
+                                title: Builder(
+                                  builder: (context) {
+                                    final isEs = AppState.of(context).languageCode.value == 'es';
+                                    final p = cartItem.product;
+                                    final name = isEs && p.nameEs.isNotEmpty 
+                                        ? p.nameEs 
+                                        : (p.nameEn.isNotEmpty ? p.nameEn : p.name);
+                                    return Text(name);
+                                  }
+                                ),
                                 subtitle: Text(
                                   '$subtotalLabel: ${formatCurrency(context, cartItem.subtotal)}',
                                 ),
@@ -128,7 +140,12 @@ class CartScreen extends StatelessWidget {
                       padding: const EdgeInsets.all(16.0),
                       child: ElevatedButton(
                         onPressed: () {
-                          // Checkout logic here
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const CheckoutScreen(),
+                            ),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           minimumSize: const Size(double.infinity, 50),

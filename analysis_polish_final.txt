@@ -1,0 +1,18 @@
+Analyzing 3 items...                                            
+
+warning - Unused import: 'package:cloud_firestore/cloud_firestore.dart' - lib\screens\home_screen.dart:3:8 - unused_import
+warning - Unused import: '../widgets/nv_widgets.dart' - lib\screens\home_screen.dart:12:8 - unused_import
+warning - Unused import: 'catalog_admin_screen.dart' - lib\screens\home_screen.dart:28:8 - unused_import
+   info - The private field _isVideoOpen could be 'final' - lib\screens\login_screen.dart:68:8 - prefer_final_fields
+warning - The value of the field '_isVideoOpen' isn't used - lib\screens\login_screen.dart:68:8 - unused_field
+warning - The value of the local variable 'isAdmin' isn't used - lib\screens\login_screen.dart:308:10 - unused_local_variable
+warning - The declaration '_showAngelinaForgotPasswordDialog' isn't referenced - lib\screens\login_screen.dart:628:16 - unused_element
+warning - The value of the local variable 'titleEn' isn't used - lib\screens\login_screen.dart:635:11 - unused_local_variable
+warning - The value of the local variable 'titleEs' isn't used - lib\screens\login_screen.dart:636:11 - unused_local_variable
+  error - The method 'AngelinaWidget' isn't defined for the type '_LoginScreenState' - lib\screens\login_screen.dart:714:24 - undefined_method
+  error - Undefined name 'AngelinaPose' - lib\screens\login_screen.dart:715:25 - undefined_identifier
+  error - The method 'animate' isn't defined for the type 'SizedBox' - lib\screens\login_screen.dart:720:17 - undefined_method
+  error - Undefined name 'forgotPasswordDialog' - lib\screens\login_screen.dart:978:56 - undefined_identifier
+warning - Unused import: '../main.dart' - lib\screens\product_detail_screen.dart:11:8 - unused_import
+warning - Unused import: 'dart:math' - lib\screens\product_detail_screen.dart:20:8 - unused_import
+

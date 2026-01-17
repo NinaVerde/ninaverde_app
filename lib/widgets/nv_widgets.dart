@@ -5,16 +5,19 @@ import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 import '../state/app_state.dart';
+import '../services/user_prefs_service.dart';
 
 /// ---------- AppBar with ticker in bottom ----------
 class NvAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
+  final Widget? titleWidget;
   final bool centerTitle;
   final bool showBack;
   final List<Widget> extraActions;
   const NvAppBar({
     super.key,
     required this.title,
+    this.titleWidget,
     this.centerTitle = true,
     this.showBack = false,
     this.extraActions = const [],
@@ -66,10 +69,11 @@ class NvAppBar extends StatelessWidget implements PreferredSizeWidget {
     }
 
     return AppBar(
-      title: Text(
-        visibleTitle,
-        style: const TextStyle(fontWeight: FontWeight.w700),
-      ),
+      title: titleWidget ??
+          TranslatedText(
+            visibleTitle,
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
       centerTitle: centerTitle,
       automaticallyImplyLeading: showBack,
       actions: [
@@ -88,7 +92,7 @@ class NvAppBar extends StatelessWidget implements PreferredSizeWidget {
               return GestureDetector(
                 onLongPress: () {
                   if (app.isManager.value) {
-                    Navigator.pushNamed(context, '/app-settings');
+                    Navigator.pushNamed(context, '/ticker-settings');
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -117,7 +121,7 @@ class NvAppBar extends StatelessWidget implements PreferredSizeWidget {
                 speedPxPerSec: spx,
                 onLongPress: () {
                   if (app.isManager.value) {
-                    Navigator.pushNamed(context, '/app-settings');
+                    Navigator.pushNamed(context, '/ticker-settings');
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -161,7 +165,10 @@ class NvLanguageToggle extends StatelessWidget {
                 : options[(options.indexOf(code) + 1) % options.length];
             return IconButton(
               tooltip: tr(context, en: 'Language', es: 'Idioma'),
-              onPressed: () => app.languageCode.value = next,
+              onPressed: () {
+                app.languageCode.value = next;
+                UserPrefsService.saveLanguage(next);
+              },
               onLongPress: () =>
                   Navigator.pushNamed(context, '/language-settings'),
               icon: Text(label,
@@ -190,7 +197,10 @@ class NvCurrencyToggle extends StatelessWidget {
               : options[(options.indexOf(code) + 1) % options.length];
           return IconButton(
             tooltip: tr(context, en: 'Currency', es: 'Moneda'),
-            onPressed: () => app.currencyCode.value = next,
+            onPressed: () {
+              app.currencyCode.value = next;
+              UserPrefsService.saveCurrency(next);
+            },
             onLongPress: () =>
                 Navigator.pushNamed(context, '/currency-settings'),
             icon:
@@ -218,8 +228,11 @@ class NvThemeToggle extends StatelessWidget {
             en: isDark ? 'Light' : 'Dark',
             es: isDark ? 'Claro' : 'Oscuro',
           ),
-          onPressed: () => app.themeMode.value =
-              isDark ? ThemeMode.light : ThemeMode.dark,
+          onPressed: () {
+            final next = isDark ? ThemeMode.light : ThemeMode.dark;
+            app.themeMode.value = next;
+            UserPrefsService.saveThemeMode(next);
+          },
           icon: Icon(
             isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
           ),

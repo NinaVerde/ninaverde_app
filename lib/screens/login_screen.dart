@@ -1,4 +1,7 @@
 // lib/screens/login_screen.dart
+import 'registration_screen.dart';
+import 'intro_settings_screen.dart';
+import 'reset_password_screen.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
@@ -18,9 +21,14 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'package:video_player/video_player.dart';
 
-import '../main.dart'; // AppState + NvAppBar
+import '../state/app_state.dart';
+import '../widgets/nv_widgets.dart';
 import '../services/user_service.dart'; // Firestore upsert on sign-in
+import '../services/user_prefs_service.dart';
+import '../widgets/nv_video_overlay.dart';
 import '../theme/brand_colors.dart';
+import '../widgets/angelina_widget.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -60,9 +68,9 @@ class _LoginScreenState extends State<LoginScreen>
   String? _logoAsset;
 
   bool _videoLoaded = false;
+  bool _isVideoOpen = false; // Guard against double-taps
 
   // Overlay state to allow unlimited open/close
-  bool _isVideoOpen = false;
   OverlayEntry? _videoEntry;
 
   // Key to find the logo position for the opening animation
@@ -86,9 +94,9 @@ class _LoginScreenState extends State<LoginScreen>
           .get();
       if (doc.exists) {
         final data = doc.data()!;
-        _videoSource = data['videoSource'] ?? (data['url'] != null ? 'youtube' : 'asset');
+        _videoSource = data['videoSource'] ?? 'asset'; // Default to asset to prefer local playback
         _videoUrl = (data['videoUrl'] ?? data['url'] ?? _appDefaultYouTubeUrl).toString().trim();
-        _videoAsset = (data['videoAsset'] ?? 'assets/videos/Nina Verde Delicia Halada (Baila Conmingo).mp4').toString().trim();
+        _videoAsset = (data['videoAsset'] ?? 'assets/videos/nina_verde_intro.mp4').toString().trim();
 
         _logoSource = data['logoSource'] ?? (data['logo'] != null ? 'network' : 'asset');
         _logoUrl = (data['logoUrl'] ?? data['logo'] ?? _appDefaultLogoUrl).toString().trim();
@@ -292,6 +300,15 @@ class _LoginScreenState extends State<LoginScreen>
 
   Future<void> _navigateToHome() async {
     if (!mounted) return;
+    
+    // Check if Intro has been seen (for existing users or new logins)
+    // We already sync from cloud in main() but for explicit login flow we can check local pref
+    // which should be fresh or synced.
+    if (!UserPrefsService.introSeen) {
+       Navigator.pushNamedAndRemoveUntil(context, '/intro', (route) => false);
+       return;
+    }
+
     final user = FirebaseAuth.instance.currentUser;
     bool isAdmin = false;
 
@@ -311,11 +328,9 @@ class _LoginScreenState extends State<LoginScreen>
 
     if (!mounted) return;
 
-    if (isAdmin) {
-      Navigator.pushNamed(context, '/home');
-    } else {
-      Navigator.pushReplacementNamed(context, '/home');
-    }
+    // Use pushNamedAndRemoveUntil to clear login from stack
+    // so back button doesn't return to login
+    Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
   }
 
   Future<AuthCredential?> _getGoogleCredential() async {
@@ -614,31 +629,104 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
-  // Forgot Password
-  Future<void> forgotPasswordDialog() async {
+  // Forgot Password with Angelina
+  Future<void> _showAngelinaForgotPasswordDialog() async {
     final c = TextEditingController(text: emailCtrl.text.trim());
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    // Angelina's specialized messages
+    final msgEn = "Don't worry darling, happens to the best of us! Just give me your email and I'll fix it.";
+    final msgEs = "¡Tranquilo mae! A todos nos pasa. Dame tu correo y te ayudo en un dos por tres.";
+
     final ok = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(t(context, 'reset_title')),
-        content: TextFormField(
-          controller: c,
-          keyboardType: TextInputType.emailAddress,
-          decoration: InputDecoration(
-            labelText: t(context, 'email'),
-            prefixIcon: const Icon(Icons.email_outlined),
-          ),
+      barrierDismissible: true,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent, // Custom shape
+        insetPadding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Stack(
+          alignment: Alignment.center,
+          clipBehavior: Clip.none,
+          children: [
+            // The Card Logic
+            Container(
+              margin: const EdgeInsets.only(top: 100), // Space for Angelina
+              padding: const EdgeInsets.fromLTRB(24, 60, 24, 24),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: const [
+                  BoxShadow(color: Colors.black45, blurRadius: 20, offset: Offset(0, 10))
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    t(context, 'reset_title'), // Keep system title or use custom
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    t(context, 'enter_email'), // "Enter your email"
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: isDark ? Colors.white70 : Colors.black87),
+                  ),
+                  const SizedBox(height: 20),
+                  TextFormField(
+                    controller: c,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      labelText: t(context, 'email'),
+                      prefixIcon: const Icon(Icons.email_outlined),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                          onPressed: () => Navigator.pop(ctx, false),
+                          child: Text(t(context, 'cancel')),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: FilledButton(
+                          onPressed: () => Navigator.pop(ctx, true),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: nvAccentOrange,
+                            shape: const StadiumBorder(),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          child: Text(t(context, 'send')),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            
+            // Angelina Popping out top
+            Positioned(
+              top: 0,
+              child: SizedBox(
+                height: 180, // Allow her to overlap nicely
+                child: AngelinaWidget(
+                  pose: AngelinaPose.conciergeTablet, // Or similar helpful pose
+                  compact: false,
+                  height: 180,
+                  speech: AppState.of(context).languageCode.value == 'es' ? msgEs : msgEn,
+                ),
+              ).animate().fadeIn().slideY(begin: 0.1, end: 0, curve: Curves.easeOutBack),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text(t(context, 'cancel'))),
-          FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(t(context, 'send'))),
-        ],
       ),
     );
+    
     if (ok != true) return;
 
     try {
@@ -704,209 +792,32 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   // --------- Animated YouTube overlay (logo centered) ----------
-  void _openVideoFromLogo() async {
-    if (_isVideoOpen) return;
+  void _openVideoFromLogo() {
+    try {
+      if (_isVideoOpen) return;
+      _isVideoOpen = true;
 
-    final overlay = Overlay.maybeOf(context);
-    if (overlay == null) return;
-
-    final logoContext = _logoKey.currentContext;
-    if (logoContext == null) return;
-    final box = logoContext.findRenderObject() as RenderBox?;
-    if (box == null || !box.hasSize) return;
-
-    final logoOffset = box.localToGlobal(Offset.zero);
-    final logoSize = box.size;
-    final logoRect = Rect.fromLTWH(
-      logoOffset.dx,
-      logoOffset.dy,
-      logoSize.width,
-      logoSize.height,
-    );
-
-    final size = MediaQuery.of(context).size;
-    final paddingTop = MediaQuery.of(context).padding.top;
-    final reservedTop =
-        paddingTop + kToolbarHeight + NvAppBar.tickerHeight + 16;
-
-    double width = size.width * 0.85;
-    double height = width * 9 / 16;
-
-    final maxHeight = size.height - reservedTop - 60;
-    if (height > maxHeight) {
-      height = maxHeight;
-      width = height * 16 / 9;
-    }
-
-    final targetRect = Rect.fromLTWH(
-      (size.width - width) / 2,
-      reservedTop,
-      width,
-      height,
-    );
-
-    // --- Video Preparation ---
-    VideoPlayerController? vp;
-    YoutubePlayerController? yt;
-    Future<void>? initFuture;
-
-    if (_videoSource == 'asset' || _videoSource == 'url') {
-      vp = _videoSource == 'asset'
-          ? VideoPlayerController.asset(_videoAsset ?? 'assets/videos/Nina Verde Delicia Halada (Baila Conmingo).mp4')
-          : VideoPlayerController.networkUrl(Uri.parse(_videoUrl ?? ''));
-      initFuture = vp.initialize().then((_) {
-        vp!.setLooping(true);
-        vp.play();
-      });
-    } else {
-      final id = _extractYoutubeId(_videoUrl) ?? 'ZczKlWNp5qY';
-      yt = YoutubePlayerController.fromVideoId(
-        videoId: id,
-        autoPlay: true,
-        params: const YoutubePlayerParams(
-          playsInline: true,
-          showFullscreenButton: true,
-          strictRelatedVideos: true,
-          mute: true,
-          showVideoAnnotations: false,
-          enableJavaScript: true,
+      // Uses the new Global Video Controller (Phase 3)
+      NvVideoOverlay.showGlobal(
+        context,
+        videoUrl: _videoUrl,
+        videoAsset: _videoAsset,
+        source: _videoSource,
+        originKey: _logoKey, // The GlobalKey on the logo
+        onClose: () => _isVideoOpen = false,
+      );
+    } catch (e) {
+      _isVideoOpen = false;
+      debugPrint('Error opening video: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red.shade700,
+          content: Text(
+            tr(context, en: 'Unable to open video', es: 'No se puede abrir el video'),
+          ),
         ),
       );
     }
-
-    final animCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 400),
-      reverseDuration: const Duration(milliseconds: 300),
-    );
-
-    final rectAnim = RectTween(begin: logoRect, end: targetRect).animate(
-      CurvedAnimation(parent: animCtrl, curve: Curves.easeOutBack),
-    );
-
-    _isVideoOpen = true;
-
-    late OverlayEntry entry;
-    entry = OverlayEntry(builder: (_) {
-      return AnimatedBuilder(
-        animation: rectAnim,
-        builder: (ctx, __) {
-          final rect = rectAnim.value ?? targetRect;
-          return Stack(
-            children: [
-              Positioned.fill(
-                child: GestureDetector(
-                  onTap: () async {
-                    await animCtrl.reverse();
-                    if (vp != null) {
-                      await vp.pause();
-                      await vp.dispose();
-                    }
-                    if (yt != null) {
-                      yt.close();
-                    }
-                    entry.remove();
-                    animCtrl.dispose();
-                    _isVideoOpen = false;
-                    _videoEntry = null;
-                  },
-                  child: Container(color: Colors.black.withValues(alpha: 0.7)),
-                ),
-              ),
-              Positioned(
-                left: rect.left,
-                top: rect.top,
-                child: Material(
-                  color: Colors.black,
-                  elevation: 20,
-                  borderRadius: BorderRadius.circular(16),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: SizedBox(
-                      width: rect.width,
-                      height: rect.height,
-                      child: vp != null
-                          ? FutureBuilder(
-                              future: initFuture,
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.done) {
-                                  return AspectRatio(
-                                    aspectRatio: vp!.value.aspectRatio,
-                                    child: VideoPlayer(vp),
-                                  );
-                                }
-                                return const Center(
-                                  child: CircularProgressIndicator(
-                                      color: Colors.white),
-                                );
-                              },
-                            )
-                          : YoutubePlayer(controller: yt!),
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                right: rect.left,
-                top: rect.top - 50,
-                left: rect.left,
-                child: Center(
-                  child: IconButton(
-                    icon: const Icon(Icons.close, color: Colors.white, size: 32),
-                    onPressed: () async {
-                      await animCtrl.reverse();
-                      if (vp != null) {
-                        await vp.pause();
-                        await vp.dispose();
-                      }
-                      if (yt != null) {
-                        yt.close();
-                      }
-                      entry.remove();
-                      animCtrl.dispose();
-                      _isVideoOpen = false;
-                      _videoEntry = null;
-                    },
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
-      );
-    });
-
-    _videoEntry = entry;
-    overlay.insert(entry);
-    animCtrl.forward();
-  }
-
-
-
-  String? _extractYoutubeId(String? url) {
-    if (url == null || url.trim().isEmpty) return null;
-    final trimmed = url.trim();
-
-    // 1. Direct 11-char ID
-    if (RegExp(r'^[A-Za-z0-9_-]{11}$').hasMatch(trimmed)) return trimmed;
-
-    // 2. Try URI parsing
-    final u = Uri.tryParse(trimmed);
-    if (u != null) {
-      if (u.host.contains('youtu.be')) return u.pathSegments.firstWhere((s) => s.isNotEmpty, orElse: () => '');
-      if (u.host.contains('youtube.com') || u.host.contains('youtube-nocookie.com')) {
-        if (u.queryParameters.containsKey('v')) return u.queryParameters['v'];
-        if (u.pathSegments.contains('shorts')) return u.pathSegments[u.pathSegments.indexOf('shorts') + 1];
-        if (u.pathSegments.contains('embed')) return u.pathSegments[u.pathSegments.indexOf('embed') + 1];
-        if (u.pathSegments.contains('live')) return u.pathSegments[u.pathSegments.indexOf('live') + 1];
-        if (u.pathSegments.contains('v')) return u.pathSegments[u.pathSegments.indexOf('v') + 1];
-      }
-    }
-
-    // 3. Regex fallback
-    final reg = RegExp(r'(?:v=|\/|embed\/|shorts\/|live\/|^)([A-Za-z0-9_-]{11})(?:[?&]|$)');
-    return reg.firstMatch(trimmed)?.group(1);
   }
 
   // ---- UI ------------------------------------------------------------------
@@ -1084,7 +995,10 @@ class _LoginScreenState extends State<LoginScreen>
                             ),
                             const SizedBox(height: 4),
                             TextButton(
-                              onPressed: busy ? null : forgotPasswordDialog,
+                              onPressed: busy ? null : () => Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const ResetPasswordScreen()),
+                              ),
                               style: TextButton.styleFrom(
                                 foregroundColor: linkColor,
                                 textStyle: const TextStyle(
@@ -1216,20 +1130,18 @@ class _LoginScreenState extends State<LoginScreen>
   Widget _buildLogoWidget() {
     final defaultAsset = 'assets/images/app_icon_foreground.png';
     
-    Widget logo;
+    Widget logoImage;
     if (_logoSource == 'asset') {
-      logo = Image.asset(
+      logoImage = Image.asset(
         _logoAsset ?? defaultAsset,
-        key: _logoKey,
         width: 120,
         height: 120,
         fit: BoxFit.contain,
         errorBuilder: (_, __, ___) => Image.asset(defaultAsset, width: 120, height: 120),
       );
     } else {
-      logo = Image.network(
+      logoImage = Image.network(
         _logoUrl ?? _appDefaultLogoUrl,
-        key: _logoKey,
         width: 120,
         height: 120,
         fit: BoxFit.contain,
@@ -1237,7 +1149,14 @@ class _LoginScreenState extends State<LoginScreen>
       );
     }
     
-    return logo;
+    // Wrap in Container with key for proper positioning
+    return Container(
+      key: _logoKey,
+      width: 120,
+      height: 120,
+      alignment: Alignment.center,
+      child: logoImage,
+    );
   }
 }
 
