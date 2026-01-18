@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/rendering.dart';
-import 'dart:math' as math;
-import 'dart:ui';
 import 'dart:ui';
 import 'dart:async';
 import 'package:vector_math/vector_math_64.dart' as vector;
