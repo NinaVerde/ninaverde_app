@@ -6,7 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../models/product_model.dart';
 import '../../services/translation_service.dart';
 import '../../state/app_state.dart'; // Added for tr()
-import '../../widgets/nv_widgets.dart';
+// import '../../widgets/nv_widgets.dart'; // Unused
 
 class ProductEditorSheet extends StatefulWidget {
   final Product? product; // If null, new product

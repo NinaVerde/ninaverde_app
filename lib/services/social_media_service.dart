@@ -134,13 +134,13 @@ class SocialMediaService {
 
   Future<String> _publishToInstagram(SocialPlatformAccount account, String content, List<String> mediaUrls, List<String> hashtags) async {
     // TODO: Implement Instagram Graph API integration
-    final fullContent = '$content\n\n${hashtags.map((h) => '#$h').join(' ')}';
+    // final fullContent = '$content\n\n${hashtags.map((h) => '#$h').join(' ')}'; // Unused
     return 'ig_${DateTime.now().millisecondsSinceEpoch}';  
   }
 
   Future<String> _publishToTwitter(SocialPlatformAccount account, String content, List<String> mediaUrls, List<String> hashtags) async {
     // TODO: Implement Twitter API v2 integration
-    final fullContent = '$content ${hashtags.map((h) => '#$h').join(' ')}';
+    // final fullContent = '$content ${hashtags.map((h) => '#$h').join(' ')}'; // Unused
     return 'tw_${DateTime.now().millisecondsSinceEpoch}';
   }
 
@@ -231,9 +231,9 @@ class SocialMediaService {
       'scheduled': posts.where((p) => p.status == PostStatus.scheduled).length,
       'published': posts.where((p) => p.status == PostStatus.published).length,
       'failed': posts.where((p) => p.status == PostStatus.failed).length,
-      'totalReach': posts.fold(0, (sum, p) => sum + p.totalReach),
-      'totalEngagement': posts.fold(0, (sum, p) => 
-          sum + (p.engagement?.values.fold<int>(0, (int s, int v) => s + v) ?? 0)),
+      'totalReach': posts.fold(0, (total, p) => total + p.totalReach),
+      'totalEngagement': posts.fold(0, (total, p) => 
+          total + (p.engagement?.values.fold<int>(0, (int s, int v) => s + v) ?? 0)),
     };
   }
 }

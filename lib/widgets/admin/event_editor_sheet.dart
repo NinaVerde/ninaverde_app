@@ -6,7 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../models/event_promo_model.dart';
 import '../../services/translation_service.dart';
 import '../../state/app_state.dart'; // Added for tr()
-import '../../widgets/nv_widgets.dart';
+// import '../../widgets/nv_widgets.dart'; // Unused
 
 class EventEditorSheet extends StatefulWidget {
   final EventPromo? promo;
@@ -221,7 +221,8 @@ class _EventEditorSheetState extends State<EventEditorSheet> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
-              value: _type,
+              // value: _type, // Deprecated, using initialValue
+              initialValue: _type,
               items: [
                 DropdownMenuItem(
                   value: 'promo',
