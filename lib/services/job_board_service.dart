@@ -29,11 +29,11 @@ class JobBoardService {
         .orderBy('postedAt', descending: true);
     
     if (category != null) {
-      query = query.where('category', isEqualTo: category.name) as Query<Map<String, dynamic>>;
+      query = query.where('category', isEqualTo: category.name);
     }
     
     if (isFeatured != null) {
-      query = query.where('isFeatured', isEqualTo: isFeatured) as Query<Map<String, dynamic>>;
+      query = query.where('isFeatured', isEqualTo: isFeatured);
     }
     
     return query.snapshots().map((snapshot) {
