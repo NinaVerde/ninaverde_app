@@ -18,7 +18,7 @@ class AnalyticsService {
       });
     } catch (e) {
       // Analytics should never crash the app
-      print('Analytics Error: $e');
+      debugPrint('Analytics Error: $e');
     }
   }
 

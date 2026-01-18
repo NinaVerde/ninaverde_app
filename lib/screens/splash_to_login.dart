@@ -159,11 +159,11 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
     } catch (_) {}
   }
 
-  void _fireStartupWhoosh() {
-    if (_startupWhooshFired) return;
-    _startupWhooshFired = true;
-    unawaited(_playWhoosh(1.0));
-  }
+  // void _fireStartupWhoosh() {
+  //   if (_startupWhooshFired) return;
+  //   _startupWhooshFired = true;
+  //   unawaited(_playWhoosh(1.0));
+  // }
 
   Future<bool> _safeForward(
     AnimationController controller, {
