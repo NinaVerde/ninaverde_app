@@ -291,10 +291,10 @@ class _HeroCategoryCarouselState extends State<HeroCategoryCarousel>
                             // "Stunning" Pop for active card:
                             // Increased Z-push to bring it closer
                             // Reduced rotation more drastically for focused card to flatten it
-                            ..translate(vector.Vector3(0.0, 0.0, isFocused ? -zPush * 0.5 : -zPush)) 
+                            ..translateByVector3(vector.Vector3(0.0, 0.0, isFocused ? -zPush * 0.5 : -zPush)) 
                             ..rotateY(rotationY)
                             ..rotateX(distAbs * -0.05)
-                            ..scale(vector.Vector3(isFocused ? 1.05 : 1.0, isFocused ? 1.05 : 1.0, 1.0)), // Slight extra scale pop
+                            ..scaleByVector3(vector.Vector3(isFocused ? 1.05 : 1.0, isFocused ? 1.05 : 1.0, 1.0)), // Slight extra scale pop
                           child: GestureDetector(
                             onTap: () => _onCardTap(virtualIndex),
                             onLongPress: () {
