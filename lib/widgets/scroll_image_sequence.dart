@@ -197,7 +197,7 @@ class _ScrollImageSequenceState extends State<ScrollImageSequence>
                     child: Transform(
                       alignment: Alignment.center,
                       transform: Matrix4.identity()
-                        ..scale(totalScale, totalScale, 1.0), // Use 3 args to resolve deprecation 1.0), // Use 3 args for standard scale, or explicit scale calculation
+                        ..scale(totalScale, totalScale, 1.0),
                       child: Image.asset(
                         assetPath,
                         fit: BoxFit.cover,
