@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter/rendering.dart';
 import 'dart:math' as math;
 import 'dart:ui';
+import 'dart:ui';
 import 'dart:async';
+import 'package:vector_math/vector_math_64.dart' as vector;
 import '../config/product_animations_map.dart';
 import 'scroll_image_sequence.dart';
 import '../state/app_state.dart';
@@ -289,10 +291,10 @@ class _HeroCategoryCarouselState extends State<HeroCategoryCarousel>
                             // "Stunning" Pop for active card:
                             // Increased Z-push to bring it closer
                             // Reduced rotation more drastically for focused card to flatten it
-                            ..translate(0.0, 0.0, isFocused ? -zPush * 0.5 : -zPush) 
+                            ..translate(vector.Vector3(0.0, 0.0, isFocused ? -zPush * 0.5 : -zPush)) 
                             ..rotateY(rotationY)
                             ..rotateX(distAbs * -0.05)
-                            ..scale(isFocused ? 1.05 : 1.0, isFocused ? 1.05 : 1.0, 1.0), // Slight extra scale pop
+                            ..scale(vector.Vector3(isFocused ? 1.05 : 1.0, isFocused ? 1.05 : 1.0, 1.0)), // Slight extra scale pop
                           child: GestureDetector(
                             onTap: () => _onCardTap(virtualIndex),
                             onLongPress: () {

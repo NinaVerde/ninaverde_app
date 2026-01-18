@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 // import 'package:flutter/scheduler.dart'; // Unused
 // import 'dart:ui'; // Unnecessary
-// // import 'dart:math' as math; // Unused // Unused
+// import 'dart:math' as math; // Unused
+import 'package:vector_math/vector_math_64.dart' as vector;
 import '../state/app_state.dart';
 
 class ScrollImageSequence extends StatefulWidget {
@@ -197,7 +198,7 @@ class _ScrollImageSequenceState extends State<ScrollImageSequence>
                     child: Transform(
                       alignment: Alignment.center,
                       transform: Matrix4.identity()
-                        ..scale(totalScale, totalScale, 1.0),
+                        ..scale(vector.Vector3(totalScale, totalScale, 1.0)),
                       child: Image.asset(
                         assetPath,
                         fit: BoxFit.cover,
