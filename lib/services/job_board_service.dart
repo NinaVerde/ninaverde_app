@@ -178,8 +178,8 @@ class JobBoardService {
       'active': jobs.where((j) => j.isActive).length,
       'inactive': jobs.where((j) => !j.isActive).length,
       'featured': jobs.where((j) => j.isFeatured).length,
-      'totalApplications': jobs.fold(0, (sum, j) => sum + j.applicationCount),
-      'totalViews': jobs.fold(0, (sum, j) => sum + j.viewCount),
+      'totalApplications': jobs.fold(0, (total, j) => total + j.applicationCount),
+      'totalViews': jobs.fold(0, (total, j) => total + j.viewCount),
     };
   }
 

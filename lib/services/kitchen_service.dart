@@ -183,9 +183,9 @@ class KitchenService {
     
     if (completedOrders.isEmpty) return null;
     
-    final totalMinutes = completedOrders.fold<int>(0, (sum, order) {
+    final totalMinutes = completedOrders.fold<int>(0, (total, order) {
       final duration = order.prepCompletedAt!.difference(order.prepStartedAt!);
-      return sum + duration.inMinutes;
+      return total + duration.inMinutes;
     });
     
     final avgMinutes = totalMinutes ~/ completedOrders.length;
