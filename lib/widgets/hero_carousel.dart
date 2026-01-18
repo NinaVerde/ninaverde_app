@@ -33,7 +33,7 @@ class _HeroCategoryCarouselState extends State<HeroCategoryCarousel>
   // However, the user liked the "spinning" (continuous?). Code shows 'jumpTo' drift.
   // Let's keep the drift but make it respectful.
 
-  late final AnimationController _autoPlayController;
+  // late final AnimationController _autoPlayController; // Removed unused
   late final AnimationController _glowController;
   
   double _currentPage = 0;
@@ -49,7 +49,7 @@ class _HeroCategoryCarouselState extends State<HeroCategoryCarousel>
   static const int _realCategoryCount = 11;
 
   // State listeners
-  late double _currentSpeedCfg; // Seconds per rotation (full cycle?) or speed factor?
+  // late double _currentSpeedCfg; // Removed unused // Seconds per rotation (full cycle?) or speed factor?
   // User asked for "Speed control".
   // The control panel has "seconds per rotation" (5s to 60s).
   // _realCategoryCount items. 
@@ -119,7 +119,7 @@ class _HeroCategoryCarouselState extends State<HeroCategoryCarousel>
       _stopAutoPlay();
     }
 
-    _currentSpeedCfg = app.carouselSpeed.value;
+    // _currentSpeedCfg = app.carouselSpeed.value; // Removed unused
   }
 
   @override
@@ -228,7 +228,7 @@ class _HeroCategoryCarouselState extends State<HeroCategoryCarousel>
         onPointerUp: (_) {
            // Resume after delay
            Future.delayed(const Duration(seconds: 3), () {
-             if (mounted && AppState.of(context).carouselAutoPlay.value) {
+             if (context.mounted && AppState.of(context).carouselAutoPlay.value) {
                 setState(() => _isManualInteracting = false);
                 _startAutoPlay(); 
              }
