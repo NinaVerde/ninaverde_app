@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '../main.dart';
+// import '../main.dart'; // Removing to avoid 'tr' conflict
 import '../state/app_state.dart';
 import '../services/rewards_service.dart';
 import '../widgets/nv_widgets.dart';

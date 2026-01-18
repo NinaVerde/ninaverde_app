@@ -11,11 +11,11 @@ import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
-import '../main.dart';
+// import '../main.dart'; // Removing to avoid ambiguity
 import '../state/app_state.dart';
 import '../models/product_model.dart';
 import '../providers/cart_provider.dart';
-import '../services/translation_service.dart';
+// import '../services/translation_service.dart'; // Unused
 import '../widgets/nv_widgets.dart';
 
 class ContactNinaVerdePage extends StatefulWidget {

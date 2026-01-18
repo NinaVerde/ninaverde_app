@@ -2,7 +2,6 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -25,7 +24,7 @@ import '../services/push_token_service.dart';
 import 'package:flutter/services.dart';
 import '../widgets/admin/product_editor_sheet.dart';
 import '../widgets/admin/event_editor_sheet.dart';
-import 'catalog_admin_screen.dart';
+import 'events_screen.dart';
 import '../widgets/hero_carousel.dart';
 import '../config/product_animations_map.dart'; // For HeroCategoryConfig
 
@@ -706,13 +705,13 @@ class _HomeScreenState extends State<HomeScreen> {
           ? BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  theme.colorScheme.primary.withOpacity(0.15),
-                  theme.colorScheme.primary.withOpacity(0.02),
+                  theme.colorScheme.primary.withValues(alpha: 0.15),
+                  theme.colorScheme.primary.withValues(alpha: 0.02),
                 ],
               ),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: theme.colorScheme.primary.withOpacity(0.3),
+                color: theme.colorScheme.primary.withValues(alpha: 0.3),
                 width: 1.5,
               ),
             )
@@ -749,15 +748,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
   
-  Widget _buildAnimatedProductCard(
-    ThemeData theme,
-    Product product,
-    bool isFavorite,
-    Animation<double> animation,
-  ) {
-    return FadeTransition(
-      opacity: animation,
-      child: SlideTransition(
+//   Widget _buildAnimatedProductCard(...) { ... } // Unused
         position: Tween<Offset>(
           begin: const Offset(0, 0.3),
           end: Offset.zero,
@@ -767,6 +758,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+//   Widget _buildHeroCategories(ThemeData theme, double screenHeight) { ... } // Unused
+//   Widget _buildCategories(ThemeData theme) { ... } // Unused
   Widget _buildProductGridShimmer(ThemeData theme) {
     return SliverGrid(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

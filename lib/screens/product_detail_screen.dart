@@ -8,7 +8,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../models/product_model.dart';
 import '../providers/cart_provider.dart';
-import '../main.dart';
+// import '../main.dart'; // Removing to avoid ambiguity
 import '../state/app_state.dart';
 import '../services/user_prefs_service.dart';
 import '../services/review_service.dart';
@@ -78,15 +78,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     final heroTag = 'product_${widget.product.id}';
     // Localization logic
     final isEs = app.languageCode.value == 'es';
-    final localizedName = isEs && widget.product.nameEs.isNotEmpty 
-        ? widget.product.nameEs 
-        : widget.product.nameEn.isNotEmpty ? widget.product.nameEn : widget.product.name;
+    // final localizedName = isEs && widget.product.nameEs.isNotEmpty 
+    //     ? widget.product.nameEs 
+    //     : widget.product.nameEn.isNotEmpty ? widget.product.nameEn : widget.product.name;
     
     final rawDesc = isEs && widget.product.descriptionEs.isNotEmpty
         ? widget.product.descriptionEs
         : widget.product.descriptionEn.isNotEmpty ? widget.product.descriptionEn : widget.product.description;
     
-    final description = rawDesc.trim();
+    // final description = rawDesc.trim();
 
     final nameStyle = (theme.textTheme.headlineMedium?.copyWith(
           fontWeight: FontWeight.bold,

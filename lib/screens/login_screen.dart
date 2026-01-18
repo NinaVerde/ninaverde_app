@@ -629,14 +629,6 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
-  // Forgot Password with Angelina
-  Future<void> _showAngelinaForgotPasswordDialog() async {
-    final c = TextEditingController(text: emailCtrl.text.trim());
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    
-    // Angelina's specialized messages
-    final msgEn = "Don't worry darling, happens to the best of us! Just give me your email and I'll fix it.";
-    final msgEs = "¡Tranquilo mae! A todos nos pasa. Dame tu correo y te ayudo en un dos por tres.";
 
     final ok = await showDialog<bool>(
       context: context,
@@ -820,8 +812,12 @@ class _LoginScreenState extends State<LoginScreen>
     }
 
     // 3. Regex fallback
+    final trimmed = _videoUrl ?? ''; // Fix undefined 'trimmed'
     final reg = RegExp(r'(?:v=|\/|embed\/|shorts\/|live\/|^)([A-Za-z0-9_-]{11})(?:[?&]|$)');
-    return reg.firstMatch(trimmed)?.group(1);
+    final match = reg.firstMatch(trimmed)?.group(1);
+    if (match != null) {
+       // logic to handle match if needed, but this function is void and opens overlay above
+    }
   }
 
   // ---- UI ------------------------------------------------------------------

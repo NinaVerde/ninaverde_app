@@ -191,7 +191,7 @@ class _KitchenDisplayScreenState extends State<KitchenDisplayScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.2),
+              color: color.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: color, width: 1),
             ),
@@ -253,7 +253,7 @@ class _KitchenDisplayScreenState extends State<KitchenDisplayScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: accentColor.withOpacity(0.3),
+            color: accentColor.withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -266,7 +266,7 @@ class _KitchenDisplayScreenState extends State<KitchenDisplayScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withValues(alpha: 0.3),
               borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
             ),
             child: Row(
@@ -302,7 +302,7 @@ class _KitchenDisplayScreenState extends State<KitchenDisplayScreen> {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 8),
-            color: isUrgent ? Colors.red.withOpacity(0.3) : Colors.black.withOpacity(0.2),
+            color: isUrgent ? Colors.red.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.2),
             child: Text(
               '⏱️ ${_formatDuration(timeElapsed)}',
               textAlign: TextAlign.center,
@@ -327,7 +327,7 @@ class _KitchenDisplayScreenState extends State<KitchenDisplayScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -355,7 +355,7 @@ class _KitchenDisplayScreenState extends State<KitchenDisplayScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.yellow[700]!.withOpacity(0.3),
+                      color: Colors.yellow[700]!.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(color: Colors.yellow[700]!, width: 1),
                     ),

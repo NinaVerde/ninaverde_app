@@ -1,8 +1,11 @@
-}
+import 'package:flutter/material.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart'; // Unused
+import 'kitchen_display_screen.dart';
+import 'driver_dashboard_screen.dart';
 
 /// Kitchen Operations hub - combines KDS and driver dashboard
-class _KitchenOpsPage extends StatelessWidget {
-  const _KitchenOpsPage();
+class KitchenOpsPage extends StatelessWidget {
+  const KitchenOpsPage({super.key});
 
   @override
   Widget build(BuildContext context) {

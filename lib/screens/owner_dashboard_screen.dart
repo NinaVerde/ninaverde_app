@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-import '../main.dart';
+// import '../main.dart'; // Removing to avoid ambiguity
 import '../state/app_state.dart';
 import '../services/live_game_service.dart';
 import '../models/live_game_models.dart';

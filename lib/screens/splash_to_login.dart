@@ -56,7 +56,7 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
   static const finalRevealDuration = Duration(milliseconds: 900);
 
   // Sound effect control
-  bool _startupWhooshFired = false;
+  // bool _startupWhooshFired = false; // Unused
 
 
   // Video

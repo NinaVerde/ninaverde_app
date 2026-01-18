@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-import '../main.dart';
+// import '../main.dart'; // Removing to avoid ambiguity
 import '../state/app_state.dart';
 import '../services/live_game_service.dart';
 import '../models/live_game_models.dart';
@@ -274,7 +274,7 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
     } else if (module.id == 'kitchen') {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const _KitchenOpsPage()),
+        MaterialPageRoute(builder: (context) => const KitchenOpsPage()),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

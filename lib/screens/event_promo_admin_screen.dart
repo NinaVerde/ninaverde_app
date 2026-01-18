@@ -1,4 +1,4 @@
-import 'dart:typed_data';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -6,10 +6,10 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../main.dart';
+// import '../main.dart'; // Removing to avoid ambiguity
 import '../state/app_state.dart';
 import '../models/event_promo_model.dart';
-import '../services/translation_service.dart';
+// import '../services/translation_service.dart'; // Unused
 import '../widgets/nv_widgets.dart';
 import '../widgets/admin/event_editor_sheet.dart';
 

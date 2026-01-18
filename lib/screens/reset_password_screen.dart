@@ -3,7 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/brand_colors.dart';
 import '../state/app_state.dart';
-import '../services/user_prefs_service.dart'; // Ensure we have services if needed
+// import '../services/user_prefs_service.dart'; // Unused // Ensure we have services if needed
 import 'dart:ui';
 
 class ResetPasswordScreen extends StatefulWidget {
@@ -43,7 +43,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     // Check if we are in dark mode for text contrast (though we usually force dark/light logic)
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    // final isDark = Theme.of(context).brightness == Brightness.dark; // Unused
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -71,9 +71,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Colors.black.withOpacity(0.1),
-                  Colors.black.withOpacity(0.4),
-                  Colors.black.withOpacity(0.8),
+                  Colors.black.withValues(alpha: 0.1),
+                  Colors.black.withValues(alpha: 0.4),
+                  Colors.black.withValues(alpha: 0.8),
                 ],
                 stops: const [0.0, 0.5, 1.0],
               ),
@@ -91,9 +91,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(32),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1), // Glass effect
+                      color: Colors.white.withValues(alpha: 0.1), // Glass effect
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         width: 1.5,
                       ),
                       borderRadius: BorderRadius.circular(24),
@@ -112,7 +112,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             color: Colors.white,
                             shadows: [
                               Shadow(
-                                color: Colors.black.withOpacity(0.5),
+                                color: Colors.black.withValues(alpha: 0.5),
                                 offset: const Offset(0, 2),
                                 blurRadius: 4,
                               ),
@@ -129,7 +129,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                               : tr(context, en: "Don't worry darling, happens to the best of us! Just give me your email and I'll fix it.", es: "¡No te preocupes cariño, le pasa a las mejores! Solo dame tu correo y lo arreglaré."), 
                           style: GoogleFonts.inter(
                             fontSize: 16,
-                            color: Colors.white.withOpacity(0.95),
+                            color: Colors.white.withValues(alpha: 0.95),
                             height: 1.4,
                           ),
                           textAlign: TextAlign.center,
@@ -144,9 +144,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             keyboardType: TextInputType.emailAddress,
                             decoration: InputDecoration(
                               filled: true,
-                              fillColor: Colors.black.withOpacity(0.4),
+                              fillColor: Colors.black.withValues(alpha: 0.4),
                               hintText: tr(context, en: 'Enter your email', es: 'Ingresa tu correo'),
-                              hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+                              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
                               prefixIcon: const Icon(Icons.email, color: Colors.white70),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
