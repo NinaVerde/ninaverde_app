@@ -231,7 +231,7 @@ class _GlassBibble extends StatelessWidget {
   final double size;
   final Offset offset;
 
-  const _GlassBibble({super.key, required this.size, required this.offset});
+  const _GlassBibble({required this.size, required this.offset});
 
   @override
   Widget build(BuildContext context) {
