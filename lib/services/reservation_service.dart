@@ -166,7 +166,7 @@ class ReservationService {
 
     final reservedTableNumbers = reservationsSnapshot.docs
         .map((doc) => doc['tableNumber'] as String?)
-        .where((num) => num != null)
+        .where((tableNum) => tableNum != null)
         .toSet();
 
     // Filter out reserved tables

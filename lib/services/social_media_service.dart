@@ -1,7 +1,7 @@
 // lib/services/social_media_service.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+// import 'package:http/http.dart' as http; // Unused
+// import 'dart:convert'; // Unused
 import '../models/social_media_post_model.dart';
 
 /// Service for managing social media posts across platforms
@@ -31,7 +31,7 @@ class SocialMediaService {
     var query = _firestore.collection(postsCollection).orderBy('createdAt', descending: true);
     
     if (status != null) {
-      query = query.where('status', isEqualTo: status.name) as Query<Map<String, dynamic>>;
+      query = query.where('status', isEqualTo: status.name);
     }
     
     return query.snapshots().map((snapshot) {

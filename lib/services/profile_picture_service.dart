@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:path/path.dart' as path;
@@ -31,7 +32,7 @@ class ProfilePictureService {
       final ref = _storage.refFromURL(downloadUrl);
       await ref.delete();
     } catch (e) {
-      print('Error deleting profile picture: $e');
+      debugPrint('Error deleting profile picture: $e');
       // Continue even if delete fails (might already be deleted)
     }
   }
@@ -53,7 +54,7 @@ class ProfilePictureService {
       
       return urls;
     } catch (e) {
-      print('Error fetching profile pictures: $e');
+      debugPrint('Error fetching profile pictures: $e');
       return [];
     }
   }
