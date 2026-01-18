@@ -292,7 +292,7 @@ class _HeroCategoryCarouselState extends State<HeroCategoryCarousel>
                             ..translate(0.0, 0.0, isFocused ? -zPush * 0.5 : -zPush) 
                             ..rotateY(rotationY)
                             ..rotateX(distAbs * -0.05)
-                            ..scale(isFocused ? 1.05 : 1.0), // Slight extra scale pop
+                            ..scale(isFocused ? 1.05 : 1.0, isFocused ? 1.05 : 1.0, 1.0), // Slight extra scale pop
                           child: GestureDetector(
                             onTap: () => _onCardTap(virtualIndex),
                             onLongPress: () {
