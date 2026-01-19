@@ -28,7 +28,7 @@ import '../services/user_prefs_service.dart';
 import '../widgets/nv_video_overlay.dart';
 import '../theme/brand_colors.dart';
 // import '../widgets/angelina_widget.dart'; // Unused
-import 'package:flutter_animate/flutter_animate.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -309,22 +309,8 @@ class _LoginScreenState extends State<LoginScreen>
        return;
     }
 
-    final user = FirebaseAuth.instance.currentUser;
-    bool isAdmin = false;
 
-    if (user != null) {
-      try {
-        final snap = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .get();
-        final data = snap.data();
-        if (data != null) {
-          isAdmin = data['isAdmin'] == true ||
-              (data['role'] as String?)?.toLowerCase() == 'admin';
-        }
-      } catch (_) {}
-    }
+
 
     if (!mounted) return;
 

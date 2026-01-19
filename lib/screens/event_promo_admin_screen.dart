@@ -1,10 +1,9 @@
-import 'dart:io';
+// import 'dart:io'; // Unused
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+
 
 // import '../main.dart'; // Removing to avoid ambiguity
 import '../state/app_state.dart';
@@ -23,8 +22,8 @@ class EventPromoAdminScreen extends StatefulWidget {
 class _EventPromoAdminScreenState extends State<EventPromoAdminScreen> {
   final _db = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
-  final _storage = FirebaseStorage.instance;
-  final _picker = ImagePicker();
+  // final _storage = FirebaseStorage.instance; // Unused
+  // final _picker = ImagePicker(); // Unused
 
   Stream<DocumentSnapshot<Map<String, dynamic>>> _userDocStream() {
     final user = _auth.currentUser;

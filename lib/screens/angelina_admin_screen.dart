@@ -7,7 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../main.dart';
+
 import '../state/app_state.dart';
 import '../widgets/nv_widgets.dart';
 class AngelinaAdminScreen extends StatefulWidget {
@@ -229,12 +229,7 @@ class _AngelinaAdminScreenState extends State<AngelinaAdminScreen> {
     return _db.collection('users').doc(user.uid).snapshots();
   }
 
-  bool _isAdmin(Map<String, dynamic>? data) {
-    if (data == null) return false;
-    if (data['isAdmin'] == true) return true;
-    if ((data['role'] as String?)?.toLowerCase() == 'admin') return true;
-    return false;
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -248,7 +243,7 @@ class _AngelinaAdminScreenState extends State<AngelinaAdminScreen> {
       stream: _userDocStream(),
       builder: (context, snapshot) {
         final data = snapshot.data?.data();
-        final admin = _isAdmin(data);
+        final admin = (data?['isAdmin'] == true) || ((data?['role'] as String?)?.toLowerCase() == 'admin');
         return ValueListenableBuilder<String>(
           valueListenable: AppState.of(context).languageCode,
           builder: (_, code, __) {

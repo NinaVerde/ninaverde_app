@@ -4,7 +4,7 @@ import 'dart:math'; // For random ID
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-import '../main.dart';
+// import '../main.dart'; // Removed to resolve ambiguity
 import '../state/app_state.dart';
 import '../providers/cart_provider.dart';
 import '../models/order_model.dart';
@@ -37,7 +37,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   // Order Totals State
   OrderTotals? _calculatedTotals;
-  bool _calculating = false;
+  // bool _calculating = false; // Unused
 
   // Payment
   PaymentMethod _paymentMethod = PaymentMethod.bac;
@@ -65,7 +65,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Future<void> _recalculate() async {
     final cart = Provider.of<CartProvider>(context, listen: false);
-    setState(() => _calculating = true);
+    // setState(() => _calculating = true);
     
     final totals = await CheckoutService.calculateTotals(
       subtotal: cart.totalAmount,
@@ -76,7 +76,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     if (mounted) {
       setState(() {
         _calculatedTotals = totals;
-        _calculating = false;
+        // _calculating = false;
       });
     }
   }
@@ -652,6 +652,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       );
 
     } catch (e) {
+      if (!context.mounted) return;
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Payment Failed: $e'),
         backgroundColor: Colors.red,

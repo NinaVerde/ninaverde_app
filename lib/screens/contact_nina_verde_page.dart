@@ -632,14 +632,7 @@ class _ContactNinaVerdePageState extends State<ContactNinaVerdePage>
     return isEs ? 'es-MX' : 'en-US';
   }
 
-  String _detectLanguageFromText(String text) {
-    const esMarks = ['hola', 'gracias', 'por favor', 'comida', 'pedido', 'que'];
-    final lower = text.toLowerCase();
-    if (esMarks.any((m) => lower.contains(m))) {
-      return 'es';
-    }
-    return 'en';
-  }
+
 
   Future<void> _toggleListening() async {
     if (_isListening) {

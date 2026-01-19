@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../main.dart';
+// import '../main.dart'; // Removing to resolve ambiguity
 import '../state/app_state.dart';
 import '../widgets/nv_widgets.dart';
 import 'checkout_screen.dart';

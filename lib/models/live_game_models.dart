@@ -9,6 +9,7 @@ class LiveGameConfig {
   final int maxPlayers;
   final String rules;
   final double deposit;
+  final String topPrize;
 
   LiveGameConfig({
     required this.id,
@@ -18,6 +19,7 @@ class LiveGameConfig {
     required this.maxPlayers,
     required this.rules,
     required this.deposit,
+    this.topPrize = '',
   });
 
   factory LiveGameConfig.fromMap(String id, Map<String, dynamic> map) {
@@ -29,6 +31,7 @@ class LiveGameConfig {
       maxPlayers: map['maxPlayers'] ?? 1,
       rules: map['rules'] ?? '',
       deposit: (map['deposit'] ?? 0.0).toDouble(),
+      topPrize: map['topPrize'] ?? '',
     );
   }
 
@@ -41,7 +44,7 @@ class LiveGameConfig {
     double? deposit,
   }) {
     return LiveGameConfig(
-      id: this.id,
+      id: id,
       name: name ?? this.name,
       icon: icon ?? this.icon,
       pricePerQuarterHour: pricePerQuarterHour ?? this.pricePerQuarterHour,

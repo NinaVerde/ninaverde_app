@@ -1,14 +1,8 @@
-import 'dart:typed_data';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 
-import '../services/translation_service.dart';
 import '../widgets/nv_widgets.dart';
-import '../main.dart';
 import '../state/app_state.dart';
 import '../models/product_model.dart';
 import '../widgets/admin/product_editor_sheet.dart';
@@ -24,8 +18,8 @@ class _CatalogAdminScreenState extends State<CatalogAdminScreen>
     with SingleTickerProviderStateMixin {
   final _db = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
-  final _storage = FirebaseStorage.instance;
-  final _picker = ImagePicker();
+  // final _storage = FirebaseStorage.instance; // Unused
+  // final _picker = ImagePicker(); // Unused
   late final TabController _tabController;
 
   Stream<DocumentSnapshot<Map<String, dynamic>>> _userDocStream() {

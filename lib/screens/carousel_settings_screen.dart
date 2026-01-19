@@ -185,7 +185,9 @@ class _CarouselSettingsScreenState extends State<CarouselSettingsScreen> {
                 child: RadioListTile<CarouselMode>(
                   title: const Text('Still Images'),
                   value: CarouselMode.still,
+                  // ignore: deprecated_member_use
                   groupValue: _globalMode,
+                  // ignore: deprecated_member_use
                   onChanged: (v) => setState(() => _globalMode = v!),
                 ),
               ),
@@ -193,7 +195,9 @@ class _CarouselSettingsScreenState extends State<CarouselSettingsScreen> {
                 child: RadioListTile<CarouselMode>(
                   title: const Text('Animated 3D'),
                   value: CarouselMode.animated,
+                  // ignore: deprecated_member_use
                   groupValue: _globalMode,
+                  // ignore: deprecated_member_use
                   onChanged: (v) => setState(() => _globalMode = v!),
                 ),
               ),
@@ -275,7 +279,9 @@ class _ModeRadio extends StatelessWidget {
     return RadioListTile<CarouselMode?>(
       title: Text(label),
       value: value,
+      // ignore: deprecated_member_use
       groupValue: groupValue,
+      // ignore: deprecated_member_use
       onChanged: onChanged,
       contentPadding: EdgeInsets.zero,
     );

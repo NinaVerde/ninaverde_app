@@ -55,6 +55,8 @@ class _AngelinaProfileSettingsScreenState extends State<AngelinaProfileSettingsS
       // Check limit (20 pictures max)
       final app = AppState.of(context);
       if (app.angelinaProfilePics.value.length >= 20) {
+        if (!mounted) return; // Added safety check
+        // ignore: use_build_context_synchronously
         setState(() => _uploadError = 'Maximum 20 pictures allowed');
         return;
       }
@@ -393,6 +395,7 @@ class _AngelinaProfileSettingsScreenState extends State<AngelinaProfileSettingsS
                   onChanged: pics.length < 2
                       ? null
                       : (value) => app.profilePicRandomize.value = value,
+                  // ignore: deprecated_member_use
                   activeColor: nvGreenDark,
                 );
               },

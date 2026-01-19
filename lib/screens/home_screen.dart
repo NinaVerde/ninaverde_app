@@ -1,6 +1,6 @@
 // lib/screens/home_screen.dart
 import 'dart:async';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
@@ -19,12 +19,13 @@ import '../screens/product_detail_screen.dart';
 import '../screens/cart_screen.dart';
 import '../services/event_promo_service.dart';
 import '../models/event_promo_model.dart';
+import 'package:provider/provider.dart';
 import '../services/comms_prefs_service.dart';
 import '../services/push_token_service.dart';
 import 'package:flutter/services.dart';
 import '../widgets/admin/product_editor_sheet.dart';
 import '../widgets/admin/event_editor_sheet.dart';
-import 'events_screen.dart';
+// import 'events_screen.dart'; // Unused/does not exist
 import '../widgets/hero_carousel.dart';
 import '../config/product_animations_map.dart'; // For HeroCategoryConfig
 
@@ -48,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String _searchQuery = '';
   String _selectedCategory = _allCategoryKey;
 
-  late Future<List<String>> _categoriesFuture;
+
   final GlobalKey _cartKey = GlobalKey();
   final Map<String, GlobalKey> _productKeys = {};
   static const String _allCategoryKey = '__all__';
@@ -57,21 +58,17 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _categoriesFuture = _firestoreService.getCategories().first;
+    _selectedCategory = UserPrefsService.loadLocalPrefs().lastCategory;
+
     
     // Load last selected category
-    _selectedCategory = UserPrefsService.loadLocalPrefs().lastCategory;
     
     _commsPrefs.prefsStream().first.then((prefs) {
       _pushTokens.registerIfOptedIn(optInPush: prefs.optInPush);
     });
   }
 
-  Future<void> _refreshData() async {
-    setState(() {
-      _categoriesFuture = _firestoreService.getCategories().first;
-    });
-  }
+
 
   void _runAddToCartAnimation(GlobalKey productKey) {
     if (productKey.currentContext == null) return;
@@ -157,38 +154,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // --- OLD HELPER METHODS REDUCED ---
-  List<String> _applyCategoryOrder(
-    List<String> categories,
-    List<String> preferredOrder,
-  ) {
-    final ordered = <String>[];
-    for (final entry in preferredOrder) {
-      if (categories.contains(entry) && !ordered.contains(entry)) {
-        ordered.add(entry);
-      }
-    }
-    for (final entry in categories) {
-      if (!ordered.contains(entry)) ordered.add(entry);
-    }
-    return ordered;
-  }
-
-  Future<void> _prioritizeCategory({
-    required String category,
-    required List<String> categories,
-  }) async {
-    if (category == _allCategoryKey) {
-      setState(() => _selectedCategory = _allCategoryKey);
-      await UserPrefsService.saveCategory(_allCategoryKey);
-      return;
-    }
-    final newOrder = [category, ...categories.where((c) => c != category)];
-    setState(() => _selectedCategory = category);
-    await _prefsService.saveCategoryOrder(newOrder);
-    await UserPrefsService.saveCategory(category);
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -209,9 +174,6 @@ class _HomeScreenState extends State<HomeScreen> {
         final title = isEs ? 'Hola, Matthew' : 'Hello, Matthew';
         final searchHint =
             isEs ? 'Buscar productos...' : 'Search for products...';
-        final appSettingsLabel = isEs ? 'Configuracion' : 'App settings';
-        final angelinaLabel =
-            isEs ? 'Panel de Angelina' : 'Angelina control panel';
         final searchFill = isDark
             ? theme.colorScheme.surfaceContainerHighest
             : theme.colorScheme.surface;
@@ -220,8 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
           stream: _prefsService.prefsStream(),
           builder: (context, prefsSnap) {
             final prefs = prefsSnap.data ?? {};
-            final savedOrder =
-                (prefs['categoryOrder'] as List?)?.cast<String>() ?? [];
+
             final favoriteIds =
                 (prefs['favorites'] as List?)?.cast<String>() ?? [];
             return PopScope(
@@ -277,10 +238,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 body: Stack(
                 children: [
-                  RefreshIndicator(
-                    onRefresh: _refreshData,
-                    child: CustomScrollView(
-                      physics: const BouncingScrollPhysics(),
+
+                  CustomScrollView(
+                    physics: const BouncingScrollPhysics(),
                       controller: _mainScrollController, 
                       slivers: [
                         // Search Bar moved to SliverToBoxAdapter
@@ -351,7 +311,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         _buildProductGrid(theme, favoriteIds.toSet()),
                         const SliverToBoxAdapter(child: SizedBox(height: 100)),
                       ],
-                    ),
                   ),
                   const Positioned(
                     right: 16,
@@ -423,114 +382,11 @@ class _HomeScreenState extends State<HomeScreen> {
   // I need to verify the replacement range.
   
 
-  Widget _buildHeroCategories(ThemeData theme, List<String> savedOrder) {
-    return SliverToBoxAdapter(
-      child: FutureBuilder<List<String>>(
-        future: _categoriesFuture,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const SizedBox.shrink();
-          }
-          
-          // Hero carousel is now handled in the main build method
-          return const SizedBox.shrink();
-        },
-      ),
-    );
-  }
 
-  Widget _buildCategories(ThemeData theme, List<String> savedOrder, AppState app) {
-    return SliverToBoxAdapter(
-      child: FutureBuilder<List<String>>(
-        future: _categoriesFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return _buildCategoryShimmer(theme);
-          }
-          if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                tr(
-                  context,
-                  en: 'Unable to load categories.',
-                  es: 'No se pudieron cargar las categorias.',
-                ),
-              ),
-            );
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const SizedBox.shrink();
-          }
 
-          final ordered = _applyCategoryOrder(snapshot.data!, savedOrder);
-          final categories = [_allCategoryKey, ...ordered];
-          final allLabel = tr(context, en: 'All', es: 'Todo');
 
-          return SizedBox(
-            height: 50,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: categories.length,
-              itemBuilder: (context, index) {
-                final category = categories[index];
-                final label =
-                    category == _allCategoryKey ? allLabel : category;
-                final scheme = Theme.of(context).colorScheme;
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: ChoiceChip(
-                    label: TranslatedText(label),
-                    selected: _selectedCategory == category,
-                    selectedColor: scheme.primaryContainer,
-                    labelStyle: TextStyle(
-                      color: _selectedCategory == category
-                          ? scheme.onPrimaryContainer
-                          : scheme.onSurface,
-                    ),
-                    onSelected: (selected) {
-                      if (selected) {
-                        _prioritizeCategory(
-                          category: category,
-                          categories: ordered,
-                        );
-                      }
-                    },
 
-                  ),
-                );
-              },
-            ),
-          );
-        },
-      ),
-    );
-  }
 
-  Widget _buildCategoryShimmer(ThemeData theme) {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: SizedBox(
-        height: 50,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: 5,
-          itemBuilder: (context, index) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Chip(
-                label: Container(
-                  width: 80,
-                  height: 20,
-                  color: Colors.white,
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
 
   Widget _buildProductGrid(ThemeData theme, Set<String> favoriteIds) {
     return StreamBuilder<List<Product>>(
@@ -751,8 +607,8 @@ class _HomeScreenState extends State<HomeScreen> {
 //   Widget _buildAnimatedProductCard(...) { ... } // Unused
 
 
-//   Widget _buildHeroCategories(ThemeData theme, double screenHeight) { ... } // Unused
-//   Widget _buildCategories(ThemeData theme) { ... } // Unused
+//  ... } // Unused
+//  ... } // Unused
   Widget _buildProductGridShimmer(ThemeData theme) {
     return SliverGrid(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

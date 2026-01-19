@@ -77,7 +77,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
     final heroTag = 'product_${widget.product.id}';
     // Localization logic
-    final isEs = app.languageCode.value == 'es';
     // final localizedName = isEs && widget.product.nameEs.isNotEmpty 
     //     ? widget.product.nameEs 
     //     : widget.product.nameEn.isNotEmpty ? widget.product.nameEn : widget.product.name;
