@@ -92,11 +92,14 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
                               children: options.map((lang) {
                                 final label = labels[lang] ?? lang.toUpperCase();
                                 final isDefault = config.defaultLanguage == lang;
+                                // ignore: deprecated_member_use
                                 return RadioListTile<String>(
                                   value: lang,
+                                  // ignore: deprecated_member_use
                                   groupValue: config.defaultLanguage,
                                   title: Text(label),
                                   secondary: isDefault ? const Icon(Icons.star, color: Colors.amber) : null,
+                                  // ignore: deprecated_member_use
                                   onChanged: _saving ? null : (val) {
                                     if (val != null) _saveDefaults(app, val);
                                   },
@@ -207,11 +210,14 @@ class _CurrencySettingsPageState extends State<CurrencySettingsPage> {
                                     : '${cfg.code} - ${cfg.symbol}';
                                 final isDefault = config.defaultCurrency == code;
                                 
+                                // ignore: deprecated_member_use
                                 return RadioListTile<String>(
                                   value: code,
+                                  // ignore: deprecated_member_use
                                   groupValue: config.defaultCurrency,
                                   title: Text(label),
                                   secondary: isDefault ? const Icon(Icons.star, color: Colors.amber) : null,
+                                  // ignore: deprecated_member_use
                                   onChanged: _saving ? null : (val) {
                                     if (val != null) _saveDefaults(app, val);
                                   },
