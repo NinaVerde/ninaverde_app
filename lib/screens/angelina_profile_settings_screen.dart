@@ -53,6 +53,7 @@ class _AngelinaProfileSettingsScreenState extends State<AngelinaProfileSettingsS
       }
 
       // Check limit (20 pictures max)
+      if (!mounted) return;
       final app = AppState.of(context);
       if (app.angelinaProfilePics.value.length >= 20) {
         if (!mounted) return; // Added safety check
