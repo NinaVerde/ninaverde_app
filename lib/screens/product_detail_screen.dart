@@ -17,7 +17,7 @@ import '../widgets/nv_widgets.dart';
 import '../services/analytics_service.dart';
 import '../widgets/angelina_widget.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'dart:math';
+// import 'dart:math'; // Unused
 
 class ProductDetailScreen extends StatefulWidget {
   final Product product;
@@ -82,9 +82,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     //     ? widget.product.nameEs 
     //     : widget.product.nameEn.isNotEmpty ? widget.product.nameEn : widget.product.name;
     
-    final rawDesc = isEs && widget.product.descriptionEs.isNotEmpty
-        ? widget.product.descriptionEs
-        : widget.product.descriptionEn.isNotEmpty ? widget.product.descriptionEn : widget.product.description;
+    // final rawDesc = isEs && widget.product.descriptionEs.isNotEmpty
+    //     ? widget.product.descriptionEs
+    //     : widget.product.descriptionEn.isNotEmpty ? widget.product.descriptionEn : widget.product.description;
     
     // final description = rawDesc.trim();
 

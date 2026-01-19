@@ -111,7 +111,7 @@ class _MazeRunnerScreenState extends State<MazeRunnerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final app = AppState.of(context);
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     const jungleWall = Color(0xFF1B3B27);

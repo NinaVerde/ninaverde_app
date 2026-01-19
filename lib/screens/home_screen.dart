@@ -749,14 +749,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
   
 //   Widget _buildAnimatedProductCard(...) { ... } // Unused
-        position: Tween<Offset>(
-          begin: const Offset(0, 0.3),
-          end: Offset.zero,
-        ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
-        child: _buildProductCard(theme, product, isFavorite),
-      ),
-    );
-  }
+
 
 //   Widget _buildHeroCategories(ThemeData theme, double screenHeight) { ... } // Unused
 //   Widget _buildCategories(ThemeData theme) { ... } // Unused

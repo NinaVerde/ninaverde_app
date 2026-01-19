@@ -96,8 +96,8 @@ class _KidszGamezZoneScreenState extends State<KidszGamezZoneScreen> {
                      return _GameCard(info: entry.value)
                         .animate()
                         .fadeIn(delay: (400 + (entry.key * 100)).ms)
-                        .slideX(begin: 0.2, end: 0, curve: Curves.easeOutQuart);
-                  }).toList(),
+                         .slideX(begin: 0.2, end: 0, curve: Curves.easeOutQuart);
+                  }),
                 ],
               ),
             ),
@@ -379,7 +379,7 @@ class _ActiveSessionCardState extends State<_ActiveSessionCard> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+
     final isEs = AppState.of(context).languageCode.value == 'es';
     final hours = _elapsed.inHours.toString().padLeft(2, '0');
     final mins = (_elapsed.inMinutes % 60).toString().padLeft(2, '0');

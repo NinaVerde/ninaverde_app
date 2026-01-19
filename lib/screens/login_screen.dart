@@ -1,6 +1,6 @@
 // lib/screens/login_screen.dart
-import 'registration_screen.dart';
-import 'intro_settings_screen.dart';
+// import 'registration_screen.dart'; // Unused
+// import 'intro_settings_screen.dart'; // Unused
 import 'reset_password_screen.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -18,8 +18,8 @@ import 'package:firebase_auth_platform_interface/firebase_auth_platform_interfac
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
-import 'package:video_player/video_player.dart';
+// import 'package:youtube_player_iframe/youtube_player_iframe.dart'; // Unused
+// import 'package:video_player/video_player.dart'; // Unused
 
 import '../state/app_state.dart';
 import '../widgets/nv_widgets.dart';
@@ -27,7 +27,7 @@ import '../services/user_service.dart'; // Firestore upsert on sign-in
 import '../services/user_prefs_service.dart';
 import '../widgets/nv_video_overlay.dart';
 import '../theme/brand_colors.dart';
-import '../widgets/angelina_widget.dart';
+// import '../widgets/angelina_widget.dart'; // Unused
 import 'package:flutter_animate/flutter_animate.dart';
 
 class LoginScreen extends StatefulWidget {
