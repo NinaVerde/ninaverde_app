@@ -14,6 +14,7 @@ import '../widgets/nv_widgets.dart';
 import '../widgets/johns_insights_widget.dart';
 import 'kitchen_display_screen.dart';
 import 'driver_dashboard_screen.dart';
+import 'owner_dashboard_screen_kitchen_ops.dart';
 
 class OwnerDashboardScreen extends StatefulWidget {
   const OwnerDashboardScreen({super.key});
