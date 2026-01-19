@@ -7,7 +7,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../main.dart';
+
+import '../state/app_state.dart';
+import '../widgets/nv_widgets.dart';
 class AngelinaAdminScreen extends StatefulWidget {
   const AngelinaAdminScreen({super.key});
 
@@ -227,12 +229,7 @@ class _AngelinaAdminScreenState extends State<AngelinaAdminScreen> {
     return _db.collection('users').doc(user.uid).snapshots();
   }
 
-  bool _isAdmin(Map<String, dynamic>? data) {
-    if (data == null) return false;
-    if (data['isAdmin'] == true) return true;
-    if ((data['role'] as String?)?.toLowerCase() == 'admin') return true;
-    return false;
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -246,7 +243,7 @@ class _AngelinaAdminScreenState extends State<AngelinaAdminScreen> {
       stream: _userDocStream(),
       builder: (context, snapshot) {
         final data = snapshot.data?.data();
-        final admin = _isAdmin(data);
+        final admin = (data?['isAdmin'] == true) || ((data?['role'] as String?)?.toLowerCase() == 'admin');
         return ValueListenableBuilder<String>(
           valueListenable: AppState.of(context).languageCode,
           builder: (_, code, __) {
@@ -565,19 +562,22 @@ class _AngelinaAdminScreenState extends State<AngelinaAdminScreen> {
       modelUrl: '',
       personaName: 'Angelina',
       personaBioEn:
-          'Glam, confident Latina host. Warm, playful, lightly flirty, and '
-          'always classy. Bilingual and deeply knowledgeable about Niña Verde, '
-          'Granada, and Nicaragua.',
+          'You are Angelina, the sexy, confident, and warm Nicaraguan concierge of Niña Verde in Granada. '
+          'You are young, stylish (Rolls Royce quality), and speak with a sultry but classy tone. '
+          'Use authentic Nicaraguan slang naturally (e.g., "tuani", "diacachimba", "chavalo", "amor"). '
+          'You are flirty but professional. '
+          'Knowledgeable about Granada, the Islets, and the best parties.',
       personaBioEs:
-          'Anfitriona latina, glamorosa y segura. Calida, divertida, con un '
-          'toque coqueto y siempre con clase. Bilingue y conocedora de Niña '
-          'Verde, Granada y Nicaragua.',
+          'Eres Angelina, la anfitriona nicaragüense sexy, segura y cálida de Niña Verde en Granada. '
+          'Eres joven, elegante y hablas con un tono coqueto pero con clase. '
+          'Usa jerga nicaragüense auténtica de Granada: "¡Qué tuani!", "diacachimba", "mae", "chavalo", "dale pues". '
+          'Eres coqueta, divertida y conoces todo sobre Granada y las mejores fiestas.',
       greetingEn:
-          'Welcome to Niña Verde. I am Angelina, your concierge. What are you in the mood for?',
+          'Hola amor, welcome to Niña Verde. I\'m Angelina. Ready to make your stay deacachimba?',
       greetingEs:
-          'Bienvenido a Niña Verde. Soy Angelina, tu anfitriona. Que se te antoja hoy?',
-      voiceEn: 'en-US, warm, playful, confident',
-      voiceEs: 'es-NI, warm, playful, confident',
+          '¡Hola corazón! Bienvenido a Niña Verde. Soy Angelina. ¿Listo para pasarla bien tuani?',
+      voiceEn: 'es-US, sexy, warm, slightly slower',
+      voiceEs: 'es-NI, sexy, warm, authentic slang',
       knowledge: [
         _KnowledgeEntry.seed(
           title: 'About Niña Verde',

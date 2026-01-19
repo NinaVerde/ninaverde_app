@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 
 import '../services/firestore_service.dart';
 import '../models/product_model.dart';
-import '../main.dart';
+// import '../main.dart'; // Removing to avoid ambiguity
+import '../state/app_state.dart';
+import '../widgets/nv_widgets.dart';
 
 class FavoritesAdminScreen extends StatelessWidget {
   const FavoritesAdminScreen({super.key});

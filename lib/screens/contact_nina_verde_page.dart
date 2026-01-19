@@ -11,9 +11,12 @@ import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
-import '../main.dart';
+// import '../main.dart'; // Removing to avoid ambiguity
+import '../state/app_state.dart';
 import '../models/product_model.dart';
 import '../providers/cart_provider.dart';
+// import '../services/translation_service.dart'; // Unused
+import '../widgets/nv_widgets.dart';
 
 class ContactNinaVerdePage extends StatefulWidget {
   const ContactNinaVerdePage({super.key});
@@ -128,6 +131,7 @@ class _ContactNinaVerdePageState extends State<ContactNinaVerdePage>
   bool _menuLoaded = false;
   bool _awaitingCheckoutConfirm = false;
   bool _handledArgs = false;
+  bool _bootstrapped = false;
 
   @override
   void initState() {
@@ -147,7 +151,7 @@ class _ContactNinaVerdePageState extends State<ContactNinaVerdePage>
       duration: const Duration(milliseconds: 900),
     )..repeat();
 
-    _bootstrapAssistant();
+    // _bootstrapAssistant(); // Moved to didChangeDependencies to access AppState
     _configureTts();
     _loadAiConfig();
     _loadMenu();
@@ -156,6 +160,16 @@ class _ContactNinaVerdePageState extends State<ContactNinaVerdePage>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    
+    // Bootstrap with correct language from AppState
+    if (!_bootstrapped) {
+      _bootstrapAssistant();
+      _bootstrapped = true;
+    } else {
+      // If language changed while on screen, update greeting
+      _replaceGreeting();
+    }
+
     if (_handledArgs) return;
     _handledArgs = true;
     final args = ModalRoute.of(context)?.settings.arguments;
@@ -182,9 +196,10 @@ class _ContactNinaVerdePageState extends State<ContactNinaVerdePage>
   }
 
   Future<void> _configureTts() async {
-    await _tts.setSpeechRate(0.48);
-    await _tts.setPitch(1.04);
-    await _tts.setVolume(0.95);
+    // Sultry/Sexy settings: slightly slower, slightly lower pitch
+    await _tts.setSpeechRate(0.42);
+    await _tts.setPitch(0.8);
+    await _tts.setVolume(1.0);
     _tts.setStartHandler(() {
       if (mounted) setState(() => _isSpeaking = true);
     });
@@ -205,9 +220,11 @@ class _ContactNinaVerdePageState extends State<ContactNinaVerdePage>
       if (doc.exists) {
         final data = doc.data()!;
         _avatarUrl = _extractAvatarUrl(data);
-        setState(() {
-          _config = _AiRuntimeConfig.fromMap(data);
-        });
+        if (mounted) {
+          setState(() {
+            _config = _AiRuntimeConfig.fromMap(data);
+          });
+        }
         _replaceGreeting();
       }
     } catch (_) {
@@ -231,17 +248,20 @@ class _ContactNinaVerdePageState extends State<ContactNinaVerdePage>
     try {
       final snap =
           await FirebaseFirestore.instance.collection('products').get();
-      setState(() {
-        _menu = snap.docs.map(Product.fromFirestore).toList();
-        _menuLoaded = true;
-      });
+      if (mounted) {
+        setState(() {
+          _menu = snap.docs.map(Product.fromFirestore).toList();
+          _menuLoaded = true;
+        });
+      }
     } catch (_) {
       if (mounted) setState(() => _menuLoaded = true);
     }
   }
 
   void _bootstrapAssistant() {
-    final greeting = _config.greetingFor(false);
+    final isEs = AppState.of(context).languageCode.value == 'es';
+    final greeting = _config.greetingFor(isEs);
     final id = _id();
     _greetingId = id;
     _messages.add(
@@ -259,12 +279,14 @@ class _ContactNinaVerdePageState extends State<ContactNinaVerdePage>
     if (_greetingId == null) return;
     final index = _messages.indexWhere((m) => m.id == _greetingId);
     if (index == -1) return;
-    final isEs = _detectLanguageFromText(_messages[index].text) == 'es';
-    setState(() {
-      _messages[index] = _messages[index].copyWith(
-        text: _config.greetingFor(isEs),
-      );
-    });
+    final isEs = AppState.of(context).languageCode.value == 'es';
+    if (mounted) {
+      setState(() {
+        _messages[index] = _messages[index].copyWith(
+          text: _config.greetingFor(isEs),
+        );
+      });
+    }
   }
 
   String _id() => DateTime.now().microsecondsSinceEpoch.toString();
@@ -306,7 +328,7 @@ class _ContactNinaVerdePageState extends State<ContactNinaVerdePage>
       );
     });
 
-    final isEs = _detectLanguageFromText(userText) == 'es';
+    final isEs = Provider.of<AppState>(context, listen: false).languageCode.value == 'es';
     _AiResponse response;
 
     if (_awaitingCheckoutConfirm) {
@@ -314,7 +336,7 @@ class _ContactNinaVerdePageState extends State<ContactNinaVerdePage>
       if (confirmed) {
         _awaitingCheckoutConfirm = false;
         response = _AiResponse(
-          reply: isEs ? 'Listo. Te llevo al checkout.' : 'Done. Going to checkout.',
+          reply: isEs ? 'Dale pues. Te llevo al checkout. ¡Qué alegre!' : 'Alright darling. Taking you to checkout.',
           actions: [
             _AiAction(type: _AiActionType.goToCheckout),
           ],
@@ -322,8 +344,8 @@ class _ContactNinaVerdePageState extends State<ContactNinaVerdePage>
       } else {
         response = _AiResponse(
           reply: isEs
-              ? 'Cuando quieras confirmar, dime "confirmar".'
-              : 'Whenever you are ready, say "confirm".',
+              ? 'Cuando estés listo, solo dime "confirmar", corazón.'
+              : 'Whenever you are ready, just say "confirm", hun.',
           actions: const [],
         );
       }
@@ -432,8 +454,8 @@ class _ContactNinaVerdePageState extends State<ContactNinaVerdePage>
     final orderAction = _maybeOrderAction(text);
     if (orderAction != null) {
       final reply = isEs
-          ? 'Listo. Agregue eso al carrito. Quieres algo mas?'
-          : 'Done. I added that to your cart. Anything else?';
+          ? 'Listo pues. Ya lo agregué. ¿Se te antoja algo más, amor?'
+          : 'Done. Added to your cart. Craving anything else, darling?';
       return _AiResponse(reply: reply, actions: [orderAction]);
     }
 
@@ -441,8 +463,8 @@ class _ContactNinaVerdePageState extends State<ContactNinaVerdePage>
     if (checkout) {
       final summary = _cartSummary(isEs);
       final reply = isEs
-          ? 'Antes de finalizar, confirma tu pedido. $summary Di "confirmar" para continuar.'
-          : 'Before checkout, confirm your order. $summary Say "confirm" to continue.';
+          ? 'Antes de cerrar, confirma tu pedido. $summary Di "confirmar" para irnos, mae.'
+          : 'Before we wrap up, confirm your order. $summary Say "confirm" to go, darling.';
       return _AiResponse(
         reply: reply,
         actions: [
@@ -563,14 +585,14 @@ class _ContactNinaVerdePageState extends State<ContactNinaVerdePage>
 
     if (hasAny(['order', 'menu', 'food', 'delivery', 'pickup', 'pedido'])) {
       return isEs
-          ? 'Puedo iniciar tu pedido. Dime que quieres y si es para recoger o entrega.'
-          : 'I can start your order. Tell me what you want and pickup or delivery.';
+          ? '¡Dale pues! Iniciemos tu pedido. ¿Qué se te antoja? ¿Delivery o pickup?'
+          : 'I can start your order. Tell me what you want, darling. Pickup or delivery?';
     }
 
     if (hasAny(['event', 'party', 'reservation', 'book', 'table', 'reserva'])) {
       return isEs
-          ? 'Organicemos tu evento. Cuantos invitados, fecha y hora?'
-          : 'Lets plan it. How many guests, what date, and what time?';
+          ? '¡Qué diacachimba! Organicemos tu evento. ¿Cuántos invitados y para cuándo?'
+          : 'How exciting! Let\'s plan it. How many guests and when?';
     }
 
     if (hasAny(['manager', 'owner', 'complaint', 'issue', 'gerente'])) {
@@ -581,8 +603,8 @@ class _ContactNinaVerdePageState extends State<ContactNinaVerdePage>
 
     if (hasAny(['hours', 'open', 'close', 'location', 'address', 'horario'])) {
       return isEs
-          ? 'Te confirmo horarios y ubicacion. Dime el dia que planeas visitar.'
-          : 'I can confirm hours and location. Which day are you visiting?';
+          ? 'Claro amor, te confirmo. ¿Qué día pensás visitarnos?'
+          : 'Sure thing. Which day are you coming to see us?';
     }
 
     if (hasAny(['help', 'support', 'agent', 'live', 'ayuda'])) {
@@ -592,8 +614,8 @@ class _ContactNinaVerdePageState extends State<ContactNinaVerdePage>
     }
 
     return isEs
-        ? 'Estoy aqui para ayudarte con pedidos, eventos, reservas y soporte.'
-        : 'I am here to help with orders, events, reservations, and support.';
+        ? 'Estoy aquí para lo que querrás: pedidos, reservas o solo platicar. ¡Todo tuani!'
+        : 'I\'m here for whatever you need: orders, reservations, or just to chat.';
   }
 
   Future<void> _speak(String text, bool isEs) async {
@@ -607,17 +629,10 @@ class _ContactNinaVerdePageState extends State<ContactNinaVerdePage>
     if (hint.isEmpty) return isEs ? 'es-ES' : 'en-US';
     final token = hint.split(',').first.trim();
     if (token.contains('-')) return token;
-    return isEs ? 'es-ES' : 'en-US';
+    return isEs ? 'es-MX' : 'en-US';
   }
 
-  String _detectLanguageFromText(String text) {
-    const esMarks = ['hola', 'gracias', 'por favor', 'comida', 'pedido', 'que'];
-    final lower = text.toLowerCase();
-    if (esMarks.any((m) => lower.contains(m))) {
-      return 'es';
-    }
-    return 'en';
-  }
+
 
   Future<void> _toggleListening() async {
     if (_isListening) {
@@ -712,19 +727,23 @@ class _ContactNinaVerdePageState extends State<ContactNinaVerdePage>
   }
   @override
   Widget build(BuildContext context) {
-    final onlineReady = _config.onlineEnabled && _config.endpointUrl.isNotEmpty;
-    final modelUrl = _config.modelUrl.trim();
-    final statusLabel = tr(
-      context,
-      en: onlineReady ? 'Online' : 'Offline',
-      es: onlineReady ? 'En linea' : 'Fuera de linea',
-    );
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return AnimatedBuilder(
+      animation: AppState.of(context).languageCode,
+      builder: (context, _) {
+        final onlineReady = _config.onlineEnabled && _config.endpointUrl.isNotEmpty;
+        final modelUrl = _config.modelUrl.trim();
+        final statusLabel = tr(
+          context,
+          en: onlineReady ? 'Online' : 'Offline',
+          es: onlineReady ? 'En linea' : 'Fuera de linea',
+        );
+        final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      backgroundColor:
-          isDark ? const Color(0xFF050505) : Theme.of(context).colorScheme.surface,
-      body: Stack(
+        return Scaffold(
+          backgroundColor: isDark
+              ? const Color(0xFF050505)
+              : Theme.of(context).colorScheme.surface,
+          body: Stack(
         children: [
           _AmbientBackdrop(controller: _floatCtrl),
           SafeArea(
@@ -732,17 +751,24 @@ class _ContactNinaVerdePageState extends State<ContactNinaVerdePage>
               padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
               child: Column(
                 children: [
-                  _HeaderBar(
-                    pulse: _pulseCtrl,
-                    onToggleVoice: () =>
-                        setState(() => _voiceEnabled = !_voiceEnabled),
-                    voiceEnabled: _voiceEnabled,
-                    isSpeaking: _isSpeaking,
-                    name: _config.personaName,
-                    statusText: statusLabel,
-                    avatar: _avatarUrl != null
-                        ? NetworkImage(_avatarUrl!)
-                        : const AssetImage('assets/images/avatar/nina_verde_512.png'),
+                  ValueListenableBuilder<String?>(
+                    valueListenable: AppState.of(context).selectedProfilePic,
+                    builder: (context, selectedPic, _) {
+                      return _HeaderBar(
+                        pulse: _pulseCtrl,
+                        onToggleVoice: () =>
+                            setState(() => _voiceEnabled = !_voiceEnabled),
+                        voiceEnabled: _voiceEnabled,
+                        isSpeaking: _isSpeaking,
+                        name: _config.personaName,
+                        statusText: statusLabel,
+                        avatar: selectedPic != null && selectedPic.isNotEmpty
+                            ? NetworkImage(selectedPic)
+                            : (_avatarUrl != null
+                                ? NetworkImage(_avatarUrl!)
+                                : const AssetImage('assets/images/angelina/angelina_bubble_avatar.jpg')),
+                      );
+                    },
                   ),
                   if (modelUrl.isNotEmpty) ...[
                     const SizedBox(height: 12),
@@ -779,6 +805,8 @@ class _ContactNinaVerdePageState extends State<ContactNinaVerdePage>
           ),
         ],
       ),
+    );
+      },
     );
   }
 }

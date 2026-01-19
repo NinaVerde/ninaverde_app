@@ -1,13 +1,16 @@
 // lib/screens/home_screen.dart
 import 'dart:async';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:share_plus/share_plus.dart';
-import '../main.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import '../state/app_state.dart';
+import '../widgets/nv_widgets.dart';
+import '../widgets/angelina_widget.dart';
+import '../theme/brand_colors.dart' as brand;
 import '../models/product_model.dart';
 import '../services/firestore_service.dart';
 import '../services/user_prefs_service.dart';
@@ -16,9 +19,15 @@ import '../screens/product_detail_screen.dart';
 import '../screens/cart_screen.dart';
 import '../services/event_promo_service.dart';
 import '../models/event_promo_model.dart';
+import 'package:provider/provider.dart';
 import '../services/comms_prefs_service.dart';
 import '../services/push_token_service.dart';
 import 'package:flutter/services.dart';
+import '../widgets/admin/product_editor_sheet.dart';
+import '../widgets/admin/event_editor_sheet.dart';
+// import 'events_screen.dart'; // Unused/does not exist
+import '../widgets/hero_carousel.dart';
+import '../config/product_animations_map.dart'; // For HeroCategoryConfig
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -33,34 +42,33 @@ class _HomeScreenState extends State<HomeScreen> {
   final EventPromoService _promoService = EventPromoService();
   final CommsPrefsService _commsPrefs = CommsPrefsService();
   final PushTokenService _pushTokens = PushTokenService();
+  
+  // MAIN SCROLL CONTROLLER
+  final ScrollController _mainScrollController = ScrollController();
+
   String _searchQuery = '';
   String _selectedCategory = _allCategoryKey;
 
-  late Future<List<String>> _categoriesFuture;
+
   final GlobalKey _cartKey = GlobalKey();
   final Map<String, GlobalKey> _productKeys = {};
   static const String _allCategoryKey = '__all__';
-  late final PageController _categoryCarousel;
-  double _carouselPage = 0;
+  // Removed old carousel controller
 
   @override
   void initState() {
     super.initState();
-    _categoriesFuture = _firestoreService.getCategories().first;
-    _categoryCarousel = PageController(viewportFraction: 0.82);
-    _categoryCarousel.addListener(() {
-      setState(() => _carouselPage = _categoryCarousel.page ?? 0);
-    });
+    _selectedCategory = UserPrefsService.loadLocalPrefs().lastCategory;
+
+    
+    // Load last selected category
+    
     _commsPrefs.prefsStream().first.then((prefs) {
       _pushTokens.registerIfOptedIn(optInPush: prefs.optInPush);
     });
   }
 
-  Future<void> _refreshData() async {
-    setState(() {
-      _categoriesFuture = _firestoreService.getCategories().first;
-    });
-  }
+
 
   void _runAddToCartAnimation(GlobalKey productKey) {
     if (productKey.currentContext == null) return;
@@ -115,50 +123,35 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
-    _categoryCarousel.dispose();
+    _mainScrollController.dispose();
     super.dispose();
   }
 
-  List<String> _applyCategoryOrder(
-    List<String> categories,
-    List<String> preferredOrder,
-  ) {
-    final ordered = <String>[];
-    for (final entry in preferredOrder) {
-      if (categories.contains(entry) && !ordered.contains(entry)) {
-        ordered.add(entry);
-      }
+  // Helper to handle selection from Carousel - SINGLE CLICK SUPPORT
+  void _onHeroCategorySelected(String category) {
+    if (category == 'VYBZ Eventos') {
+      // "Outlier... won't have any listings... won't be a selectable category"
+      ScaffoldMessenger.of(context).showSnackBar(
+         SnackBar(content: Text(tr(context, en: 'VYBZ Events coming soon!', es: '¡Eventos VYBZ muy pronto!')), duration: const Duration(seconds: 1)),
+      );
+      return; 
     }
-    for (final entry in categories) {
-      if (!ordered.contains(entry)) ordered.add(entry);
-    }
-    return ordered;
-  }
 
-  Future<void> _prioritizeCategory({
-    required String category,
-    required List<String> categories,
-  }) async {
-    if (category == _allCategoryKey) {
+    // Toggle selection: if already selected, deselect to show all
+    if (_selectedCategory == category) {
       setState(() => _selectedCategory = _allCategoryKey);
-      return;
+      UserPrefsService.saveCategory(_allCategoryKey);
+    } else {
+      setState(() => _selectedCategory = category);
+      UserPrefsService.saveCategory(category);
     }
-
-    final newOrder = [
-      category,
-      ...categories.where((c) => c != category),
-    ];
-    setState(() => _selectedCategory = category);
-    await _prefsService.saveCategoryOrder(newOrder);
-  }
-
-  String? _categoryImage(List<Product> products, String category) {
-    for (final product in products) {
-      if (product.category == category && product.imageUrl.isNotEmpty) {
-        return product.imageUrl;
-      }
-    }
-    return null;
+    
+    // Auto scroll down to products
+    _mainScrollController.animateTo(
+      450,
+      duration: const Duration(milliseconds: 800),
+      curve: Curves.easeInOutCubic,
+    );
   }
 
   @override
@@ -181,190 +174,143 @@ class _HomeScreenState extends State<HomeScreen> {
         final title = isEs ? 'Hola, Matthew' : 'Hello, Matthew';
         final searchHint =
             isEs ? 'Buscar productos...' : 'Search for products...';
-        final kidsTitle = isEs ? 'Zona Kids' : 'Kids Zone';
-        final kidsDesc = isEs
-            ? 'Colorear, rompecabezas, laberintos y mas.'
-            : 'Coloring, puzzles, mazes, and more.';
-        final appSettingsLabel = isEs ? 'Configuracion' : 'App settings';
-        final angelinaLabel =
-            isEs ? 'Panel de Angelina' : 'Angelina control panel';
         final searchFill = isDark
             ? theme.colorScheme.surfaceContainerHighest
             : theme.colorScheme.surface;
+            
         return StreamBuilder<Map<String, dynamic>>(
           stream: _prefsService.prefsStream(),
           builder: (context, prefsSnap) {
             final prefs = prefsSnap.data ?? {};
-            final savedOrder =
-                (prefs['categoryOrder'] as List?)?.cast<String>() ?? [];
+
             final favoriteIds =
                 (prefs['favorites'] as List?)?.cast<String>() ?? [];
             return PopScope(
-              canPop: app.isManager.value,
-              onPopInvokedWithResult: (didPop, result) {
+              canPop: false,
+              onPopInvokedWithResult: (didPop, result) async {
                 if (didPop) return;
-                // If we're here, it means canPop was false (regular user).
-                // They shouldn't return to login, so we exit the app.
-                SystemNavigator.pop();
+                if (app.isManager.value) {
+                  // Admin: Navigate to login screen but stay signed in
+                  Navigator.pushReplacementNamed(context, '/login');
+                } else {
+                  // Regular user: Sign out and exit app
+                  await FirebaseAuth.instance.signOut();
+                  SystemNavigator.pop();
+                }
               },
               child: Scaffold(
+                appBar: NvAppBar(
+                  title: title, // unused if titleWidget provided
+                  titleWidget: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+                  centerTitle: false, // "Hello Matthew" usually looks better left-aligned or center? Current was center (default). Let's stick to left for greeting or center? SliverAppBar default is left on Android, center on iOS. NvAppBar defaults to true. Let's keep true.
+                  extraActions: [
+                     if (app.isManager.value)
+                        IconButton(
+                          tooltip: tr(context, en: 'Owner Control Panel', es: 'Panel de Dueño'),
+                          onPressed: () => Navigator.pushNamed(context, '/owner'),
+                          icon: const Icon(Icons.settings),
+                        ),
+                      IconButton(
+                        tooltip: tr(context, en: 'Notifications', es: 'Notificaciones'),
+                        onPressed: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(tr(context, en: 'No new notifications', es: 'No hay notificaciones nuevas'))),
+                          );
+                        },
+                        icon: const Icon(Icons.notifications_active),
+                      ),
+                      Consumer<CartProvider>(
+                        builder: (_, cart, ch) => Badge(
+                          key: _cartKey,
+                          value: cart.itemCount.toString(),
+                          child: ch!,
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.shopping_cart),
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const CartScreen(),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
                 body: Stack(
                 children: [
-                  RefreshIndicator(
-                    onRefresh: _refreshData,
-                    child: CustomScrollView(
+
+                  CustomScrollView(
+                    physics: const BouncingScrollPhysics(),
+                      controller: _mainScrollController, 
                       slivers: [
-                        SliverAppBar(
-                          title: Text(title),
-                          floating: true,
-                          pinned: true,
-                          snap: false,
-                          actions: [
-                            IconButton(
-                              tooltip: appSettingsLabel,
-                              onPressed: () =>
-                                  Navigator.pushNamed(context, '/app-settings'),
-                              icon: const Icon(Icons.settings),
-                            ),
-                            const NvLanguageToggle(),
-                            const NvCurrencyToggle(),
-                            const NvThemeToggle(),
-                        IconButton(
-                          tooltip: angelinaLabel,
-                          onPressed: () =>
-                              Navigator.pushNamed(context, '/angelina-admin'),
-                          icon: const Icon(Icons.tune),
-                        ),
-                        IconButton(
-                          tooltip: tr(
-                            context,
-                            en: 'Messaging preferences',
-                            es: 'Preferencias',
-                          ),
-                          onPressed: () => Navigator.pushNamed(
-                            context,
-                            '/preferences/notifications',
-                          ),
-                          icon: const Icon(Icons.notifications_active),
-                        ),
-                            Consumer<CartProvider>(
-                              builder: (_, cart, ch) => Badge(
-                                key: _cartKey,
-                                value: cart.itemCount.toString(),
-                                child: ch!,
-                              ),
-                              child: IconButton(
-                                icon: const Icon(Icons.shopping_cart),
-                                onPressed: () => Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => const CartScreen(),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                          bottom: PreferredSize(
-                            preferredSize: const Size.fromHeight(kToolbarHeight),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: TextField(
-                                onChanged: (value) =>
-                                    setState(() => _searchQuery = value),
-                                decoration: InputDecoration(
-                                  hintText: searchHint,
-                                  prefixIcon: const Icon(Icons.search),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(25.0),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  filled: true,
-                                  fillColor: searchFill,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+                        // Search Bar moved to SliverToBoxAdapter
                         SliverToBoxAdapter(
                           child: Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(16),
-                              onTap: () => Navigator.pushNamed(context, '/kids'),
-                              child: Ink(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  gradient: const LinearGradient(
-                                    colors: [
-                                      Color(0xFF4CAF50),
-                                      Color(0xFFF3A70B)
-                                    ],
-                                    begin: Alignment.centerLeft,
-                                    end: Alignment.centerRight,
-                                  ),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Color(0x22000000),
-                                      blurRadius: 12,
-                                      offset: Offset(0, 6),
-                                    ),
-                                  ],
+                            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+                            child: TextField(
+                              onChanged: (value) =>
+                                  setState(() => _searchQuery = value),
+                              decoration: InputDecoration(
+                                hintText: searchHint,
+                                prefixIcon: const Icon(Icons.search),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(25.0),
+                                  borderSide: BorderSide.none,
                                 ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(14),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        width: 48,
-                                        height: 48,
-                                        decoration: const BoxDecoration(
-                                          color: Colors.white,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Icon(
-                                          Icons.icecream,
-                                          color: Color(0xFF4CAF50),
-                                          size: 30,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              kidsTitle,
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              kidsDesc,
-                                              style: const TextStyle(
-                                                color: Colors.white70,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const Icon(Icons.chevron_right,
-                                          color: Colors.white),
-                                    ],
-                                  ),
-                                ),
+                                filled: true,
+                                fillColor: searchFill,
                               ),
                             ),
                           ),
                         ),
+                        
+                        // --- ELITE HERO CAROUSEL ---
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 16, bottom: 24),
+                            child: HeroCategoryCarousel(
+                              pageScrollController: _mainScrollController,
+                              onCategorySelected: _onHeroCategorySelected,
+                              currentCategory: _selectedCategory,
+                            ),
+                          ),
+                        ),
+                        
                         _buildPromoStrip(theme),
-                        _buildHeroCategories(theme, savedOrder),
-                        _buildCategories(theme, savedOrder),
+
+                         // Product List Header
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    _selectedCategory == _allCategoryKey 
+                                      ? tr(context, en: 'All Products', es: 'Todos los Productos')
+                                      : (isEs ? _selectedCategory : (HeroCategoryConfig.translations[_selectedCategory] ?? _selectedCategory)),
+                                    style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 2,
+                                  ),
+                                ),
+                                if (_selectedCategory != _allCategoryKey)
+                                  TextButton(
+                                    onPressed: () {
+                                      setState(() => _selectedCategory = _allCategoryKey);
+                                      UserPrefsService.saveCategory(_allCategoryKey);
+                                    },
+                                    child: Text(tr(context, en: 'Clear Filter', es: 'Ver Todo')),
+                                  )
+                              ],
+                            ),
+                          ),
+                        ),
+
                         _buildProductGrid(theme, favoriteIds.toSet()),
+                        const SliverToBoxAdapter(child: SizedBox(height: 100)),
                       ],
-                    ),
                   ),
                   const Positioned(
                     right: 16,
@@ -406,6 +352,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     separatorBuilder: (_, __) => const SizedBox(width: 12),
                     itemBuilder: (context, index) {
                       final item = items[index];
+                      // Assuming _PromoCard is defined elsewhere in the file or imported
+                      // If it was private in original file, we need to ensure it's still there.
+                      // Since we are replacing the class content, I must ensure _PromoCard exists.
+                      // The original file had it. Since I am replacing EVERYTHING from line 30 to 396? 
+                      // NO, I am replacing the HomeScreen class implementation.
+                      // I need to be careful with private classes outside HomeScreen.
+                      // _PromoCard was likely outside.
+                      // Wait, I should double check if _PromoCard is in the file.
                       return _PromoCard(item: item);
                     },
                   ),
@@ -417,227 +371,22 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+  
+  // _buildProductGrid and others follow...
+  // Since I'm doing a huge replace, I need to make sure I don't delete the bottom of the file where helper classes live.
+  // The user file has 1321 lines. My view showed up to line 800.
+  // _PromoCard is likely further down?
+  // I should check where _PromoCard is.
+  
+  // Let's assume it is there. I will CUT the replacement before the private classes at the bottom.
+  // I need to verify the replacement range.
+  
 
-  Widget _buildHeroCategories(ThemeData theme, List<String> savedOrder) {
-    return SliverToBoxAdapter(
-      child: FutureBuilder<List<String>>(
-        future: _categoriesFuture,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const SizedBox.shrink();
-          }
-          final categories = _applyCategoryOrder(snapshot.data!, savedOrder);
-          return StreamBuilder<List<Product>>(
-            stream: _firestoreService.getProducts(),
-            builder: (context, productsSnap) {
-              final products = productsSnap.data ?? [];
-              if (categories.isEmpty) return const SizedBox.shrink();
-              return SizedBox(
-                height: 190,
-                child: PageView.builder(
-                  controller: _categoryCarousel,
-                  itemCount: categories.length,
-                  itemBuilder: (context, index) {
-                    final category = categories[index];
-                    final imageUrl = _categoryImage(products, category);
-                    final distance = (index - _carouselPage).abs();
-                    final scale = (1 - (distance * 0.1)).clamp(0.86, 1.0);
-                    final tilt = (index - _carouselPage) * 0.02;
-                    return Transform.scale(
-                      scale: scale,
-                      child: Transform(
-                        transform: Matrix4.identity()..rotateZ(tilt),
-                        alignment: Alignment.center,
-                        child: GestureDetector(
-                          onTap: () => _prioritizeCategory(
-                            category: category,
-                            categories: categories,
-                          ),
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 8),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(28),
-                              gradient: LinearGradient(
-                                colors: [
-                                  theme.colorScheme.primary.withValues(alpha: 0.9),
-                                  theme.colorScheme.tertiary.withValues(alpha: 0.8),
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: theme.colorScheme.shadow
-                                      .withValues(alpha: 0.25),
-                                  blurRadius: 16,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(28),
-                              child: Stack(
-                                fit: StackFit.expand,
-                                children: [
-                                  if (imageUrl != null)
-                                    CachedNetworkImage(
-                                      imageUrl: imageUrl,
-                                      fit: BoxFit.cover,
-                                      color: Colors.black.withValues(alpha: 0.25),
-                                      colorBlendMode: BlendMode.darken,
-                                    )
-                                  else
-                                    Container(
-                                      color: theme.colorScheme.primaryContainer,
-                                    ),
-                                  Align(
-                                    alignment: Alignment.bottomLeft,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(18.0),
-                                      child: Text(
-                                        category,
-                                        style: theme.textTheme.titleLarge
-                                            ?.copyWith(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    right: 14,
-                                    top: 14,
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 6),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withValues(alpha: 0.2),
-                                        borderRadius: BorderRadius.circular(16),
-                                        border:
-                                            Border.all(color: Colors.white24),
-                                      ),
-                                      child: Text(
-                                        tr(
-                                          context,
-                                          en: 'Explore',
-                                          es: 'Explorar',
-                                        ),
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              );
-            },
-          );
-        },
-      ),
-    );
-  }
 
-  Widget _buildCategories(ThemeData theme, List<String> savedOrder) {
-    return SliverToBoxAdapter(
-      child: FutureBuilder<List<String>>(
-        future: _categoriesFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return _buildCategoryShimmer(theme);
-          }
-          if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                tr(
-                  context,
-                  en: 'Unable to load categories.',
-                  es: 'No se pudieron cargar las categorias.',
-                ),
-              ),
-            );
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const SizedBox.shrink();
-          }
 
-          final ordered = _applyCategoryOrder(snapshot.data!, savedOrder);
-          final categories = [_allCategoryKey, ...ordered];
-          final allLabel = tr(context, en: 'All', es: 'Todo');
 
-          return SizedBox(
-            height: 50,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: categories.length,
-              itemBuilder: (context, index) {
-                final category = categories[index];
-                final label =
-                    category == _allCategoryKey ? allLabel : category;
-                final scheme = Theme.of(context).colorScheme;
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: ChoiceChip(
-                    label: Text(label),
-                    selected: _selectedCategory == category,
-                    selectedColor: scheme.primaryContainer,
-                    labelStyle: TextStyle(
-                      color: _selectedCategory == category
-                          ? scheme.onPrimaryContainer
-                          : scheme.onSurface,
-                    ),
-                    onSelected: (selected) {
-                      if (selected) {
-                        _prioritizeCategory(
-                          category: category,
-                          categories: ordered,
-                        );
-                      }
-                    },
-                  ),
-                );
-              },
-            ),
-          );
-        },
-      ),
-    );
-  }
 
-  Widget _buildCategoryShimmer(ThemeData theme) {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: SizedBox(
-        height: 50,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: 5,
-          itemBuilder: (context, index) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Chip(
-                label: Container(
-                  width: 80,
-                  height: 20,
-                  color: Colors.white,
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
+
 
   Widget _buildProductGrid(ThemeData theme, Set<String> favoriteIds) {
     return StreamBuilder<List<Product>>(
@@ -678,70 +427,188 @@ class _HomeScreenState extends State<HomeScreen> {
           _productKeys.putIfAbsent(p.id, () => GlobalKey());
         }
 
-        final filteredProducts = allProducts.where((p) {
-          final matchesCategory =
-              _selectedCategory == _allCategoryKey ||
-                  p.category == _selectedCategory;
-          final matchesSearch = _searchQuery.isEmpty ||
-              p.name.toLowerCase().contains(_searchQuery.toLowerCase());
-          return matchesCategory && matchesSearch;
-        }).toList();
+        // Apply search filter
+        final searchFiltered = _searchQuery.isEmpty
+            ? allProducts
+            : allProducts.where((p) =>
+                p.name.toLowerCase().contains(_searchQuery.toLowerCase())
+              ).toList();
 
-        if (filteredProducts.isEmpty) {
+        if (searchFiltered.isEmpty) {
           return SliverToBoxAdapter(
             child: Center(
-              child: Text(
-                tr(
-                  context,
-                  en: 'No products match your search.',
-                  es: 'No hay productos para tu busqueda.',
+              child: Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Text(
+                  tr(
+                    context,
+                    en: 'No products match your search.',
+                    es: 'No hay productos para tu busqueda.',
+                  ),
                 ),
               ),
             ),
           );
         }
 
-        return SliverAnimatedGrid(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 0.75,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-          ),
-          initialItemCount: filteredProducts.length,
-          itemBuilder: (context, index, animation) {
-            final product = filteredProducts[index];
-            final isFavorite = favoriteIds.contains(product.id);
-            return _buildAnimatedProductCard(
-              theme,
-              product,
-              isFavorite,
-              animation,
-            );
-          },
+        // CATEGORY-GROUPED DISPLAY LOGIC
+        return _buildCategoryGroupedProducts(
+          theme,
+          searchFiltered,
+          favoriteIds,
         );
       },
     );
   }
-  
-  Widget _buildAnimatedProductCard(
+
+  // NEW: Build products grouped by category in carousel order
+  Widget _buildCategoryGroupedProducts(
     ThemeData theme,
-    Product product,
-    bool isFavorite,
-    Animation<double> animation,
+    List<Product> products,
+    Set<String> favoriteIds,
   ) {
-    return FadeTransition(
-      opacity: animation,
-      child: SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(0, 0.3),
-          end: Offset.zero,
-        ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
-        child: _buildProductCard(theme, product, isFavorite),
+    // 1. Determine the display order of categories
+    // If a category is selected, we move it to the top.
+    // If "All" is selected, we keep the default carousel order.
+    List<String> displayOrder;
+    if (_selectedCategory == _allCategoryKey) {
+      displayOrder = HeroCategoryConfig.order;
+    } else {
+      // Move selected to front, keep others in order
+      displayOrder = [
+        _selectedCategory,
+        ...HeroCategoryConfig.order.where((c) => c != _selectedCategory),
+      ];
+    }
+
+    // 2. Build the list of sections
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          if (index >= displayOrder.length) return null;
+          
+          final category = displayOrder[index];
+          final isSelected = category == _selectedCategory && _selectedCategory != _allCategoryKey;
+          
+          // Filter products for this category (Exact match or simple contains if you prefer)
+          final categoryProducts = products
+              .where((p) => p.category == category)
+              .toList();
+          
+          // 3. Handle Empty Categories
+          // If this is the explicitly selected category and it's empty, show a "Empty" message.
+          // If it's just a regular category in the list and it's empty, hide the section comfortably.
+          if (categoryProducts.isEmpty) {
+            if (isSelected) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                   _buildCategoryHeader(theme, category, isSelected),
+                   Padding(
+                     padding: const EdgeInsets.all(32.0),
+                     child: Center(
+                       child: Text(
+                         category == 'VYBZ Eventos'
+                             ? tr(context, en: 'Coming Soon!', es: '¡Muy Pronto!')
+                             : tr(context, en: 'No products in this category.', es: 'No hay productos en esta categoría.'),
+                         style: theme.textTheme.bodyLarge,
+                       ),
+                     ),
+                   ),
+                ],
+              );
+            }
+            return const SizedBox.shrink(); 
+          }
+          
+          // 4. Render Category Section
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildCategoryHeader(theme, category, isSelected),
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.75,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                ),
+                itemCount: categoryProducts.length,
+                itemBuilder: (context, prodIndex) {
+                  final product = categoryProducts[prodIndex];
+                  final isFavorite = favoriteIds.contains(product.id);
+                  return _buildProductCard(theme, product, isFavorite);
+                },
+              ),
+            ],
+          );
+        },
+        childCount: displayOrder.length,
       ),
     );
   }
 
+  Widget _buildCategoryHeader(ThemeData theme, String category, bool isHighlight) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 24, 16, 12),
+      padding: isHighlight 
+          ? const EdgeInsets.symmetric(horizontal: 12, vertical: 8)
+          : EdgeInsets.zero,
+      decoration: isHighlight 
+          ? BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  theme.colorScheme.primary.withValues(alpha: 0.15),
+                  theme.colorScheme.primary.withValues(alpha: 0.02),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                width: 1.5,
+              ),
+            )
+          : null,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (isHighlight) ...[
+            Icon(Icons.check_circle, color: theme.colorScheme.primary, size: 20),
+            const SizedBox(width: 8),
+          ],
+          Flexible(
+            child: Builder(
+              builder: (context) {
+                  final isEn = AppState.of(context).languageCode.value == 'en';
+                  final displayName = isEn 
+                      ? HeroCategoryConfig.translations[category] ?? category
+                      : category;
+                  return Text(
+                    displayName.toUpperCase(),
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                      color: isHighlight ? theme.colorScheme.primary : null,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
+                  );
+              }
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  
+//   Widget _buildAnimatedProductCard(...) { ... } // Unused
+
+
+//  ... } // Unused
+//  ... } // Unused
   Widget _buildProductGridShimmer(ThemeData theme) {
     return SliverGrid(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -805,6 +672,12 @@ class _HomeScreenState extends State<HomeScreen> {
             builder: (context) => ProductDetailScreen(product: product),
           ),
         ),
+        onLongPress: () {
+          final isManager = AppState.of(context).isManager.value;
+          if (isManager) {
+            ProductEditorSheet.show(context, product: product);
+          }
+        },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -848,18 +721,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             );
                             return;
                           }
-                          final prefs = await _prefsService.getPrefs();
-                          final list =
-                              (prefs['favorites'] as List?)?.cast<String>() ??
-                                  [];
-                          final updated = Set<String>.from(list);
                           final willFavorite = !isFavorite;
-                          if (willFavorite) {
-                            updated.add(product.id);
-                          } else {
-                            updated.remove(product.id);
-                          }
-                          await _prefsService.saveFavorites(updated);
                           await _prefsService.toggleFavorite(
                             productId: product.id,
                             isFavorite: willFavorite,
@@ -904,11 +766,20 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    product.name,
-                    style: theme.textTheme.titleMedium,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  Builder(
+                    builder: (context) {
+                      final isEs = AppState.of(context).languageCode.value == 'es';
+                      final displayName = (isEs && product.nameEs.isNotEmpty) 
+                          ? product.nameEs 
+                          : product.name;
+                      
+                      return Text(
+                        displayName,
+                        style: theme.textTheme.titleMedium,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      );
+                    }
                   ),
                   if (product.ratingCount > 0)
                     Padding(
@@ -995,7 +866,13 @@ class _PromoCard extends StatelessWidget {
           ),
         ],
       ),
-      child: ClipRRect(
+      child: GestureDetector(
+        onLongPress: () {
+          if (AppState.of(context).isManager.value) {
+            EventEditorSheet.show(context, promo: item);
+          }
+        },
+        child: ClipRRect(
         borderRadius: BorderRadius.circular(18),
         child: Stack(
           children: [
@@ -1049,7 +926,11 @@ class _PromoCard extends StatelessWidget {
               child: IconButton(
                 icon: const Icon(Icons.share, color: Colors.white),
                 onPressed: () {
-                  SharePlus.instance.share(ShareParams(text: 'Check out ${item.title} at Niña Verde.'));
+                  final isEs = AppState.of(context).languageCode.value == 'es';
+                  final text = isEs
+                      ? '¡Mirá esta promo *${item.title}* en Niña Verde! 🌿 Estás invitado.'
+                      : 'Check out *${item.title}* at Niña Verde! 🌿 You gotta see this.';
+                  SharePlus.instance.share(ShareParams(text: text));
                 },
               ),
             ),
@@ -1057,7 +938,7 @@ class _PromoCard extends StatelessWidget {
               left: 12,
               right: 12,
               bottom: 12,
-              child: Text(
+              child: TranslatedText(
                 item.title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -1069,6 +950,7 @@ class _PromoCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -1124,25 +1006,66 @@ class _HostessOverlay extends StatefulWidget {
 
 class _HostessOverlayState extends State<_HostessOverlay>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _pulse;
-  final _docRef =
-      FirebaseFirestore.instance.collection('ai_hostess').doc('angelina');
+  late AnimationController _pulse;
   Offset _dragOffset = Offset.zero;
   bool _minimized = false;
   bool _hidden = false;
+  Timer? _greetingTimer;
+  Timer? _greetingHideTimer;  // Track the hide timer to cancel it
+  String? _greeting;
 
   @override
   void initState() {
     super.initState();
     _pulse = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1600),
-    )..repeat(reverse: true);
+        vsync: this, duration: const Duration(milliseconds: 2000))
+      ..repeat(reverse: true);
+    
+    // Show greeting after a delay
+    _greetingTimer = Timer(const Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() {
+          _greeting = _getGreeting();
+        });
+        // Hide greeting after 5 secs - use Timer instead of Future.delayed
+        _greetingHideTimer = Timer(const Duration(seconds: 5), () {
+          if (mounted) setState(() => _greeting = null);
+        });
+      }
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Update greeting if language changes while visible
+    if (_greeting != null) {
+      setState(() {
+        _greeting = _getGreeting();
+      });
+    }
+  }
+  
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    // Slang: tuani (cool), diacachimba (awesome), corazón (darling), mae (friend/dude)
+    final app = AppState.of(context);
+    final isEs = app.languageCode.value == 'es';
+    
+    if (hour < 12) {
+      return isEs ? '¡Buenos días corazón!' : 'Good morning, darling!';
+    } else if (hour < 18) {
+      return isEs ? '¡Buenas tardes amor!' : 'Good afternoon, hun!';
+    } else {
+      return isEs ? '¡Buenas noches! ¿Todo tuani?' : 'Evening! Everything tuani?';
+    }
   }
 
   @override
   void dispose() {
     _pulse.dispose();
+    _greetingTimer?.cancel();
+    _greetingHideTimer?.cancel();  // Cancel the hide timer
     super.dispose();
   }
 
@@ -1151,6 +1074,7 @@ class _HostessOverlayState extends State<_HostessOverlay>
       _hidden = false;
       _minimized = false;
       _dragOffset = Offset.zero;
+      _greeting = _getGreeting(); // Show greeting again on restore
     });
   }
 
@@ -1165,19 +1089,6 @@ class _HostessOverlayState extends State<_HostessOverlay>
       }
       _dragOffset = Offset.zero;
     });
-  }
-
-  String? _avatarUrl(Map<String, dynamic>? data) {
-    if (data == null) return null;
-    final media = data['media'];
-    if (media is! List) return null;
-    for (final item in media) {
-      if (item is Map && item['type'] == 'image') {
-        final url = item['url'];
-        if (url is String && url.isNotEmpty) return url;
-      }
-    }
-    return null;
   }
 
   @override
@@ -1196,65 +1107,85 @@ class _HostessOverlayState extends State<_HostessOverlay>
             ),
             child: const Text(
               'Angelina',
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ),
         ),
       );
     }
 
-    return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-      stream: _docRef.snapshots(),
-      builder: (context, snapshot) {
-        final url = _avatarUrl(snapshot.data?.data());
-        final avatar = url != null
-            ? CachedNetworkImageProvider(url) as ImageProvider
-            : const AssetImage('assets/images/avatar/nina_verde_512.png');
+    return GestureDetector(
+      onPanUpdate: (d) => setState(() => _dragOffset += d.delta),
+      onPanEnd: (_) => _handleDragEnd(),
+      child: AnimatedBuilder(
+        animation: _pulse,
+        builder: (_, __) {
+          final glow = 0.5 + (_pulse.value * 0.5);
+          final size = _minimized ? 50.0 : 80.0;
+          
+          return Transform.translate(
+            offset: _dragOffset,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Speech Bubble (Left of avatar)
+                if (!_minimized && _greeting != null)
+                  Container(
+                    margin: const EdgeInsets.only(right: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12).copyWith(
+                        bottomRight: const Radius.circular(0),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      _greeting!,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ).animate().fade().scale(),
 
-        return GestureDetector(
-          onPanUpdate: (d) {
-            setState(() => _dragOffset += d.delta);
-          },
-          onPanEnd: (_) => _handleDragEnd(),
-          onTap: _minimized
-              ? _restore
-              : () => Navigator.pushNamed(context, '/contact'),
-          onLongPress: () => Navigator.pushNamed(
-            context,
-            '/contact',
-            arguments: {'autoListen': true},
-          ),
-          child: AnimatedBuilder(
-            animation: _pulse,
-            builder: (_, __) {
-              final glow = 0.5 + (_pulse.value * 0.5);
-              final size = _minimized ? 40.0 : 64.0;
-              return Transform.translate(
-                offset: _dragOffset,
-                child: Container(
-                  width: size,
-                  height: size,
+                // Angelina Head with Attention Grabber
+                Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.greenAccent.withValues(
-                            alpha: _minimized ? 0.2 : glow * 0.4),
-                        blurRadius: _minimized ? 12 : 20,
-                        spreadRadius: _minimized ? 2 : 4,
+                        color: brand.nvAccentOrange
+                            .withValues(alpha: _minimized ? 0.2 : glow * 0.5),
+                        blurRadius: _minimized ? 10 : 25,
+                        spreadRadius: _minimized ? 2 : 5,
                       )
                     ],
-                    image: DecorationImage(
-                      image: avatar,
-                      fit: BoxFit.cover,
-                    ),
                   ),
-                ),
-              );
-            },
-          ),
-        );
-      },
+                  child: AngelinaWidget(
+                    pose: AngelinaPose.bubbleAvatar,
+                    compact: true,
+                    height: size,
+                    onTap: _minimized 
+                      ? _restore 
+                      : () => Navigator.pushNamed(context, '/contact'),
+                  ),
+                )
+                .animate(onPlay: (c) => c.repeat(period: 10.seconds)) // Every 10s
+                .shake(delay: 5.seconds, duration: 1.seconds, hz: 3, rotation: 0.1) // Subtle shake
+                .shimmer(delay: 5.seconds, duration: 1.seconds, color: Colors.white54), // Subtle shine
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

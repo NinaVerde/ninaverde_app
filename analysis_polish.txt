@@ -1,0 +1,15 @@
+Analyzing 3 items...                                            
+
+warning - Unused import: 'package:cloud_firestore/cloud_firestore.dart' - lib\screens\home_screen.dart:3:8 - unused_import
+warning - Unused import: '../widgets/nv_widgets.dart' - lib\screens\home_screen.dart:12:8 - unused_import
+warning - Unused import: 'catalog_admin_screen.dart' - lib\screens\home_screen.dart:28:8 - unused_import
+warning - Unused import: '../main.dart' - lib\screens\product_detail_screen.dart:11:8 - unused_import
+warning - Unused import: 'dart:math' - lib\screens\product_detail_screen.dart:19:8 - unused_import
+  error - The method 'animate' isn't defined for the type 'SizedBox' - lib\screens\product_detail_screen.dart:656:13 - undefined_method
+  error - The getter 'ms' isn't defined for the type 'int' - lib\screens\product_detail_screen.dart:656:44 - undefined_getter
+  error - The method 'animate' isn't defined for the type 'Column' - lib\screens\product_detail_screen.dart:692:15 - undefined_method
+  error - The getter 'ms' isn't defined for the type 'int' - lib\screens\product_detail_screen.dart:692:34 - undefined_getter
+  error - The method 'animate' isn't defined for the type 'Container' - lib\screens\product_detail_screen.dart:696:7 - undefined_method
+  error - The getter 'ms' isn't defined for the type 'int' - lib\screens\product_detail_screen.dart:696:38 - undefined_getter
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\angelina_widget.dart:165:88 - deprecated_member_use
+

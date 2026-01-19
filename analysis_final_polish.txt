@@ -1,0 +1,8 @@
+Analyzing 3 items...                                            
+
+warning - Unused import: 'package:cloud_firestore/cloud_firestore.dart' - lib\screens\home_screen.dart:3:8 - unused_import
+warning - Unused import: '../widgets/nv_widgets.dart' - lib\screens\home_screen.dart:12:8 - unused_import
+warning - Unused import: 'catalog_admin_screen.dart' - lib\screens\home_screen.dart:28:8 - unused_import
+warning - Unused import: '../main.dart' - lib\screens\product_detail_screen.dart:11:8 - unused_import
+warning - Unused import: 'dart:math' - lib\screens\product_detail_screen.dart:20:8 - unused_import
+

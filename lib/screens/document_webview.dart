@@ -2,9 +2,12 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+// import 'package:flutter_markdown/flutter_markdown.dart'; // Unused
 import 'package:webview_flutter/webview_flutter.dart';
-import '../main.dart';
+// import '../main.dart'; // Unused
+import '../state/app_state.dart';
 import '../theme/brand_colors.dart'; // AppState + NvAppBar
+import '../widgets/nv_widgets.dart';
 
 class DocumentWebView extends StatefulWidget {
   final String titleEn;

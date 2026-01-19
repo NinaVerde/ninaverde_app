@@ -12,6 +12,14 @@ class Product {
   final int ratingCount;
   final int favoritesCount;
   final String videoUrl;
+  
+  // Localized fields
+  final String nameEn;
+  final String nameEs;
+  final String descriptionEn;
+  final String descriptionEs;
+  final String categoryEn;
+  final String categoryEs;
 
   Product({
     required this.id,
@@ -25,6 +33,13 @@ class Product {
     required this.ratingCount,
     required this.favoritesCount,
     required this.videoUrl,
+    // Optional params for backward compat, defaulting to empty if not provided manually (factory handles defaults logic)
+    this.nameEn = '',
+    this.nameEs = '',
+    this.descriptionEn = '',
+    this.descriptionEs = '',
+    this.categoryEn = '',
+    this.categoryEs = '',
   });
 
   factory Product.fromFirestore(DocumentSnapshot doc) {
@@ -138,6 +153,16 @@ class Product {
       ratingCount: (data['ratingCount'] as num?)?.toInt() ?? 0,
       favoritesCount: (data['favoritesCount'] as num?)?.toInt() ?? 0,
       videoUrl: extractVideoUrl(data),
+      
+      // Localized fields
+      // If name_es exists, use it. Otherwise fallback to name.
+      // We store them separately so UI can switch instantly.
+      nameEn: data['name_en'] ?? data['name'] ?? '',
+      nameEs: data['name_es'] ?? '',
+      descriptionEn: data['description_en'] ?? data['description'] ?? '',
+      descriptionEs: data['description_es'] ?? '',
+      categoryEn: data['category_en'] ?? data['category'] ?? '',
+      categoryEs: data['category_es'] ?? '',
     );
   }
 }

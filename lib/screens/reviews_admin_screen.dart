@@ -4,7 +4,9 @@ import '../services/review_service.dart';
 import '../services/firestore_service.dart';
 import '../models/review_model.dart';
 import '../models/product_model.dart';
-import '../main.dart';
+// import '../main.dart'; // Removing to avoid 'tr' conflict
+import '../state/app_state.dart';
+import '../widgets/nv_widgets.dart';
 
 class ReviewsAdminScreen extends StatefulWidget {
   const ReviewsAdminScreen({super.key});

@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 import 'login_screen.dart';
-import '../main.dart';
+import '../state/app_state.dart';
 
 // -------- Brand palettes --------
 const Color kBizTint = Color(0xFF2D8CFF);
@@ -55,6 +55,9 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
   static const introLogoDuration = Duration(milliseconds: 720);
   static const finalRevealDuration = Duration(milliseconds: 900);
 
+  // Sound effect control
+  // bool _startupWhooshFired = false; // Unused
+
 
   // Video
   late final VideoPlayerController _video;
@@ -85,7 +88,7 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
   // Watchdog so "video" phase can't hang
   Timer? _videoWatchdog;
   Timer? _sequenceWatchdog;
-  bool _finalWhooshPrimed = false;
+  // bool _finalWhooshPrimed = false; // Unused
 
   @override
   void initState() {
@@ -136,6 +139,7 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
       }
     });
 
+    // Start sequence after audio is ready
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
       try {
@@ -155,10 +159,11 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
     } catch (_) {}
   }
 
-  void _fireWhoosh() {
-    // Fire immediately to avoid delayed playback.
-    unawaited(_playWhoosh(1.0));
-  }
+  // void _fireStartupWhoosh() {
+  //   if (_startupWhooshFired) return;
+  //   _startupWhooshFired = true;
+  //   unawaited(_playWhoosh(1.0));
+  // }
 
   Future<bool> _safeForward(
     AnimationController controller, {
@@ -179,8 +184,30 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
 
   Future<void> _runSequence() async {
     try {
-      // First swoosh: fires immediately as the sequence begins
-      _fireWhoosh();
+      // 🎵 FIRST WHOOSH - LOCKED IN at 1600ms (never move this!) 🔒
+      // Awaiting here ensures we don't start animating until the audio engine has accepted the command
+      await _playWhoosh(1.0);
+      
+      // Delay visuals to let sound "wind up" / overcome latency
+      // User confirmed needs another 400ms, so total 1600ms head start.
+      await Future.delayed(const Duration(milliseconds: 1600));
+
+      // 🎵 SECOND WHOOSH - LOCKED IN at 2200ms from start 🔒
+      // (1600ms first whoosh delay + 600ms gap)
+      Future.delayed(const Duration(milliseconds: 600), () {
+        if (mounted) _playWhoosh(0.9);
+      });
+
+      // 🎵 THIRD WHOOSH - Dialing in now at 3900ms from start 🎯
+      // (1600ms first + 2300ms delay) - delayed 700ms more per request
+      Future.delayed(const Duration(milliseconds: 2300), () {
+        if (mounted) _playWhoosh(0.85);
+      });
+
+      // 🎵 FOURTH WHOOSH - Biz Apps Reveal (~10100ms from visual start) 🆕
+      Future.delayed(const Duration(milliseconds: 10100), () {
+        if (mounted) _playWhoosh(0.85);
+      });
 
       // Intro pop
       if (!mounted) return;
@@ -292,7 +319,8 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
         if (dur > Duration.zero) {
           final remain = dur - pos;
 
-          // Start final reveal near the end
+          // Near the end - no sound effect here for now
+
           if (remain <= const Duration(milliseconds: 140)) {
             break;
           }
@@ -312,9 +340,8 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
     _sequenceWatchdog?.cancel();
     _sequenceWatchdog = null;
 
-    if (fireWhoosh && !_finalWhooshPrimed) {
-      _finalWhooshPrimed = true;
-      _fireWhoosh();
+    if (fireWhoosh) {
+      unawaited(_playWhoosh(0.9));
     }
     setState(() => _phase = _Phase.finalReveal);
     await _finalReveal.forward();
@@ -358,98 +385,97 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
   Widget build(BuildContext context) {
     final loginPreview = const LoginScreen();
     final skipLabel = tr(context, en: 'Skip', es: 'Saltar');
+    final screen = MediaQuery.of(context).size;
+    final topPadding = MediaQuery.of(context).padding.top;
 
     return Scaffold(
       backgroundColor: Colors.black,
-      body: SafeArea(
-        top: false,
-        bottom: false,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            switch (_phase) {
-              _Phase.introLogo => _IntroLogoPop(controller: _introLogoCtrl),
-              _Phase.powered => const _TitleCard(text: 'POWERED', isBiz: true),
-              _Phase.by => const _TitleCard(text: 'BY', isBiz: true),
-              _Phase.video => _useVideo
-                  ? _VideoStage(
-                      controller: _video,
-                      scale: _videoScale,
-                      glowStrength: _videoGlow,
-                      verticalOffset: -0.10,
-                    )
-                  : _BizLogoStage(controller: _bizLogoCtrl),
-              _Phase.flash0 ||
-              _Phase.flash1 ||
-              _Phase.flash2 ||
-              _Phase.finalReveal ||
-              _Phase.done =>
-                const SizedBox.shrink(),
-            },
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          switch (_phase) {
+            _Phase.introLogo => _IntroLogoPop(controller: _introLogoCtrl),
+            _Phase.powered => const _TitleCard(text: 'POWERED', isBiz: true),
+            _Phase.by => const _TitleCard(text: 'BY', isBiz: true),
+            _Phase.video => _useVideo
+                ? _VideoStage(
+                    controller: _video,
+                    scale: _videoScale,
+                    glowStrength: _videoGlow,
+                    verticalOffset: -0.05,
+                  )
+                : _BizLogoStage(controller: _bizLogoCtrl),
+            _Phase.flash0 ||
+            _Phase.flash1 ||
+            _Phase.flash2 ||
+            _Phase.finalReveal ||
+            _Phase.done =>
+              const SizedBox.shrink(),
+          },
 
-            if (_phase == _Phase.flash0)
-              _RadialFlash(
-                controller: _flash0,
-                center: Alignment.center,
-                coreColor: Colors.white,
-                tintInner: nvAccentOrange,
-                tintOuter: nvGreenDark.withValues(alpha: 0.85),
-              ),
-            if (_phase == _Phase.flash1)
-              _RadialFlash(
-                controller: _flash1,
-                center: Alignment.center,
-                coreColor: Colors.white,
-                tintInner: kBizTint,
-                tintOuter: kBizTintSoft,
-              ),
-            if (_phase == _Phase.flash2)
-              _RadialFlash(
-                controller: _flash2,
-                center: Alignment.center,
-                coreColor: Colors.white,
-                tintInner: kBizTint,
-                tintOuter: kBizTintSoft,
-              ),
-            if (_phase == _Phase.finalReveal)
-              _FinalBurstReveal(
-                controller: _finalReveal,
-                login: loginPreview,
-                center: const Alignment(0.0, -0.38),
-                coreColor: Colors.white,
-                tintInner: nvAccentOrange,
-                tintOuter: nvGreenDark.withValues(alpha: 0.75),
-              ),
-
-            // Skip
-            Positioned(
-              right: 16,
-              top: 16 + MediaQuery.of(context).padding.top,
-              child: TextButton(
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: Colors.white.withValues(alpha: 0.12),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ),
-                onPressed: _goToLogin,
-                child: Text(skipLabel),
-              ),
+          if (_phase == _Phase.flash0)
+            _RadialFlash(
+              controller: _flash0,
+              center: Alignment.center,
+              coreColor: Colors.white,
+              tintInner: nvAccentOrange,
+              tintOuter: nvGreenDark.withValues(alpha: 0.85),
+            ),
+          if (_phase == _Phase.flash1)
+            _RadialFlash(
+              controller: _flash1,
+              center: Alignment.center,
+              coreColor: Colors.white,
+              tintInner: kBizTint,
+              tintOuter: kBizTintSoft,
+            ),
+          if (_phase == _Phase.flash2)
+            _RadialFlash(
+              controller: _flash2,
+              center: Alignment.center,
+              coreColor: Colors.white,
+              tintInner: kBizTint,
+              tintOuter: kBizTintSoft,
+            ),
+          if (_phase == _Phase.finalReveal)
+            _FinalBurstReveal(
+              controller: _finalReveal,
+              login: loginPreview,
+              center: const Alignment(0.0, -0.33),
+              coreColor: Colors.white,
+              tintInner: nvAccentOrange,
+              tintOuter: nvGreenDark.withValues(alpha: 0.75),
             ),
 
-            // Bottom safety mask (in case anything still creeps in)
-            const Positioned(
+          // Skip (Manually padded since we removed SafeArea)
+          Positioned(
+            right: 16,
+            top: 16 + topPadding,
+            child: TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.white.withValues(alpha: 0.12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+              onPressed: _goToLogin,
+              child: Text(skipLabel),
+            ),
+          ),
+
+          // end “creep killer” — Absoluted positioned at bottom, full width
+          // Only active during video phase
+          if (_useVideo && _phase == _Phase.video)
+            Positioned(
               left: 0,
               right: 0,
               bottom: 0,
-              height: 8,
-              child:
-                  DecoratedBox(decoration: BoxDecoration(color: Colors.black)),
+              height: screen.height * 0.05, // 5% height to aggressively cover bottom noise
+              child: Container(color: Colors.black),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }
@@ -760,7 +786,8 @@ class _VideoStageState extends State<_VideoStage> {
   bool get _atTail {
     if (_dur == Duration.zero) return false;
     final remain = _dur - _pos;
-    return remain <= const Duration(milliseconds: 1800);
+    // Trigger earlier to ensure noise is covered - 2500ms before end
+    return remain <= const Duration(milliseconds: 2500);
   }
 
   @override
@@ -826,7 +853,15 @@ class _VideoStageState extends State<_VideoStage> {
                             child: SizedBox(
                               width: v.size.width,
                               height: v.size.height,
-                              child: VideoPlayer(widget.controller),
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  VideoPlayer(widget.controller),
+                                  // NOISE KILLER: Curtain that stays until video actually advances
+                                  if (_pos < const Duration(milliseconds: 150))
+                                    Container(color: Colors.black),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -850,29 +885,7 @@ class _VideoStageState extends State<_VideoStage> {
                           ),
                         ),
 
-                        // end “creep killer” — only at very bottom, shallower
-                        AnimatedOpacity(
-                          duration: const Duration(milliseconds: 200),
-                          opacity: _atTail ? 1.0 : 0.0,
-                          child: IgnorePointer(
-                            child: Align(
-                              alignment: Alignment.bottomCenter,
-                              child: Container(
-                                height: screen.height * 0.16, // was 0.22
-                                decoration: const BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      Color.fromARGB(0, 0, 0, 0),
-                                      Color.fromARGB(220, 0, 0, 0),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+
                       ],
                     ),
                   ),
@@ -897,6 +910,23 @@ class _VideoStageState extends State<_VideoStage> {
                       ),
                     ),
                     child: SizedBox.expand(),
+                  ),
+                ),
+              ),
+
+              // end “creep killer” — moved to root stack for full width & correct positioning
+              // Triggered by _atTail (last 2.5s of video)
+              AnimatedOpacity(
+                duration: const Duration(milliseconds: 300),
+                opacity: _atTail ? 1.0 : 0.0,
+                child: IgnorePointer(
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Container(
+                      height: screen.height * 0.05, // 5% height is sufficient at true bottom
+                      width: double.infinity, 
+                      color: Colors.black,
+                    ),
                   ),
                 ),
               ),

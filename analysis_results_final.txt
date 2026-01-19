@@ -1,0 +1,7 @@
+[warning] Unused import: 'widgets/nv_widgets.dart' (C:\Users\adsta\Desktop\Nina Verde\ninaverde_app\lib\main.dart:59:8)
+[info] The import of 'package:flutter/services.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' (C:\Users\adsta\Desktop\Nina Verde\ninaverde_app\lib\main.dart:8:8)
+[error] The method 'tr' isn't defined for the type '_IntroSettingsScreenState' (C:\Users\adsta\Desktop\Nina Verde\ninaverde_app\lib\screens\intro_settings_screen.dart:90:32)
+[error] Undefined name 'AppState' (C:\Users\adsta\Desktop\Nina Verde\ninaverde_app\lib\screens\intro_settings_screen.dart:108:18)
+[warning] Unused import: '../widgets/nv_widgets.dart' (C:\Users\adsta\Desktop\Nina Verde\ninaverde_app\lib\screens\splash_to_login.dart:15:8)
+[warning] The value of the field '_finalWhooshPrimed' isn't used (C:\Users\adsta\Desktop\Nina Verde\ninaverde_app\lib\screens\splash_to_login.dart:93:8)
+[info] The private field _finalWhooshPrimed could be 'final' (C:\Users\adsta\Desktop\Nina Verde\ninaverde_app\lib\screens\splash_to_login.dart:93:8)

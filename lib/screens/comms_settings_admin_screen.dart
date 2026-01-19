@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '../main.dart';
+// import '../main.dart'; // Removing to avoid ambiguity
+import '../state/app_state.dart';
+import '../widgets/nv_widgets.dart';
 
 class CommsSettingsAdminScreen extends StatefulWidget {
   const CommsSettingsAdminScreen({super.key});

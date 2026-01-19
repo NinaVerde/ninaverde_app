@@ -1,0 +1,42 @@
+Resolving dependencies...
+Downloading packages...
+! characters 1.4.1 (overridden)
+! matcher 0.12.18 (overridden)
+! material_color_utilities 0.13.0 (overridden)
+! share_plus_platform_interface 6.1.0 (overridden)
+! test_api 0.7.9 (overridden)
+Got dependencies!
+Analyzing ninaverde_app...                                      
+
+warning - Unused import: 'product_model.dart' - lib\models\order_model.dart:2:8 - unused_import
+warning - Unused import: '../main.dart' - lib\screens\angelina_admin_screen.dart:10:8 - unused_import
+warning - Unused import: '../main.dart' - lib\screens\app_settings_admin_screen.dart:5:8 - unused_import
+warning - Unused import: '../main.dart' - lib\screens\cart_screen.dart:5:8 - unused_import
+warning - Unused import: '../main.dart' - lib\screens\catalog_admin_screen.dart:11:8 - unused_import
+   info - The imported package 'uuid' isn't a dependency of the importing package - lib\screens\checkout_screen.dart:3:8 - depend_on_referenced_packages
+warning - Unused import: 'package:intl/intl.dart' - lib\screens\checkout_screen.dart:5:8 - unused_import
+warning - Unused import: '../main.dart' - lib\screens\checkout_screen.dart:7:8 - unused_import
+warning - The value of the field '_calculating' isn't used - lib\screens\checkout_screen.dart:39:8 - unused_field
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\checkout_screen.dart:225:59 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\checkout_screen.dart:277:69 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\checkout_screen.dart:452:42 - deprecated_member_use
+   info - Don't use 'BuildContext's across async gaps - lib\screens\checkout_screen.dart:607:28 - use_build_context_synchronously
+warning - Unused import: '../main.dart' - lib\screens\comms_campaigns_screen.dart:5:8 - unused_import
+warning - Unused import: '../main.dart' - lib\screens\comms_settings_admin_screen.dart:5:8 - unused_import
+warning - Unused import: '../main.dart' - lib\screens\contact_nina_verde_page.dart:14:8 - unused_import
+warning - Unused import: '../services/translation_service.dart' - lib\screens\contact_nina_verde_page.dart:18:8 - unused_import
+warning - Unused import: '../main.dart' - lib\screens\document_webview.dart:6:8 - unused_import
+warning - Unused import: '../main.dart' - lib\screens\event_promo_admin_screen.dart:9:8 - unused_import
+warning - Unused import: '../main.dart' - lib\screens\favorites_admin_screen.dart:6:8 - unused_import
+warning - Unused import: '../main.dart' - lib\screens\intro_settings_screen.dart:3:8 - unused_import
+warning - The value of the local variable 'app' isn't used - lib\screens\kids\maze_runner_screen.dart:114:11 - unused_local_variable
+warning - The value of the local variable 'theme' isn't used - lib\screens\kids_zone_screen.dart:301:11 - unused_local_variable
+warning - Unused import: '../main.dart' - lib\screens\leads_admin_screen.dart:9:8 - unused_import
+warning - Unused import: '../main.dart' - lib\screens\notification_preferences_screen.dart:3:8 - unused_import
+warning - Unused import: '../main.dart' - lib\screens\owner_dashboard_screen.dart:8:8 - unused_import
+warning - Unused import: '../main.dart' - lib\screens\product_detail_screen.dart:11:8 - unused_import
+warning - Unused import: '../main.dart' - lib\screens\reviews_admin_screen.dart:7:8 - unused_import
+warning - Unused import: '../main.dart' - lib\screens\rewards_admin_screen.dart:5:8 - unused_import
+warning - Unused import: 'package:flutter/foundation.dart' - lib\services\checkout_service.dart:3:8 - unused_import
+warning - Unused import: '../models/payment_config_model.dart' - lib\services\checkout_service.dart:5:8 - unused_import
+

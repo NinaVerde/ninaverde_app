@@ -99,6 +99,16 @@ class ReviewService {
 
     final reviewRef = _reviewsRoot(productId).doc();
     await _db.runTransaction((txn) async {
+      // READ FIRST (Firestore Rule: All reads must come before any writes)
+      Map<String, dynamic> productData = {};
+      
+      if (status == 'approved') {
+        final productRef = _productRef(productId);
+        final productSnap = await txn.get(productRef);
+        productData = productSnap.data() ?? {};
+      }
+
+      // WRITES
       txn.set(reviewRef, {
         'productId': productId,
         'userId': user.uid,
@@ -112,12 +122,11 @@ class ReviewService {
 
       if (status == 'approved') {
         final productRef = _productRef(productId);
-        final productSnap = await txn.get(productRef);
-        final data = productSnap.data() ?? {};
-        final ratingSum = (data['ratingSum'] as num?)?.toDouble() ?? 0.0;
-        final ratingCount = (data['ratingCount'] as num?)?.toInt() ?? 0;
+        final ratingSum = (productData['ratingSum'] as num?)?.toDouble() ?? 0.0;
+        final ratingCount = (productData['ratingCount'] as num?)?.toInt() ?? 0;
         final nextSum = ratingSum + rating;
         final nextCount = ratingCount + 1;
+        
         txn.set(productRef, {
           'ratingSum': nextSum,
           'ratingCount': nextCount,

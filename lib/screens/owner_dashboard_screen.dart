@@ -5,7 +5,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-import '../main.dart';
+// import '../main.dart'; // Removing to avoid ambiguity
+import '../state/app_state.dart';
+import '../services/live_game_service.dart';
+import '../models/live_game_models.dart';
+import '../services/migration_service.dart';
+import '../widgets/nv_widgets.dart';
+import '../widgets/johns_insights_widget.dart';
+import 'kitchen_display_screen.dart';
+import 'driver_dashboard_screen.dart';
 
 class OwnerDashboardScreen extends StatefulWidget {
   const OwnerDashboardScreen({super.key});
@@ -105,6 +113,24 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
       subtitleEs: 'Horarios, roles y desempeno.',
       icon: Icons.badge,
       color: Color(0xFF3949AB),
+    ),
+    _DashboardModule(
+      id: 'gaming',
+      titleEn: 'Gaming',
+      titleEs: 'Juegos',
+      subtitleEn: 'Session approvals, equipment and rules.',
+      subtitleEs: 'Aprobación de sesiones, equipos y reglas.',
+      icon: Icons.sports_esports,
+      color: Color(0xFF1B5E20),
+    ),
+    _DashboardModule(
+      id: 'kitchen',
+      titleEn: 'Kitchen Operations',
+      titleEs: 'Operaciones de Cocina',
+      subtitleEn: 'Order workflow, kitchen display and delivery management.',
+      subtitleEs: 'Flujo de pedidos, pantalla de cocina y gestión de entregas.',
+      icon: Icons.restaurant_menu,
+      color: Color(0xFFD84315),
     ),
   ];
 
@@ -238,6 +264,25 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
     await _savePrefs();
   }
 
+  void _handleModuleTap(_DashboardModule module, bool isEs) {
+    if (_customize) return;
+    if (module.id == 'gaming') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const _GamingManagementPage()),
+      );
+    } else if (module.id == 'kitchen') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const _KitchenOpsPage()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(isEs ? 'Módulo en desarrollo' : 'Module under development')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final app = AppState.of(context);
@@ -290,6 +335,8 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
                 const SizedBox(height: 16),
                 _QuickActions(isEs: isEs),
                 const SizedBox(height: 16),
+                const JohnsInsightsWidget(),
+                const SizedBox(height: 16),
                 _KpiGrid(isEs: isEs),
                 const SizedBox(height: 16),
                 _SectionHeader(
@@ -319,6 +366,7 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
                               isEs: isEs,
                               customize: _customize,
                               onToggle: () => _toggleModule(ordered[i]),
+                              onTap: () => _handleModuleTap(ordered[i], isEs),
                               dragHandle: _customize
                                   ? ReorderableDragStartListener(
                                       index: i,
@@ -648,6 +696,7 @@ class _ModuleCard extends StatelessWidget {
   final bool isEs;
   final bool customize;
   final VoidCallback onToggle;
+  final VoidCallback onTap;
   final Widget? dragHandle;
 
   const _ModuleCard({
@@ -656,6 +705,7 @@ class _ModuleCard extends StatelessWidget {
     required this.isEs,
     required this.customize,
     required this.onToggle,
+    required this.onTap,
     this.dragHandle,
   });
 
@@ -664,7 +714,10 @@ class _ModuleCard extends StatelessWidget {
     final surface = Theme.of(context).colorScheme.surface;
     final subtitleColor =
         Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7);
-    return Container(
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(18),
+      child: Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -732,8 +785,9 @@ class _ModuleCard extends StatelessWidget {
             ),
         ],
       ),
-    ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.06, end: 0);
-  }
+    ),
+  ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.06, end: 0);
+}
 }
 
 class _AdminLinks extends StatelessWidget {
@@ -752,6 +806,47 @@ class _AdminLinks extends StatelessWidget {
               : 'Key admin panels and settings.',
         ),
         const SizedBox(height: 12),
+        _LinkTile(
+          title: isEs ? 'Estandarizar Datos' : 'Standardize All Data',
+          subtitle: isEs
+              ? 'Traduce todo el contenido de Firestore a Inglés.'
+              : 'Translate all Firestore content to English standard.',
+          icon: Icons.auto_awesome,
+          onTap: () async {
+            final ok = await showDialog<bool>(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: Text(isEs ? '¿Estandarizar Datos?' : 'Standardize Data?'),
+                content: Text(isEs
+                    ? 'Esto escaneará todos los productos, eventos y juegos, traduciéndolos al inglés en Firestore para cumplir con el nuevo estándar universal.'
+                    : 'This will scan all products, events, and games, translating them all to English in Firestore to meet the new universal standard.'),
+                actions: [
+                  TextButton(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: Text(isEs ? 'Cancelar' : 'Cancel')),
+                  FilledButton(
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: Text(isEs ? 'Traducir todo' : 'Translate All')),
+                ],
+              ),
+            );
+            if (ok == true) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(isEs
+                        ? 'Iniciando traducción...'
+                        : 'Starting translation...')));
+              }
+              await MigrationService.standardizeAllToEnglish();
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(isEs
+                        ? '¡Datos estandarizados a Inglés!'
+                        : 'Data standardized to English!')));
+              }
+            }
+          },
+        ),
         _LinkTile(
           title: isEs ? 'Angelina AI' : 'Angelina AI',
           subtitle: isEs
@@ -903,3 +998,154 @@ class _DashboardModule {
     required this.color,
   });
 }
+
+class _GamingManagementPage extends StatelessWidget {
+  const _GamingManagementPage();
+
+  @override
+  Widget build(BuildContext context) {
+    final isEs = AppState.of(context).languageCode.value == 'es';
+    
+    return Scaffold(
+      appBar: NvAppBar(
+        title: isEs ? 'Gestión de Juegos' : 'Gaming Management',
+        showBack: true,
+      ),
+      body: StreamBuilder<List<LiveGameSession>>(
+        stream: LiveGameService.getActiveSessions(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          final sessions = snapshot.data!;
+          
+          if (sessions.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.sports_esports, size: 64, color: Colors.grey),
+                  const SizedBox(height: 16),
+                  Text(isEs ? 'No hay sesiones activas' : 'No active sessions'),
+                ],
+              ),
+            );
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: sessions.length,
+            itemBuilder: (context, i) => _SessionApprovalCard(session: sessions[i], isEs: isEs),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => LiveGameService.seedInitialConfigs(),
+        label: Text(isEs ? 'Sembrar Juegos' : 'Seed Games'),
+        icon: const Icon(Icons.data_saver_on),
+      ),
+    );
+  }
+}
+
+class _SessionApprovalCard extends StatelessWidget {
+  final LiveGameSession session;
+  final bool isEs;
+  const _SessionApprovalCard({required this.session, required this.isEs});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<LiveGameConfig>>(
+      future: LiveGameService.getConfigs(),
+      builder: (context, snapshot) {
+        final config = snapshot.data?.firstWhere((c) => c.id == session.gameId, orElse: () => LiveGameConfig(id: '', name: 'Unknown', icon: '❓', pricePerQuarterHour: 0, maxPlayers: 1, rules: '', deposit: 0));
+        
+        final duration = (session.endTime ?? DateTime.now()).difference(session.startTime);
+        final charge = LiveGameService.calculateCharge(session.startTime, session.endTime ?? DateTime.now(), config?.pricePerQuarterHour ?? 0);
+
+        return Card(
+          margin: const EdgeInsets.only(bottom: 12),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Text(config?.icon ?? '?', style: const TextStyle(fontSize: 24)),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(session.userName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                          Row(
+                            children: [
+                              TranslatedText(config?.name ?? 'Unknown'),
+                              Text(' • ${session.playerCount} ${isEs ? "jugadores" : "players"}'),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    Text('\$${charge.toStringAsFixed(2)}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green)),
+                  ],
+                ),
+                const Divider(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('${duration.inHours}h ${duration.inMinutes % 60}m ${duration.inSeconds % 60}s'),
+                    if (session.endTime != null)
+                      ElevatedButton(
+                        onPressed: () => LiveGameService.approveEndSession(session.id, charge),
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
+                        child: Text(isEs ? 'Aprobar Salida' : 'Approve Checkout'),
+                      )
+                    else
+                      Text(isEs ? 'En curso...' : 'In progress...', style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Kitchen Operations hub - combines KDS and driver dashboard
+class _KitchenOpsPage extends StatelessWidget {
+  const _KitchenOpsPage();
+
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: const Color(0xFFD84315),
+          title: const Text(
+            '🔥 Kitchen Operations',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          iconTheme: const IconThemeData(color: Colors.white),
+          bottom: const TabBar(
+            indicatorColor: Colors.white,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            tabs: [
+              Tab(icon: Icon(Icons.restaurant), text: 'Kitchen Display'),
+              Tab(icon: Icon(Icons.delivery_dining), text: 'Drivers'),
+            ],
+          ),
+        ),
+        body: const TabBarView(
+          children: [
+            KitchenDisplayScreen(),
+            DriverDashboardScreen(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+

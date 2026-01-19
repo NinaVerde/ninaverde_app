@@ -26,7 +26,7 @@ class UserService {
       'phoneNumber': user.phoneNumber,
       'optInEmail': true,
       'optInSms': true,
-      'optInPush': false,
+      'optInPush': true,
       if (!hasCreated) 'createdAt': FieldValue.serverTimestamp(),
       'lastSignIn': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));

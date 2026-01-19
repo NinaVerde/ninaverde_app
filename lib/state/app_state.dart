@@ -1,6 +1,7 @@
 // lib/state/app_state.dart
 import 'package:flutter/material.dart';
 import '../theme/brand_colors.dart' as brand;
+import '../services/translation_service.dart';
 
 /// ---------- Global app state ----------
 class AppState extends InheritedWidget {
@@ -39,6 +40,18 @@ class AppState extends InheritedWidget {
   /// Gate for ticker settings (long-press)
   final ValueNotifier<bool> isManager;
 
+  /// Carousel Settings
+  final ValueNotifier<double> carouselSpeed; // Default ~25s
+  final ValueNotifier<bool> carouselAutoPlay;
+  final ValueNotifier<CarouselMode> carouselGlobalMode; // Still vs Animated
+  final ValueNotifier<Map<String, CategoryConfig>> categoryConfigs;
+
+  /// Angelina Profile Picture Settings
+  final ValueNotifier<List<String>> angelinaProfilePics; // List of Firebase Storage URLs
+  final ValueNotifier<String?> selectedProfilePic; // Current selected pic URL (null = default)
+  final ValueNotifier<bool> profilePicRandomize; // Randomization enabled
+  final ValueNotifier<int> profilePicInterval; // Interval in seconds (default 300 = 5 min)
+
   /// Convenience: open the video pop-up
   final void Function(BuildContext ctx) openPip;
 
@@ -62,6 +75,14 @@ class AppState extends InheritedWidget {
     required this.textLight,
     required this.textDark,
     required this.isManager,
+    required this.carouselSpeed,
+    required this.carouselAutoPlay,
+    required this.carouselGlobalMode,
+    required this.categoryConfigs,
+    required this.angelinaProfilePics,
+    required this.selectedProfilePic,
+    required this.profilePicRandomize,
+    required this.profilePicInterval,
     required this.openPip,
     required super.child,
   });
@@ -92,7 +113,42 @@ class AppState extends InheritedWidget {
       textLight != old.textLight ||
       textDark != old.textDark ||
       isManager != old.isManager ||
+      carouselSpeed != old.carouselSpeed ||
+      carouselAutoPlay != old.carouselAutoPlay ||
+      carouselGlobalMode != old.carouselGlobalMode ||
+      categoryConfigs != old.categoryConfigs ||
+      angelinaProfilePics != old.angelinaProfilePics ||
+      selectedProfilePic != old.selectedProfilePic ||
+      profilePicRandomize != old.profilePicRandomize ||
+      profilePicInterval != old.profilePicInterval ||
       openPip != old.openPip;
+}
+
+
+
+enum CarouselMode {
+  still,
+  animated,
+  // 'default' implies falling back to Global setting
+}
+
+class CategoryConfig {
+  final CarouselMode modeOverride;
+  // Future: customAssetPath, etc.
+
+  const CategoryConfig({
+    this.modeOverride = CarouselMode.still, // Default to still/default
+  });
+
+  Map<String, dynamic> toJson() => {
+    'mode': modeOverride.index,
+  };
+
+  factory CategoryConfig.fromJson(Map<String, dynamic> json) {
+    return CategoryConfig(
+      modeOverride: CarouselMode.values[json['mode'] ?? 0],
+    );
+  }
 }
 
 class CurrencyConfig {
@@ -121,5 +177,67 @@ String formatCurrency(BuildContext context, double usdAmount) {
 
 String tr(BuildContext context, {required String en, required String es}) {
   final isEs = AppState.of(context).languageCode.value == 'es';
-  return isEs ? es : en;
+  // Final safety catch for branding normalize
+  final out = isEs ? es : en;
+  return out.replaceAll(RegExp(r'Nina Verde', caseSensitive: false), 'Niña Verde');
+}
+
+/// A widget that translates its children dynamically based on the current app language.
+/// This is used for Firestore data (Products, Events) which is stored in English by standard.
+class TranslatedText extends StatelessWidget {
+  final String text;
+  final TextStyle? style;
+  final TextAlign? textAlign;
+  final int? maxLines;
+  final TextOverflow? overflow;
+
+  const TranslatedText(
+    this.text, {
+    super.key,
+    this.style,
+    this.textAlign,
+    this.maxLines,
+    this.overflow,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Listen strictly to languageCode changes to trigger rebuilds
+    return ValueListenableBuilder<String>(
+      valueListenable: AppState.of(context).languageCode,
+      builder: (context, language, child) {
+        // If it's English, we don't need to translate as per our new storage standard.
+        if (language == 'en') {
+          return Text(
+            text,
+            style: style,
+            textAlign: textAlign,
+            maxLines: maxLines,
+            overflow: overflow,
+          );
+        }
+
+        return FutureBuilder<String>(
+          // Create a unified key for the future to prevent unnecessary re-firing if parameters are same
+          key: ValueKey('${language}_$text'), 
+          future: TranslationService().translate(text, language),
+          initialData: text,
+          builder: (context, snapshot) {
+            final display = snapshot.data ?? text;
+            return AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: Text(
+                display,
+                key: ValueKey(display),
+                style: style,
+                textAlign: textAlign,
+                maxLines: maxLines,
+                overflow: overflow,
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 }

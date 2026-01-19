@@ -23,7 +23,7 @@ import 'package:flutter/material.dart';
 ///   ),
 /// )
 /// ```
-class RadioGroup<T> extends StatelessWidget {
+class NvRadioGroup<T> extends StatelessWidget {
   /// The currently selected value in this radio group
   final T? groupValue;
   
@@ -33,7 +33,7 @@ class RadioGroup<T> extends StatelessWidget {
   /// The child widget, typically a ListView with RadioListTile children
   final Widget child;
 
-  const RadioGroup({
+  const NvRadioGroup({
     super.key,
     required this.groupValue,
     required this.onChanged,
