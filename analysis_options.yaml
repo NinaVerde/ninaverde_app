@@ -27,6 +27,7 @@ analyzer:
     dead_null_aware_expression: ignore
     type_test_with_undefined_name: ignore # Temporary if fixing nv_widgets fails
     undefined_method: ignore # Temporary
+    prefer_final_fields: ignore
 
 linter:
   # The lint rules applied to this project can be customized in the

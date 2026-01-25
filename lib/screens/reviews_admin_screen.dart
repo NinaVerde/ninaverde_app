@@ -329,7 +329,7 @@ class _ReviewCard extends StatelessWidget {
               const SizedBox(height: 8),
               Text('${tr(context, en: 'Reason', es: 'Razón')}: ${review.rejectionReason}', style: const TextStyle(color: Colors.red, fontSize: 12, fontStyle: FontStyle.italic)),
             ],
-            if (isReadOnly && (review.managerNotes?.isNotEmpty ?? false)) ...[
+            if (isReadOnly && review.managerNotes.isNotEmpty) ...[
               const SizedBox(height: 8),
               Text('${tr(context, en: 'Notes', es: 'Notas')}: ${review.managerNotes}', style: const TextStyle(color: Colors.blue, fontSize: 12, fontStyle: FontStyle.italic)),
             ],
