@@ -126,6 +126,8 @@ class NvAppBar extends StatelessWidget implements PreferredSizeWidget {
     }
 
     return AppBar(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Seamless match
+      elevation: 0, // Remove shadow for flat continuity
       title: customTitle ?? (titleWidget ??
           TranslatedText(
             visibleTitle,
