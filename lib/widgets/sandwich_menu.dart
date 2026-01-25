@@ -17,7 +17,7 @@ class SandwichMenuButton extends StatelessWidget {
     // Glass/Gradient effect with custom iconography
     return Container(
       margin: const EdgeInsets.all(8),
-        color: brand.nvGreenDark, 
+        color: const Color(0xFF1B4D3E), // Dark Forest Green (Hardcoded to ensure match if brand var missing) 
         shape: BoxShape.circle, // Xbox 360 button was circular. Assuming user wants circle? Or staying rect? 
         // User said: "border around it that makes it look like a button on a flat surface that is indented, something like the main button on an xbox 360"
         // The xbox 360 button was circular. But this menu button is likely square/rounded-rect in strict layout?
