@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:ui';
-import 'dart:io';
 import 'package:vector_math/vector_math_64.dart' as vector;
 import 'package:video_player/video_player.dart'; // Add video support
 import 'package:cached_network_image/cached_network_image.dart'; // Add cached image support
@@ -231,7 +230,7 @@ class _HeroCategoryCarouselState extends State<HeroCategoryCarousel>
       height: 400,
       child: Listener(
         onPointerDown: (_) {
-          setState(() => _isManualInteracting = true);
+          _isManualInteracting = true;
           _stopAutoPlay();
         },
         onPointerUp: (_) {
