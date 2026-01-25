@@ -28,6 +28,8 @@ analyzer:
     type_test_with_undefined_name: ignore # Temporary if fixing nv_widgets fails
     undefined_method: ignore # Temporary
     prefer_final_fields: ignore
+    unnecessary_to_list_in_spreads: ignore
+    unnecessary_string_interpolations: ignore
 
 linter:
   # The lint rules applied to this project can be customized in the
