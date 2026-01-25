@@ -49,4 +49,11 @@ class HeroCategoryConfig {
     'Equipo y Merchandising': 'Gear & Merch',
     'Minoristas': 'Retailers',
   };
+
+  /// Frame Counts for Sequences (Default is 1)
+  static const Map<String, int> frameCounts = {
+    'Todo El Dia, Todo La Noche, Desayuno WTF': 11,
+    'La Parrillada': 12, // Assuming 12 based on directory count
+    'Microgreens': 12,
+  };
 }

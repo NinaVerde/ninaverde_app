@@ -192,7 +192,7 @@ class _DocumentWebViewState extends State<DocumentWebView> {
         }
 
         return Scaffold(
-          appBar: NvAppBar(title: title, showBack: true),
+          appBar: NvAppBar(tickerVisible: AppState.of(context).showTicker.value, title: title, showBack: true),
           body: SafeArea(
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 400),

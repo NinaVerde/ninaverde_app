@@ -120,6 +120,7 @@ class _MazeRunnerScreenState extends State<MazeRunnerScreen> {
 
     return Scaffold(
       appBar: NvAppBar(
+        tickerVisible: AppState.of(context).showTicker.value,
         title: tr(context, en: 'Jungle Maze', es: 'Laberinto'),
         showBack: true,
         extraActions: [

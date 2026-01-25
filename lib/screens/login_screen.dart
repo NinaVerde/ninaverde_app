@@ -119,7 +119,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   // ---- Tiny ES/EN map ------------------------------------------------------
   String t(BuildContext context, String key) {
-    final es = AppState.of(context).languageCode.value == 'es';
+    final es = AppState.read(context).languageCode.value == 'es';
 
     const esMap = {
       'title': 'Iniciar sesion',
@@ -719,7 +719,7 @@ class _LoginScreenState extends State<LoginScreen>
       builder: (_, __, ___) {
         return Scaffold(
           resizeToAvoidBottomInset: true,
-          appBar: NvAppBar(title: t(context, 'title'), centerTitle: false),
+          appBar: NvAppBar(tickerVisible: app.showTicker.value, title: t(context, 'title'), centerTitle: false),
           body: SafeArea(
             child: GestureDetector(
               onTap: () => FocusScope.of(context).unfocus(),
@@ -753,7 +753,7 @@ class _LoginScreenState extends State<LoginScreen>
                                   },
                                   onLongPress: () {
                                     if (AppState.of(context).isManager.value) {
-                                      Navigator.pushNamed(context, '/app-settings/intro');
+                                    Navigator.pushNamed(context, '/login-video-settings');
                                     }
                                   },
                                   child: Hero(

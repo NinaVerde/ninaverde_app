@@ -43,7 +43,7 @@ class _RewardsAdminScreenState extends State<RewardsAdminScreen> {
         final title = tr(context, en: 'NV Coins Rewards', es: 'Monedas NV');
         if (!admin) {
           return Scaffold(
-            appBar: NvAppBar(title: title, showBack: true),
+            appBar: NvAppBar(tickerVisible: AppState.of(context).showTicker.value, title: title, showBack: true),
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(24),
@@ -168,7 +168,7 @@ class _RewardsSettingsFormState extends State<_RewardsSettingsForm> {
     final saving = tr(context, en: 'Saving...', es: 'Guardando...');
 
     return Scaffold(
-      appBar: NvAppBar(title: tr(context, en: 'NV Coins Rewards', es: 'Monedas NV'), showBack: true),
+      appBar: NvAppBar(tickerVisible: AppState.of(context).showTicker.value, title: tr(context, en: 'NV Coins Rewards', es: 'Monedas NV'), showBack: true),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

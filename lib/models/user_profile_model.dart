@@ -12,11 +12,20 @@ enum UserType {
 /// Staff role subcategories
 enum StaffRole {
   driver,      // Delivery driver
+  cook,        // Chef de cuisine/Head cook
+  kitchenAssistant, // Prep cook/assistant
+  cleaner,     // Cleaning staff
+  security,    // Security personnel
+  maintenance, // Maintenance/Repairs
+  bartender,   // Bar staff
+  dishwasher,  // Dish pit
+  busser,      // Busboy/Busgirl
   server,      // Server/waiter
-  kitchen,     // Kitchen staff/chef
+  kitchen,     // General Kitchen (Legacy/Generic)
   manager,     // Manager
   cashier,     // Cashier/front desk
   hostess,     // Host/Hostess
+
 }
 
 /// User profile with role-based access control
@@ -83,6 +92,9 @@ class UserProfile {
   /// Check if user can access kitchen display
   bool get canAccessKitchen => 
       staffRole == StaffRole.kitchen || 
+      staffRole == StaffRole.cook ||
+      staffRole == StaffRole.kitchenAssistant ||
+      staffRole == StaffRole.dishwasher ||
       staffRole == StaffRole.manager || 
       userType == UserType.admin;
 
@@ -90,7 +102,7 @@ class UserProfile {
   bool get isDriver => staffRole == StaffRole.driver;
 
   /// Check if user is server
-  bool get isServer => staffRole == StaffRole.server;
+  bool get isServer => staffRole == StaffRole.server || staffRole == StaffRole.bartender;
 
   /// Convert to Firestore document
   Map<String, dynamic> toMap() {
@@ -219,6 +231,10 @@ class Permissions {
   // Associate permissions
   static const String postJobs = 'jobs.post';
   static const String viewApplications = 'jobs.view_applications';
+
+  // Cleaning/Maintenance
+  static const String viewTasks = 'tasks.view';
+  static const String completeTasks = 'tasks.complete';
 }
 
 /// Helper to get default permissions for a staff role
@@ -233,9 +249,16 @@ List<String> getDefaultPermissionsForRole(UserType userType, StaffRole? staffRol
   
   switch (staffRole) {
     case StaffRole.kitchen:
+    case StaffRole.cook:
+    case StaffRole.kitchenAssistant:
       return [
         Permissions.viewKitchen,
         Permissions.manageOrders,
+      ];
+    
+    case StaffRole.dishwasher:
+      return [
+        Permissions.viewKitchen, // To see load
       ];
       
     case StaffRole.driver:
@@ -245,10 +268,14 @@ List<String> getDefaultPermissionsForRole(UserType userType, StaffRole? staffRol
       ];
       
     case StaffRole.server:
+    case StaffRole.bartender:
       return [
         Permissions.viewKitchen,
       ];
       
+    case StaffRole.busser:
+      return [];
+
     case StaffRole.manager:
       return [
         Permissions.viewKitchen,
@@ -258,6 +285,7 @@ List<String> getDefaultPermissionsForRole(UserType userType, StaffRole? staffRol
         Permissions.manageStaff,
         Permissions.manageSchedule,
         Permissions.manageInventory,
+        Permissions.managePayroll, 
       ];
       
     case StaffRole.cashier:
@@ -267,5 +295,13 @@ List<String> getDefaultPermissionsForRole(UserType userType, StaffRole? staffRol
       
     case StaffRole.hostess:
       return [];
+      
+    case StaffRole.cleaner:
+    case StaffRole.maintenance:
+    case StaffRole.security:
+      return [
+        Permissions.viewTasks,
+        Permissions.completeTasks,
+      ];
   }
 }

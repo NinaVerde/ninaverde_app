@@ -5,6 +5,7 @@ import '../state/app_state.dart';
 import '../widgets/nv_widgets.dart';
 import '../services/live_game_service.dart';
 import '../models/live_game_models.dart';
+import 'staff_game_manager.dart'; // New Import
 
 class KidszGamezZoneScreen extends StatefulWidget {
   const KidszGamezZoneScreen({super.key});
@@ -58,7 +59,8 @@ class _KidszGamezZoneScreenState extends State<KidszGamezZoneScreen> {
 
     return Scaffold(
       appBar: NvAppBar(
-        title: isEs ? 'Kidsz Gamez Zone' : 'Kidsz Gamez Zone', 
+        tickerVisible: AppState.of(context).showTicker.value,
+        title: isEs ? 'Zona de Juegoz Kidz' : 'Kidz Gamez Zone', 
         showBack: true,
       ),
       body: Container(
@@ -76,8 +78,8 @@ class _KidszGamezZoneScreenState extends State<KidszGamezZoneScreen> {
             _HeroHeader(
               title: isEs ? '¡Bienvenido a Kidsz Gamez!' : 'Welcome to Kidsz Gamez!',
               subtitle: isEs
-                  ? 'Juegos en vivo y diversión digital.'
-                  : 'Live games and digital fun.',
+                  ? 'Juegoz en vivo y diversión digital.'
+                  : 'Live Gamez and digital fun.',
             ).animate().fadeIn(duration: 600.ms).slideY(begin: -0.2, end: 0, curve: Curves.easeOutBack),
             
             const SizedBox(height: 16),
@@ -85,10 +87,13 @@ class _KidszGamezZoneScreenState extends State<KidszGamezZoneScreen> {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 children: [
+                  if (app.isManager.value) 
+                    StaffSessionManager(), // Staff Dashboard
+                  
                   _buildLiveGamesSection(context, isEs)
                       .animate().fadeIn(delay: 200.ms).slideX(begin: -0.1, end: 0),
                   const SizedBox(height: 24),
-                  _buildSectionTitle(isEs ? 'Mini-Juegos' : 'Mini Games', isEs)
+                  _buildSectionTitle(isEs ? 'Juegoz Kidz' : 'Kidz Gamez', isEs)
                       .animate().fadeIn(delay: 300.ms),
                   
                   // Cascading list items
@@ -129,7 +134,7 @@ class _KidszGamezZoneScreenState extends State<KidszGamezZoneScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSectionTitle(isEs ? 'Juegos en Vivo' : 'Live Games', isEs),
+            _buildSectionTitle(isEs ? 'Juegoz en Vivo' : 'Live Gamez', isEs),
             if (activeSession != null)
               _ActiveSessionCard(session: activeSession)
             else
@@ -147,10 +152,14 @@ class _LiveGameList extends StatelessWidget {
     return FutureBuilder<List<LiveGameConfig>>(
       future: LiveGameService.getConfigs(),
       builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Padding(
-            padding: EdgeInsets.all(20.0),
-            child: CircularProgressIndicator(),
+          final isEs = AppState.of(context).languageCode.value == 'es';
+          return Center(child: Text(
+            isEs ? 'Próximamente más juegoz...' : 'More games coming soon...',
+            style: const TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
           ));
         }
         
@@ -234,57 +243,121 @@ class _LiveGameBookingCard extends StatelessWidget {
   void _showBookingDialog(BuildContext context, LiveGameConfig config, bool isEs) {
     int players = 1;
     bool acceptedRules = false;
+    final collateralCtrl = TextEditingController();
 
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
           title: Text(isEs ? 'Reservar ${config.name}' : 'Book ${config.name}'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TranslatedText(config.rules, style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic)),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(isEs ? 'Jugadores:' : 'Players:'),
-                  DropdownButton<int>(
-                    value: players,
-                    items: List.generate(config.maxPlayers, (i) => i + 1)
-                        .map((p) => DropdownMenuItem(value: p, child: Text('$p')))
-                        .toList(),
-                    onChanged: (v) => setState(() => players = v ?? 1),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Info Section
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.blueGrey.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    children: [
+                      _buildInfoRow(isEs ? 'Precio' : 'Price', isEs ? '\$${config.pricePerQuarterHour} / 15min' : '\$${config.pricePerQuarterHour} / 15min'),
+                      if (config.requireDeposit)
+                        _buildInfoRow(isEs ? 'Depósito Req.' : 'Deposit Req.', '\$${config.deposit.toStringAsFixed(2)}'),
+                      if (config.collateralType != 'None')
+                         _buildInfoRow(isEs ? 'Colateral' : 'Collateral', config.collateralType),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                
+                 TranslatedText(config.rules, style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic)),
+                const SizedBox(height: 16),
+            
+                // Players Dropdown
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(isEs ? 'Jugadores:' : 'Players:'),
+                    DropdownButton<int>(
+                      value: players,
+                      items: List.generate(config.maxPlayers, (i) => i + 1)
+                          .map((p) => DropdownMenuItem(value: p, child: Text('$p')))
+                          .toList(),
+                      onChanged: (v) => setState(() => players = v ?? 1),
+                    ),
+                  ],
+                ),
+                
+                // Collateral Input (If Required)
+                if (config.collateralType != 'None') ...[
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: collateralCtrl,
+                    decoration: InputDecoration(
+                      labelText: isEs ? 'Detalle de ${config.collateralType}' : '${config.collateralType} Details',
+                      hintText: isEs ? 'Ej. Licencia #1234' : 'e.g. License #1234',
+                      border: const OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                    onChanged: (_) => setState((){}), // rebuild to validate
                   ),
                 ],
-              ),
-              CheckboxListTile(
-                title: Text(
-                  isEs ? 'Acepto responsabilidad por equipo' : 'I accept responsibility for equipment',
-                  style: const TextStyle(fontSize: 11),
+            
+                const SizedBox(height: 12),
+                CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(
+                    isEs ? 'Acepto responsabilidad por equipo' : 'I accept responsibility for equipment',
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  value: acceptedRules,
+                  onChanged: (v) => setState(() => acceptedRules = v ?? false),
                 ),
-                value: acceptedRules,
-                onChanged: (v) => setState(() => acceptedRules = v ?? false),
-              ),
-            ],
+              ],
+            ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx), child: Text(isEs ? 'Cancelar' : 'Cancel')),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx), 
+              child: Text(isEs ? 'Cancelar' : 'Cancel')
+            ),
             ElevatedButton(
-              onPressed: acceptedRules ? () async {
-                try {
-                  await LiveGameService.startSession(gameId: config.id, playerCount: players);
-                  if (context.mounted) Navigator.pop(ctx);
-                } catch (e) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+              onPressed: (acceptedRules && (config.collateralType == 'None' || collateralCtrl.text.isNotEmpty)) 
+                ? () async {
+                  try {
+                    await LiveGameService.startSession(
+                      gameId: config.id, 
+                      playerCount: players,
+                      collateralDescription: collateralCtrl.text.trim(),
+                    );
+                    if (context.mounted) Navigator.pop(ctx);
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+                    }
                   }
-                }
-              } : null,
+                } : null,
               child: Text(isEs ? '¡Comenzar!' : 'Start!'),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+          Text(value, style: const TextStyle(fontSize: 12)),
+        ],
       ),
     );
   }
@@ -416,7 +489,7 @@ class _ActiveSessionCardState extends State<_ActiveSessionCard> {
               ElevatedButton(
                 onPressed: () => LiveGameService.requestEndSession(widget.session.id),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.red),
-                child: Text(isEs ? 'Terminar' : 'End'),
+                child: Text(isEs ? 'Solicitar Salida' : 'Request Checkout'),
               ),
             ],
           ),
@@ -424,7 +497,7 @@ class _ActiveSessionCardState extends State<_ActiveSessionCard> {
             Padding(
               padding: const EdgeInsets.only(top: 12),
               child: Text(
-                isEs ? 'Esperando aprobación del personal...' : 'Waiting for staff approval...',
+                isEs ? 'Esperando al personal para salida...' : 'Waiting for staff checkout...',
                 style: const TextStyle(color: Colors.white70, fontStyle: FontStyle.italic),
               ),
             ),

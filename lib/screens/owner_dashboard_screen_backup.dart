@@ -299,6 +299,7 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
 
         return Scaffold(
           appBar: NvAppBar(
+            tickerVisible: app.showTicker.value,
             title: title,
             showBack: true,
             extraActions: [

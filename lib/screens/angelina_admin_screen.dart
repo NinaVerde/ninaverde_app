@@ -37,6 +37,12 @@ class _AngelinaAdminScreenState extends State<AngelinaAdminScreen> {
   final _voiceEs = TextEditingController();
   final _endpointUrl = TextEditingController();
   final _modelUrl = TextEditingController();
+  
+  // New Controller for API Key (only used for OpenAI/Gemini)
+  final _apiKey = TextEditingController();
+  
+  // New State for Provider
+  String _provider = 'custom'; // custom, openai, gemini
 
   final List<_KnowledgeEntry> _knowledge = [];
   final List<_MediaEntry> _media = [];
@@ -61,6 +67,7 @@ class _AngelinaAdminScreenState extends State<AngelinaAdminScreen> {
     _voiceEs.dispose();
     _endpointUrl.dispose();
     _modelUrl.dispose();
+    _apiKey.dispose();
     super.dispose();
   }
 
@@ -90,6 +97,8 @@ class _AngelinaAdminScreenState extends State<AngelinaAdminScreen> {
     _voiceEs.text = config.voiceEs;
     _endpointUrl.text = config.endpointUrl;
     _modelUrl.text = config.modelUrl;
+    _apiKey.text = config.apiKey;
+    _provider = config.provider;
 
     _knowledge
       ..clear()
@@ -110,6 +119,8 @@ class _AngelinaAdminScreenState extends State<AngelinaAdminScreen> {
     _voiceEs.text = (data['voiceEs'] as String?) ?? '';
     _endpointUrl.text = (data['endpointUrl'] as String?) ?? '';
     _modelUrl.text = (data['modelUrl'] as String?) ?? '';
+    _apiKey.text = (data['apiKey'] as String?) ?? '';
+    _provider = (data['provider'] as String?) ?? 'custom';
 
     _knowledge
       ..clear()
@@ -142,6 +153,8 @@ class _AngelinaAdminScreenState extends State<AngelinaAdminScreen> {
         'voiceEs': _voiceEs.text.trim(),
         'endpointUrl': _endpointUrl.text.trim(),
         'modelUrl': _modelUrl.text.trim(),
+        'apiKey': _apiKey.text.trim(),
+        'provider': _provider,
         'knowledge': _knowledge.map((k) => k.toMap()).toList(),
         'media': _media.map((m) => m.toMap()).toList(),
         'updatedAt': FieldValue.serverTimestamp(),
@@ -255,16 +268,23 @@ class _AngelinaAdminScreenState extends State<AngelinaAdminScreen> {
                 : 'Access denied. Set role="admin" or isAdmin=true on your user document in Firestore to unlock this panel.';
             final seedLabel = isEs ? 'Restaurar default' : 'Seed defaults';
             final saveLabel = isEs ? 'Guardar' : 'Save';
-            final statusTitle = isEs ? 'Estado' : 'Status';
+            final statusTitle = isEs ? 'Inteligencia de Angelina' : 'Angelina Intelligence';
             final onlineLabel =
-                isEs ? 'AI en linea activado' : 'Online AI enabled';
+                isEs ? 'Modo: AI Intelligent' : 'Mode: AI Intelligent';
             final offlineLabel =
-                isEs ? 'Por defecto esta offline.' : 'Default is offline.';
+                 isEs ? 'Local Intelligent (Respuestas predefinidas)' : 'Local Intelligent (Keyword responses)';
+            
+            final providerLabel = isEs ? 'Proveedor de IA' : 'AI Provider';
+            
             final endpointLabel =
-                isEs ? 'URL del endpoint AI' : 'AI endpoint URL';
+                isEs ? 'URL del endpoint' : 'Endpoint URL';
             final endpointHelp = isEs
-                ? 'URL de Firebase Functions para llamadas online.'
-                : 'Firebase Functions URL for online AI calls.';
+                ? 'URL de Firebase Functions o servidor propio.'
+                : 'Firebase Functions URL or custom server.';
+            
+            final apiKeyLabel = isEs ? 'API Key (Clave secreta)' : 'API Key';
+            final apiKeyHelp = isEs ? 'Tu llave críptica para esta IA.' : 'Your cryptic key for this AI.';
+
             final personaTitle = isEs ? 'Persona' : 'Persona';
             final nameLabel = isEs ? 'Nombre' : 'Name';
             final personaEnLabel =
@@ -304,7 +324,7 @@ class _AngelinaAdminScreenState extends State<AngelinaAdminScreen> {
 
             if (!admin) {
               return Scaffold(
-                appBar: NvAppBar(title: title, showBack: true),
+                appBar: NvAppBar(tickerVisible: AppState.of(context).showTicker.value, title: title, showBack: true),
                 body: Center(
                   child: Padding(
                     padding: const EdgeInsets.all(24),
@@ -319,6 +339,7 @@ class _AngelinaAdminScreenState extends State<AngelinaAdminScreen> {
 
             return Scaffold(
               appBar: NvAppBar(
+                tickerVisible: AppState.of(context).showTicker.value,
                 title: title,
                 showBack: true,
                 extraActions: [
@@ -337,18 +358,85 @@ class _AngelinaAdminScreenState extends State<AngelinaAdminScreen> {
               body: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  _sectionTitle(statusTitle),
-                  SwitchListTile(
-                    title: Text(onlineLabel),
-                    subtitle: Text(offlineLabel),
-                    value: _onlineEnabled,
-                    onChanged: (v) => setState(() => _onlineEnabled = v),
+                  _LinkTile(
+                    title: isEs ? 'Fotos de Perfil' : 'Profile Pictures',
+                    subtitle: isEs
+                        ? 'Gestiona avatares y rotación.'
+                        : 'Manage avatars and rotation.',
+                    icon: Icons.face,
+                    onTap: () => Navigator.pushNamed(context, '/angelina-profile'),
                   ),
-                  TextField(
-                    controller: _endpointUrl,
-                    decoration: InputDecoration(
-                      labelText: endpointLabel,
-                      helperText: endpointHelp,
+                  const SizedBox(height: 16),
+                  _sectionTitle(statusTitle),
+                  
+                  // WOW Factor: Card for Intelligence Mode
+                  Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: [
+                          SwitchListTile(
+                            activeColor: Colors.deepPurpleAccent,
+                            title: Text(
+                              _onlineEnabled ? 'AI Intelligent 🚀' : 'Local Intelligent 🧠',
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                            subtitle: Text(_onlineEnabled ? 'Angelina uses advanced AI Cloud power.' : offlineLabel),
+                            value: _onlineEnabled,
+                            onChanged: (v) => setState(() => _onlineEnabled = v),
+                          ),
+                          if (_onlineEnabled) ...[
+                             const Divider(),
+                             Padding(
+                               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                               child: Column(
+                                 crossAxisAlignment: CrossAxisAlignment.stretch,
+                                 children: [
+                                   Text(providerLabel, style: const TextStyle(color: Colors.grey)),
+                                   DropdownButton<String>(
+                                     value: _provider,
+                                     isExpanded: true,
+                                     underline: Container(height: 1, color: Colors.deepPurpleAccent),
+                                     items: const [
+                                       DropdownMenuItem(value: 'custom', child: Text('Custom Endpoint (legacy)')),
+                                       DropdownMenuItem(value: 'openai', child: Text('OpenAI (ChatGPT)')),
+                                       DropdownMenuItem(value: 'gemini', child: Text('Google Gemini')),
+                                     ], 
+                                     onChanged: (val) {
+                                       if (val != null) setState(() => _provider = val);
+                                     }
+                                   ),
+                                   const SizedBox(height: 12),
+                                   if (_provider == 'custom')
+                                      TextField(
+                                        controller: _endpointUrl,
+                                        decoration: InputDecoration(
+                                          labelText: endpointLabel,
+                                          helperText: endpointHelp,
+                                          border: const OutlineInputBorder(),
+                                          prefixIcon: const Icon(Icons.link),
+                                        ),
+                                      ),
+                                    if (_provider == 'openai' || _provider == 'gemini') ...[
+                                      TextField(
+                                        controller: _apiKey,
+                                        obscureText: true,
+                                        decoration: InputDecoration(
+                                          labelText: apiKeyLabel,
+                                          helperText: apiKeyHelp,
+                                          border: const OutlineInputBorder(),
+                                          prefixIcon: const Icon(Icons.vpn_key),
+                                        ),
+                                      ),
+                                    ]
+                                 ],
+                               ),
+                             )
+                          ]
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -558,6 +646,8 @@ class _AngelinaAdminScreenState extends State<AngelinaAdminScreen> {
   _AiConfig _defaultConfig() {
     return _AiConfig(
       onlineEnabled: false,
+      provider: 'custom',
+      apiKey: '',
       endpointUrl: '',
       modelUrl: '',
       personaName: 'Angelina',
@@ -709,6 +799,8 @@ class _MediaEntry {
 class _AiConfig {
   _AiConfig({
     required this.onlineEnabled,
+    required this.provider,
+    required this.apiKey,
     required this.endpointUrl,
     required this.modelUrl,
     required this.personaName,
@@ -723,6 +815,8 @@ class _AiConfig {
   });
 
   final bool onlineEnabled;
+  final String provider;
+  final String apiKey;
   final String endpointUrl;
   final String modelUrl;
   final String personaName;
@@ -736,3 +830,30 @@ class _AiConfig {
   final List<_MediaEntry> media;
 }
 
+class _LinkTile extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _LinkTile({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: ListTile(
+        leading: Icon(icon, color: Colors.greenAccent),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text(subtitle, style: const TextStyle(fontSize: 12)),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: onTap,
+      ),
+    );
+  }
+}

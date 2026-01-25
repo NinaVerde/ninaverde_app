@@ -16,7 +16,7 @@ class NotificationPreferencesScreen extends StatelessWidget {
     final pushTokens = PushTokenService();
 
     return Scaffold(
-      appBar: NvAppBar(title: title, showBack: true),
+      appBar: NvAppBar(tickerVisible: AppState.of(context).showTicker.value, title: title, showBack: true),
       body: StreamBuilder<CommsPrefs>(
         stream: service.prefsStream(),
         builder: (context, snapshot) {

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:translator/translator.dart';
 
 /// A robust, "better-than-earth-history" translation service.
 /// Standardizes Firestore storage in English and provides dynamic UI translation.
@@ -44,27 +45,18 @@ class TranslationService {
 
   /// Internal mock/placeholder for remote translation.
   /// This is where you would plug in Google Cloud Translate API.
-  Future<String> _performRemoteTranslation(String text, String targetCode) async {
-    // We'll use a public "Free" translation API structure for the demonstration.
-    // In production, the user would provide an API Key for Google Translate.
-    
-    // Simulate network delay for "Realism"
-    await Future.delayed(const Duration(milliseconds: 300));
+  final GoogleTranslator _qt = GoogleTranslator();
 
-    // Simple "Earth-history" best-effort logic:
-    // If we're translating to ES and it sounds like certain keywords, we can mock it,
-    // but the goal is to show the *system* working.
-    
-    // DYNAMIC TRANSLATION LOGIC (Simulation for the audit/demo)
-    if (targetCode == 'es') {
-      if (text.toLowerCase() == 'hello') return 'Hola';
-      if (text.toLowerCase() == 'product') return 'Producto';
-      if (text.toLowerCase() == 'featured') return 'Destacado';
+  /// Internal mock/placeholder for remote translation.
+  /// This is where you would plug in Google Cloud Translate API.
+  Future<String> _performRemoteTranslation(String text, String targetCode) async {
+    try {
+      final translation = await _qt.translate(text, to: targetCode);
+      return translation.text;
+    } catch (e) {
+      debugPrint('Translation API Error: $e');
+      return text;
     }
-    
-    // If no mock match, we return the text (or you could call a real service here)
-    // For now, let's treat it as the "Universal English" source.
-    return text; 
   }
 
   bool _isAlreadyEnglish(String text) {

@@ -60,6 +60,7 @@ class _ColoringSandboxScreenState extends State<ColoringSandboxScreen> {
 
     return Scaffold(
       appBar: NvAppBar(
+        tickerVisible: AppState.of(context).showTicker.value,
         title: tr(context, en: 'Coloring Studio', es: 'Estudio de Color'),
         showBack: true,
         extraActions: [

@@ -22,68 +22,101 @@ class JohnsInsightsWidget extends StatelessWidget {
         
         return Container(
           margin: const EdgeInsets.only(bottom: 16),
-          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.indigo.shade900, Colors.indigo.shade700],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: [
+            color: const Color(0xFF001e36), // Deep Blueprint Blue
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.white24),
+            boxShadow: const [
               BoxShadow(
-                color: Colors.indigo.withValues(alpha: 0.4),
-                blurRadius: 12,
-                offset: const Offset(0, 6),
+                color: Colors.black45,
+                blurRadius: 10,
+                offset: Offset(0, 4),
               ),
             ],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const CircleAvatar(
-                    backgroundColor: Colors.white,
-                    radius: 20,
-                    child: Icon(Icons.face, color: Colors.indigo), // John's Face
-                  ),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'John', 
-                        style: const TextStyle(
-                          color: Colors.white, 
-                          fontWeight: FontWeight.bold, 
-                          fontSize: 16
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: CustomPaint(
+              painter: _BlueprintGridPainter(),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.cyanAccent.withOpacity(0.5)),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.smart_toy, color: Colors.cyanAccent, size: 20),
                         ),
-                      ),
-                      Text(
-                        isEs ? 'Hermano de Angelina & Socio IA' : 'Angelina\'s Brother & AI Partner',
-                        style: const TextStyle(
-                          color: Colors.white70, 
-                          fontSize: 12
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'JOHN AI // SYSTEM MONITOR', 
+                              style: TextStyle(
+                                color: Colors.cyanAccent, 
+                                fontWeight: FontWeight.bold, 
+                                fontSize: 14,
+                                fontFamily: 'monospace',
+                                letterSpacing: 1.2
+                              ),
+                            ),
+                            Text(
+                              isEs ? 'ANALISIS TACTICO :: ACTIVO' : 'TACTICAL ANALYSIS :: ACTIVE',
+                              style: TextStyle(
+                                color: Colors.cyanAccent.withOpacity(0.6), 
+                                fontSize: 10,
+                                fontFamily: 'monospace'
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                    const Divider(color: Colors.cyanAccent, height: 24, thickness: 0.5),
+                    ...insights.map((insight) => _InsightBlueprintRow(insight: insight)),
+                  ],
+                ),
               ),
-              const Divider(color: Colors.white24, height: 24),
-              ...insights.map((insight) => _InsightRow(insight: insight)),
-            ],
+            ),
           ),
-        ).animate().fadeIn().slideY(begin: 0.1, end: 0);
+        ).animate().fadeIn().slideY(begin: 0.05, end: 0);
       },
     );
   }
 }
 
-class _InsightRow extends StatelessWidget {
+class _BlueprintGridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withOpacity(0.05)
+      ..strokeWidth = 1;
+
+    const step = 20.0;
+    
+    for (double x = 0; x < size.width; x += step) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+    
+    for (double y = 0; y < size.height; y += step) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _InsightBlueprintRow extends StatelessWidget {
   final Insight insight;
-  const _InsightRow({required this.insight});
+  const _InsightBlueprintRow({required this.insight});
 
   @override
   Widget build(BuildContext context) {
@@ -92,11 +125,11 @@ class _InsightRow extends StatelessWidget {
     
     switch (insight.type) {
       case InsightType.opportunity:
-        icon = Icons.lightbulb;
+        icon = Icons.lightbulb_outline;
         color = Colors.amberAccent;
         break;
       case InsightType.warning:
-        icon = Icons.warning_amber;
+        icon = Icons.warning_amber_rounded;
         color = Colors.orangeAccent;
         break;
       case InsightType.trend:
@@ -104,7 +137,7 @@ class _InsightRow extends StatelessWidget {
         color = Colors.greenAccent;
         break;
       case InsightType.success:
-        icon = Icons.check_circle;
+        icon = Icons.check_circle_outline;
         color = Colors.lightBlueAccent;
         break;
     }
@@ -114,26 +147,28 @@ class _InsightRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: color, size: 20),
+          Icon(icon, color: color, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  insight.title,
+                  insight.title.toUpperCase(),
                   style: TextStyle(
                     color: color, 
                     fontWeight: FontWeight.w600,
-                    fontSize: 14,
+                    fontSize: 13,
+                    fontFamily: 'monospace'
                   ),
                 ),
                 Text(
                   insight.description,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 13,
-                    height: 1.2,
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.8),
+                    fontSize: 12,
+                    height: 1.3,
+                    fontFamily: 'monospace'
                   ),
                 ),
               ],

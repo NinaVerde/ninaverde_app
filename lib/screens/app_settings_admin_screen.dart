@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../state/app_state.dart';
 import '../widgets/nv_widgets.dart';
+import '../services/data_standardization_service.dart';
 
 class AppSettingsAdminScreen extends StatefulWidget {
   const AppSettingsAdminScreen({super.key});
@@ -242,7 +243,7 @@ class _AppSettingsAdminScreenState extends State<AppSettingsAdminScreen> {
             final admin = _isAdmin(snapshot.data?.data());
             if (!admin) {
               return Scaffold(
-                appBar: NvAppBar(title: title, showBack: true),
+                appBar: NvAppBar(tickerVisible: AppState.of(context).showTicker.value, title: title, showBack: true),
                 body: Center(
                   child: Padding(
                     padding: const EdgeInsets.all(24),
@@ -257,6 +258,7 @@ class _AppSettingsAdminScreenState extends State<AppSettingsAdminScreen> {
 
             return Scaffold(
               appBar: NvAppBar(
+                tickerVisible: AppState.of(context).showTicker.value,
                 title: title,
                 showBack: true,
                 extraActions: [
@@ -328,6 +330,20 @@ class _AppSettingsAdminScreenState extends State<AppSettingsAdminScreen> {
                         .toList(),
                   ),
                   const SizedBox(height: 24),
+                  
+                  _sectionTitle(isEs ? 'Utilidad de Datos' : 'Data Utility'),
+                  Card(
+                    color: Colors.orange.shade50,
+                    child: ListTile(
+                      leading: const Icon(Icons.build_circle, color: Colors.orange),
+                      title: Text(isEs ? 'Estandarizar Datos' : 'Standardize Data'),
+                      subtitle: Text(isEs ? 'Reparar precios y traducciones' : 'Fix prices and translations'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => _showStandardizationDialog(isEs),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
                   FilledButton(
                     onPressed: _saving ? null : _saveConfig,
                     child: Text(_saving ? savingLabel : saveLabel),
@@ -741,6 +757,147 @@ class _AppSettingsAdminScreenState extends State<AppSettingsAdminScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showStandardizationDialog(bool isEs) {
+    showDialog(
+      context: context,
+      builder: (ctx) => _StandardizationDialog(isEs: isEs),
+    );
+  }
+}
+
+class _StandardizationDialog extends StatefulWidget {
+  final bool isEs;
+  const _StandardizationDialog({required this.isEs});
+
+  @override
+  State<_StandardizationDialog> createState() => _StandardizationDialogState();
+}
+
+class _StandardizationDialogState extends State<_StandardizationDialog> {
+  bool _loading = false;
+  String _mode = 'currency'; // currency, language
+  String _targetLang = 'es';
+  double _rate = 36.6;
+
+  Future<void> _run() async {
+    setState(() => _loading = true);
+    final service = DataStandardizationService();
+    try {
+      Map<String, int> result = {};
+      
+      if (_mode == 'currency') {
+        result = await service.standardizeCurrencies(rateToNio: _rate);
+      } else {
+        result = await service.standardizeLanguages(targetLang: _targetLang);
+      }
+      
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+             content: Text(
+               widget.isEs 
+                   ? 'Éxito: ${result['products']} productos, ${result['events']} eventos actualizados.'
+                   : 'Success: ${result['products']} products, ${result['events']} events updated.'
+             ),
+             backgroundColor: Colors.green,
+          )
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final title = widget.isEs ? 'Estandarizar Datos' : 'Standardize Data';
+    
+    if (_loading) {
+      return AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(widget.isEs ? 'Procesando...' : 'Processing...'),
+            Text(widget.isEs ? 'Esto puede tardar un momento.' : 'This may take a moment.'),
+          ],
+        ),
+      );
+    }
+
+    return AlertDialog(
+      title: Text(title),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+           DropdownButtonFormField<String>(
+             value: _mode,
+             decoration: InputDecoration(labelText: widget.isEs ? 'Tipo de Operación' : 'Operation Type'),
+             items: [
+               DropdownMenuItem(value: 'currency', child: Text(widget.isEs ? 'Sincronizar Monedas' : 'Sync Currencies')),
+               DropdownMenuItem(value: 'language', child: Text(widget.isEs ? 'Rellenar Traducciones' : 'Backfill Translations')),
+             ],
+             onChanged: (v) => setState(() => _mode = v!),
+           ),
+           const SizedBox(height: 16),
+           
+           if (_mode == 'currency')
+             TextFormField(
+               initialValue: _rate.toString(),
+               keyboardType: TextInputType.number,
+               decoration: const InputDecoration(labelText: 'NIO Rate (1 USD = X NIO)'),
+               onChanged: (v) => _rate = double.tryParse(v) ?? 36.6,
+             ),
+             
+           if (_mode == 'language')
+             DropdownButtonFormField<String>(
+               value: _targetLang,
+               decoration: InputDecoration(labelText: widget.isEs ? 'Idioma Objetivo' : 'Target Language'),
+               items: const [
+                 DropdownMenuItem(value: 'es', child: Text('Spanish (es)')),
+                 DropdownMenuItem(value: 'en', child: Text('English (en)')),
+               ],
+               onChanged: (v) => setState(() => _targetLang = v!),
+             ),
+             
+           const SizedBox(height: 24),
+           Container(
+             padding: const EdgeInsets.all(8),
+             color: Colors.red.shade50,
+             child: Row(
+               children: [
+                 const Icon(Icons.warning, color: Colors.red),
+                 const SizedBox(width: 8),
+                 Expanded(
+                   child: Text(
+                     widget.isEs 
+                         ? 'ADVERTENCIA: Esto modificará todos los documentos en Firestore.' 
+                         : 'WARNING: This will modify all documents in Firestore.',
+                     style: const TextStyle(color: Colors.red, fontSize: 12),
+                   ),
+                 ),
+               ],
+             ),
+           )
+        ],
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(widget.isEs ? 'Cancelar' : 'Cancel')),
+        FilledButton(
+          onPressed: _run, 
+          child: Text(widget.isEs ? 'EJECUTAR' : 'RUN'),
+        ),
+      ],
     );
   }
 }

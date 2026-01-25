@@ -182,7 +182,7 @@ class _CommsCampaignsScreenState extends State<CommsCampaignsScreen> {
         final admin = _isAdmin(snapshot.data?.data());
         if (!admin) {
           return Scaffold(
-            appBar: NvAppBar(title: title, showBack: true),
+            appBar: NvAppBar(tickerVisible: AppState.of(context).showTicker.value, title: title, showBack: true),
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(24),
@@ -202,7 +202,7 @@ class _CommsCampaignsScreenState extends State<CommsCampaignsScreen> {
         }
 
         return Scaffold(
-          appBar: NvAppBar(title: title, showBack: true),
+          appBar: NvAppBar(tickerVisible: AppState.of(context).showTicker.value, title: title, showBack: true),
           body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
             stream: _db.collection('campaigns').orderBy('createdAt', descending: true).snapshots(),
             builder: (context, snap) {

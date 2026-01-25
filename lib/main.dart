@@ -9,13 +9,18 @@ import 'package:firebase_auth/firebase_auth.dart';
 // WebView (standard imports)
 
 import 'firebase_options.dart';
+import 'config/product_animations_map.dart';
 
 import 'services/config_service.dart';
 import 'services/user_prefs_service.dart';
+import 'services/theme_service.dart';
+import 'models/app_config_model.dart';
+import 'models/theme_config_model.dart';
 import 'screens/settings_pages.dart';
 import 'screens/registration_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/intro_settings_screen.dart';
+import 'screens/login_video_settings_screen.dart';
 
 
 import 'screens/home_screen.dart';
@@ -29,6 +34,12 @@ import 'screens/event_promo_admin_screen.dart';
 import 'screens/app_settings_admin_screen.dart';
 import 'screens/carousel_settings_screen.dart';
 import 'screens/angelina_profile_settings_screen.dart';
+import 'screens/angelina_admin_screen.dart';
+import 'screens/john_admin_screen.dart';
+import 'screens/john_profile_settings_screen.dart';
+import 'screens/reviews_admin_screen.dart';
+import 'screens/language_settings_screen.dart';
+import 'screens/currency_settings_screen.dart';
 import 'providers/cart_provider.dart';
 import 'state/app_state.dart';
 import 'theme/brand_colors.dart' as brand;
@@ -39,24 +50,27 @@ import 'screens/kids/coloring_sandbox_screen.dart';
 import 'screens/kids/slider_puzzle_screen.dart';
 import 'screens/kids/maze_runner_screen.dart';
 import 'screens/kids/memory_match_screen.dart';
+import 'screens/schedule_admin_screen.dart';
+import 'screens/staff_dashboard_screen.dart';
 
-Future<void> main() async {
+
+import 'package:intl/date_symbol_data_local.dart'; // Add this import
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await initializeDateFormatting(); // Initialize locale data
 
-  // Enforce logout ONLY for Guests on fresh app start
-  // Registered users stay logged in (persistent session)
+  // Enforce logout for ALL users on fresh app start
   try {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null && user.isAnonymous) {
+    if (FirebaseAuth.instance.currentUser != null) {
       await FirebaseAuth.instance.signOut();
     }
   } catch (_) {
     // Ignore sign-out errors on startup
   }
-
   // Keep local cache so values survive flaky network / quick restarts
   FirebaseFirestore.instance.settings =
       const Settings(persistenceEnabled: true);
@@ -107,11 +121,13 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
   late final ValueNotifier<List<String>> tickerEs = ValueNotifier<List<String>>([]);
 
   final tickerSpeedPx = ValueNotifier<double>(77.1);
+  final tickerDirection = ValueNotifier<TickerDirection>(TickerDirection.rtl);
   
   // Carousel State
   final carouselSpeed = ValueNotifier<double>(60.0); // seconds per rotation
   final carouselAutoPlay = ValueNotifier<bool>(true);
   final carouselGlobalMode = ValueNotifier<CarouselMode>(CarouselMode.animated);
+  final categoryOrder = ValueNotifier<List<String>>([]); // Will init in _initializeApp
   final categoryConfigs = ValueNotifier<Map<String, CategoryConfig>>({});
 
   // Angelina Profile Picture State
@@ -120,6 +136,12 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
   final profilePicRandomize = ValueNotifier<bool>(false);
   final profilePicInterval = ValueNotifier<int>(300); // 5 minutes in seconds
 
+  // John AI Profile Picture State
+  final johnProfilePics = ValueNotifier<List<String>>([]);
+  final selectedJohnProfilePic = ValueNotifier<String?>(null);
+  final johnProfilePicRandomize = ValueNotifier<bool>(false);
+  final johnProfilePicInterval = ValueNotifier<int>(300);
+
   final laneLight = ValueNotifier<Color>(const Color(0xFFF3A70B));
   final laneDark = ValueNotifier<Color>(const Color(0xFFF3A70B));
   final railLight = ValueNotifier<Color>(const Color(0xFFA24011));
@@ -127,7 +149,15 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
   final textLight = ValueNotifier<Color>(Colors.white);
   final textDark = ValueNotifier<Color>(Colors.white);
 
+  // Dynamic Themes
+  final availableThemes = ValueNotifier<List<CustomTheme>>([
+    ThemeService.defaultLight,
+    ThemeService.defaultDark,
+  ]);
+  final currentThemeId = ValueNotifier<String>('default_dark'); // Default to dark
+
   final isManager = ValueNotifier<bool>(false);
+
   StreamSubscription? _authSub;
   StreamSubscription? _userSub;
 
@@ -148,6 +178,7 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
     tickerEn.value = ticker.messagesEn;
     tickerEs.value = ticker.messagesEs;
     tickerSpeedPx.value = ticker.speedPx;
+    tickerDirection.value = ticker.direction;
     laneLight.value = ticker.laneLight;
     laneDark.value = ticker.laneDark;
     railLight.value = ticker.railLight;
@@ -187,13 +218,27 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
     }
     currencyConfigs.value = cfgs;
 
+    // 1b. Load Theme Config
+    final themeConfig = await ThemeService.getThemeConfig();
+    availableThemes.value = ThemeService.getAllThemes(themeConfig);
+    // Note: We don't override themeMode here yet with a custom ID; 
+    // we stick to standard Light/Dark mode toggles for now, but enabling custom themes next.
+    // If user prefs had a custom theme ID, we'd apply it here.
+
     // 1b. Load Carousel Config
     final carouselCfg = UserPrefsService.loadCarouselConfig();
+    
+    // Default Order
+    List<String> loadedOrder = HeroCategoryConfig.order;
+
     if (carouselCfg.isNotEmpty) {
       if (carouselCfg['speed'] != null) carouselSpeed.value = (carouselCfg['speed'] as num).toDouble();
       if (carouselCfg['autoPlay'] != null) carouselAutoPlay.value = carouselCfg['autoPlay'] as bool;
       if (carouselCfg['globalMode'] != null) {
         carouselGlobalMode.value = CarouselMode.values[carouselCfg['globalMode'] as int];
+      }
+      if (carouselCfg['order'] != null) {
+        loadedOrder = (carouselCfg['order'] as List).cast<String>();
       }
       if (carouselCfg['categories'] != null) {
         final catMap = (carouselCfg['categories'] as Map).cast<String, dynamic>();
@@ -203,7 +248,19 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
         });
         categoryConfigs.value = parsedCats;
       }
+    } else {
+      // --- RESTORE DEFAULTS: "The Unbreakable Config" ---
+      // If no user prefs exist (fresh install/wipe), use the "Elite" defaults.
+      final defaults = <String, CategoryConfig>{
+        'La Parrillada': const CategoryConfig(effect: CarouselEffect.scrollSequence),
+        'Microgreens': const CategoryConfig(effect: CarouselEffect.stopMotion), // "Time Motion Capture"
+        'Todo El Dia, Todo La Noche, Desayuno WTF': const CategoryConfig(effect: CarouselEffect.stopMotion),
+        'VYBZ Eventos': const CategoryConfig(effect: CarouselEffect.video), 
+        // Others default to 'still' via constructor
+      };
+      categoryConfigs.value = defaults;
     }
+    categoryOrder.value = loadedOrder;
 
     // 2. Listen to auth
     _listenToAuth();
@@ -271,21 +328,29 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
       tickerEs: tickerEs,
       tickerEn: tickerEn,
       tickerSpeedPx: tickerSpeedPx,
+      tickerDirection: tickerDirection,
       laneLight: laneLight,
       laneDark: laneDark,
       railLight: railLight,
       railDark: railDark,
       textLight: textLight,
       textDark: textDark,
+      availableThemes: availableThemes,
+      currentThemeId: currentThemeId,
       isManager: isManager,
       carouselSpeed: carouselSpeed,
       carouselAutoPlay: carouselAutoPlay,
       carouselGlobalMode: carouselGlobalMode,
+      categoryOrder: categoryOrder,
       categoryConfigs: categoryConfigs,
       angelinaProfilePics: angelinaProfilePics,
       selectedProfilePic: selectedProfilePic,
       profilePicRandomize: profilePicRandomize,
       profilePicInterval: profilePicInterval,
+      johnProfilePics: johnProfilePics,
+      selectedJohnProfilePic: selectedJohnProfilePic,
+      johnProfilePicRandomize: johnProfilePicRandomize,
+      johnProfilePicInterval: johnProfilePicInterval,
       openPip: _openPip,
       child: ValueListenableBuilder<ThemeMode>(
         valueListenable: themeMode,
@@ -327,15 +392,21 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
               '/cart': (context) => const CartScreen(),
               '/contact': (context) => ContactNinaVerdePage(),
               '/owner': (context) => const OwnerDashboardScreen(),
-              '/language-settings': (context) => const AdminRoute(child: LanguageSettingsPage()),
-              '/currency-settings': (context) => const AdminRoute(child: CurrencySettingsPage()),
-              '/ticker-settings': (context) => const AdminRoute(child: TickerSettingsPage()),
+              '/language-settings': (context) => const AdminRoute(child: LanguageSettingsScreen()),
+              '/currency-settings': (context) => const AdminRoute(child: CurrencySettingsScreen()),
+              '/ticker-settings': (context) => AdminRoute(child: TickerSettingsPage()),
+              '/theme-settings': (context) => const AdminRoute(child: ThemeSettingsPage()),
               '/app-settings': (context) => const AdminRoute(child: AppSettingsAdminScreen()),
               '/carousel-settings': (context) => const AdminRoute(child: CarouselSettingsScreen()),
               '/angelina-profile': (context) => const AdminRoute(child: AngelinaProfileSettingsScreen()),
               '/admin/catalog': (context) => AdminRoute(child: CatalogAdminScreen()),
               '/admin/events': (context) => const AdminRoute(child: EventPromoAdminScreen()),
               '/intro': (context) => const IntroSettingsScreen(),
+              '/login-video-settings': (context) => const AdminRoute(child: LoginVideoSettingsScreen()),
+              '/angelina-admin': (context) => const AdminRoute(child: AngelinaAdminScreen()),
+              '/john-admin': (context) => const AdminRoute(child: JohnAdminScreen()),
+              '/john-profile': (context) => const AdminRoute(child: JohnProfileSettingsScreen()),
+              '/reviews-admin': (context) => const AdminRoute(child: ReviewsAdminScreen()),
 
               // Legal
               '/privacy': (context) => const DocumentWebView(
@@ -357,6 +428,10 @@ class _NinaVerdeAppState extends State<NinaVerdeApp> {
               '/kids/puzzle': (context) => const SliderPuzzleScreen(),
               '/kids/maze': (context) => const MazeRunnerScreen(),
               '/kids/memory': (context) => const MemoryMatchScreen(),
+              
+              // Staff & Scheduling
+              '/schedule-admin': (context) => const AdminRoute(child: ScheduleAdminScreen()),
+              '/staff-dashboard': (context) => const StaffDashboardScreen(),
             },
           );
         },

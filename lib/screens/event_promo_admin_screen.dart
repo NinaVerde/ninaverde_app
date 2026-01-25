@@ -58,7 +58,7 @@ class _EventPromoAdminScreenState extends State<EventPromoAdminScreen> {
         final admin = _isAdmin(snapshot.data?.data());
         if (!admin) {
           return Scaffold(
-            appBar: NvAppBar(title: title, showBack: true),
+            appBar: NvAppBar(tickerVisible: AppState.of(context).showTicker.value, title: title, showBack: true),
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(24),
@@ -78,7 +78,7 @@ class _EventPromoAdminScreenState extends State<EventPromoAdminScreen> {
         }
 
         return Scaffold(
-          appBar: NvAppBar(title: title, showBack: true),
+          appBar: NvAppBar(tickerVisible: AppState.of(context).showTicker.value, title: title, showBack: true),
           body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
             stream:
                 FirebaseFirestore.instance.collection('events_promotions').snapshots(),

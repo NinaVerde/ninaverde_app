@@ -441,7 +441,7 @@ class _SplashToLoginScreenState extends State<SplashToLoginScreen>
             _FinalBurstReveal(
               controller: _finalReveal,
               login: loginPreview,
-              center: const Alignment(0.0, -0.33),
+              center: const Alignment(0.0, -0.75),
               coreColor: Colors.white,
               tintInner: nvAccentOrange,
               tintOuter: nvGreenDark.withValues(alpha: 0.75),
@@ -857,6 +857,14 @@ class _VideoStageState extends State<_VideoStage> {
                                 fit: StackFit.expand,
                                 children: [
                                   VideoPlayer(widget.controller),
+                                  // NOISE KILLER: Mask bottom edge artifacts
+                                  Positioned(
+                                    bottom: -2, 
+                                    left: 0,
+                                    right: 0,
+                                    height: 22, // Increased to 22 per user request (was 18)
+                                    child: Container(color: Colors.black),
+                                  ),
                                   // NOISE KILLER: Curtain that stays until video actually advances
                                   if (_pos < const Duration(milliseconds: 150))
                                     Container(color: Colors.black),
@@ -1014,7 +1022,7 @@ class _FinalBurstReveal extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!controller.isAnimating) controller.forward();
     final curve =
-        CurvedAnimation(parent: controller, curve: Curves.easeInOutCubic);
+        CurvedAnimation(parent: controller, curve: Curves.easeOutQuart);
     return AnimatedBuilder(
       animation: curve,
       builder: (_, __) {

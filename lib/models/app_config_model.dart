@@ -1,12 +1,22 @@
 // lib/models/app_config_model.dart
 import 'package:flutter/material.dart';
 
+/// Scroll direction for the ticker
+enum TickerDirection {
+  ltr, // Left to Right
+  rtl, // Right to Left (Standard)
+  ttb, // Top to Bottom
+  btt, // Bottom to Top
+  fade, // Fade in/out
+}
+
 /// ---------- Ticker Configuration ----------
 class TickerConfig {
   final bool show;
   final List<String> messagesEn;
   final List<String> messagesEs;
   final double speedPx;
+  final TickerDirection direction;
   final Color laneLight;
   final Color laneDark;
   final Color railLight;
@@ -19,6 +29,7 @@ class TickerConfig {
     this.messagesEn = const [],
     this.messagesEs = const [],
     this.speedPx = 77.1,
+    this.direction = TickerDirection.rtl,
     this.laneLight = const Color(0xFFF3A70B),
     this.laneDark = const Color(0xFFF3A70B),
     this.railLight = const Color(0xFFA24011),
@@ -28,11 +39,20 @@ class TickerConfig {
   });
 
   factory TickerConfig.fromMap(Map<String, dynamic> map) {
+    // Fallback logic for legacy keys or common mistakes
+    final enList = (map['messages_en'] as List?)?.cast<String>() ?? 
+                   (map['messages'] as List?)?.cast<String>() ?? [];
+    final esList = (map['messages_es'] as List?)?.cast<String>() ?? [];
+    
     return TickerConfig(
       show: map['show'] ?? true,
-      messagesEn: (map['messages_en'] as List?)?.cast<String>() ?? [],
-      messagesEs: (map['messages_es'] as List?)?.cast<String>() ?? [],
+      messagesEn: enList,
+      messagesEs: esList,
       speedPx: (map['speed_px'] as num?)?.toDouble() ?? 77.1,
+      direction: TickerDirection.values.firstWhere(
+        (e) => e.name == (map['direction'] ?? 'rtl'),
+        orElse: () => TickerDirection.rtl,
+      ),
       laneLight: _intToColor(map['lane_light'], const Color(0xFFF3A70B)),
       laneDark: _intToColor(map['lane_dark'], const Color(0xFFF3A70B)),
       railLight: _intToColor(map['rail_light'], const Color(0xFFA24011)),
@@ -48,6 +68,7 @@ class TickerConfig {
       'messages_en': messagesEn,
       'messages_es': messagesEs,
       'speed_px': speedPx,
+      'direction': direction.name,
       'lane_light': laneLight.toARGB32(),
       'lane_dark': laneDark.toARGB32(),
       'rail_light': railLight.toARGB32(),
@@ -161,4 +182,34 @@ class AppLocalizationConfig {
       'currencyConfigs': currencyConfigs,
     };
   }
+}
+
+class CurrencyConfig {
+  final String code;
+  final String symbol;
+  final double rateFromUsd;
+  final int fractionDigits;
+
+  const CurrencyConfig({
+    required this.code,
+    required this.symbol,
+    required this.rateFromUsd,
+    this.fractionDigits = 2,
+  });
+
+  factory CurrencyConfig.fromMap(Map<String, dynamic> map) {
+    return CurrencyConfig(
+      code: map['code'] ?? '???',
+      symbol: map['symbol'] ?? '\$',
+      rateFromUsd: (map['rateFromUsd'] as num?)?.toDouble() ?? 1.0,
+      fractionDigits: map['fractionDigits'] ?? 2,
+    );
+  }
+
+  Map<String, dynamic> toMap() => {
+    'code': code,
+    'symbol': symbol,
+    'rateFromUsd': rateFromUsd,
+    'fractionDigits': fractionDigits,
+  };
 }

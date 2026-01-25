@@ -27,17 +27,45 @@ class CartScreen extends StatelessWidget {
         final checkoutLabel =
             tr(context, en: 'Checkout', es: 'Finalizar compra');
         final title = tr(context, en: 'Your Cart', es: 'Tu carrito');
+        final confirmLabel = tr(context, en: 'Confirm', es: 'Confirmar');
+        final cancelLabel = tr(context, en: 'Cancel', es: 'Cancelar');
+        final clearConfirmTitle = tr(context, en: 'Clear Cart?', es: '¿Vaciar carrito?');
+        final clearConfirmMessage = tr(context, en: 'Are you sure you want to remove all items from your cart?', es: '¿Estás seguro de que deseas eliminar todos los artículos de tu carrito?');
+        final removeItemTitle = tr(context, en: 'Remove Item?', es: '¿Eliminar artículo?');
+        final removeItemMessage = tr(context, en: 'Are you sure you want to remove this item from your cart?', es: '¿Estás seguro de que deseas eliminar este artículo de tu carrito?');
         final clearLabel = tr(context, en: 'Clear cart', es: 'Vaciar carrito');
 
         return Scaffold(
           appBar: NvAppBar(
+            tickerVisible: AppState.of(context).showTicker.value,
             title: title,
             showBack: true,
             centerTitle: true,
             extraActions: [
               IconButton(
                 icon: const Icon(Icons.delete_sweep),
-                onPressed: () => cart.clear(),
+                onPressed: cart.items.isEmpty ? null : () async {
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: Text(clearConfirmTitle),
+                      content: Text(clearConfirmMessage),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(ctx).pop(false),
+                          child: Text(cancelLabel),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.of(ctx).pop(true),
+                          child: Text(confirmLabel),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirmed == true) {
+                    cart.clear();
+                  }
+                },
                 tooltip: clearLabel,
               ),
             ],
@@ -98,8 +126,34 @@ class CartScreen extends StatelessWidget {
                                   children: [
                                     IconButton(
                                       icon: const Icon(Icons.remove),
-                                      onPressed: () => cart.removeSingleItem(
-                                          cartItem.product.id),
+                                      onPressed: () async {
+                                        if (cartItem.quantity == 1) {
+                                          // Show confirmation dialog when removing last item
+                                          final confirmed = await showDialog<bool>(
+                                            context: context,
+                                            builder: (ctx) => AlertDialog(
+                                              title: Text(removeItemTitle),
+                                              content: Text(removeItemMessage),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.of(ctx).pop(false),
+                                                  child: Text(cancelLabel),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () => Navigator.of(ctx).pop(true),
+                                                  child: Text(confirmLabel),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                          if (confirmed == true) {
+                                            cart.removeSingleItem(cartItem.product.id);
+                                          }
+                                        } else {
+                                          // Just decrement quantity without confirmation
+                                          cart.removeSingleItem(cartItem.product.id);
+                                        }
+                                      },
                                     ),
                                     Text('${cartItem.quantity}'),
                                     IconButton(

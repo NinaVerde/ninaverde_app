@@ -71,7 +71,7 @@ enum _VideoState { loading, ready, error }
 class _NvVideoOverlayState extends State<NvVideoOverlay>
     with SingleTickerProviderStateMixin {
   late AnimationController _animCtrl;
-  late Animation<Rect?> _rectAnim;
+  Animation<Rect?>? _rectAnim; // Nullable to handle first frame before layout
   late Animation<double> _scaleAnim;
   late Animation<double> _fadeAnim;
   late Animation<double> _blurAnim;
@@ -290,7 +290,7 @@ class _NvVideoOverlayState extends State<NvVideoOverlay>
         AnimatedBuilder(
           animation: _animCtrl,
           builder: (ctx, child) {
-            final rect = _rectAnim.value ?? widget.fromRect;
+            final rect = _rectAnim?.value ?? widget.fromRect;
             final scale = _scaleAnim.value;
             
             return Positioned.fromRect(

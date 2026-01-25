@@ -389,6 +389,16 @@ class _ContactNinaVerdePageState extends State<ContactNinaVerdePage>
   }
 
   Future<_AiResponse?> _fetchOnlineResponse(String text, bool isEs) async {
+    if (_config.provider == 'openai') {
+       return _fetchOpenAIResponse(text, isEs);
+    } else if (_config.provider == 'gemini') {
+       return _fetchGeminiResponse(text, isEs);
+    }
+    // Default to Custom Endpoint
+    return _fetchCustomResponse(text, isEs);
+  }
+
+  Future<_AiResponse?> _fetchCustomResponse(String text, bool isEs) async {
     try {
       final uri = Uri.parse(_config.endpointUrl);
       final cart = Provider.of<CartProvider>(context, listen: false);
@@ -442,6 +452,109 @@ class _ContactNinaVerdePageState extends State<ContactNinaVerdePage>
     } catch (_) {
       return null;
     }
+  }
+
+  Future<_AiResponse?> _fetchOpenAIResponse(String text, bool isEs) async {
+    try {
+      if (_config.apiKey.isEmpty) return null;
+      final model = _config.modelUrl.isNotEmpty ? _config.modelUrl : 'gpt-4o-mini';
+      
+      final systemPrompt = _buildSystemPrompt(isEs);
+      
+      final res = await http.post(
+        Uri.parse('https://api.openai.com/v1/chat/completions'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${_config.apiKey}',
+        },
+        body: jsonEncode({
+          'model': model,
+          'messages': [
+            {'role': 'system', 'content': systemPrompt},
+            {'role': 'user', 'content': text},
+          ],
+          'temperature': 0.7,
+        }),
+      );
+
+      if (res.statusCode != 200) return null;
+      final data = jsonDecode(utf8.decode(res.bodyBytes));
+      final content = data['choices'][0]['message']['content'] as String;
+      
+      return _AiResponse(reply: content, actions: const []); 
+    } catch (e) {
+      debugPrint('OpenAI Error: $e');
+      return null;
+    }
+  }
+
+  Future<_AiResponse?> _fetchGeminiResponse(String text, bool isEs) async {
+    try {
+      if (_config.apiKey.isEmpty) return null;
+      var model = _config.modelUrl.isNotEmpty ? _config.modelUrl : 'gemini-1.5-flash';
+      if (!model.startsWith('models/')) {
+        // Handle cases where user just types "gemini-1.5-flash"
+        // The API often accepts just the model name in the URL, but let's be safe
+      }
+      
+      final systemPrompt = _buildSystemPrompt(isEs);
+      final fullPrompt = '$systemPrompt\n\nUser Message: $text';
+
+      final uri = Uri.parse(
+          'https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=${_config.apiKey}');
+          
+      final res = await http.post(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'contents': [{
+            'parts': [{'text': fullPrompt}]
+          }]
+        }),
+      );
+
+      if (res.statusCode != 200) return null;
+      final data = jsonDecode(utf8.decode(res.bodyBytes));
+      final content = data['candidates']?[0]?['content']?['parts']?[0]?['text'];
+      
+      if (content is String) {
+        return _AiResponse(reply: content, actions: const []);
+      }
+      return null;
+    } catch (e) {
+      debugPrint('Gemini Error: $e');
+      return null;
+    }
+  }
+  
+  String _buildSystemPrompt(bool isEs) {
+     final cart = Provider.of<CartProvider>(context, listen: false);
+     final cartInfo = cart.items.values.map((i) => '${i.quantity}x ${i.product.name}').join(', ');
+     
+     final menuSnippet = _menu.take(20).map((p) => '${p.name} (\$${p.price})').join(', ');
+     
+     final knowledge = _config.knowledge
+         .map((k) => 'Title: ${k.title}\nInfo: ${k.contentFor(isEs)}')
+         .join('\n\n');
+
+     return '''
+You are ${_config.personaName}.
+Bio: ${isEs ? _config.personaBioEs : _config.personaBioEn}
+Language: ${isEs ? 'Spanish (Nicaraguan)' : 'English'}
+
+Role: Hostess/Concierge/Waitress at generic "Niña Verde".
+Menu highlights: $menuSnippet
+Current Cart: ${cartInfo.isEmpty ? 'Empty' : cartInfo}
+
+Knowledge Base:
+$knowledge
+
+Instructions:
+- Be helpful, sassy, and charming.
+- Keep responses concise (under 3 sentences usually).
+- If the user wants to order, suggest items from the menu.
+- Do NOT output JSON. Output plain text only.
+''';
   }
 
   _AiResponse _offlineResponse(String text, bool isEs) {
@@ -730,12 +843,12 @@ class _ContactNinaVerdePageState extends State<ContactNinaVerdePage>
     return AnimatedBuilder(
       animation: AppState.of(context).languageCode,
       builder: (context, _) {
-        final onlineReady = _config.onlineEnabled && _config.endpointUrl.isNotEmpty;
+        final onlineReady = _config.onlineEnabled && (_config.endpointUrl.isNotEmpty || _config.apiKey.isNotEmpty);
         final modelUrl = _config.modelUrl.trim();
         final statusLabel = tr(
           context,
-          en: onlineReady ? 'Online' : 'Offline',
-          es: onlineReady ? 'En linea' : 'Fuera de linea',
+          en: onlineReady ? 'AI Intelligent' : 'Local Intelligent',
+          es: onlineReady ? 'Inteligencia AI' : 'Inteligencia Local',
         );
         final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -1348,9 +1461,13 @@ class _AiRuntimeConfig {
     required this.voiceEn,
     required this.voiceEs,
     required this.knowledge,
+    required this.provider,
+    required this.apiKey,
   });
 
   final bool onlineEnabled;
+  final String provider; // 'custom', 'openai', 'gemini'
+  final String apiKey;
   final String endpointUrl;
   final String modelUrl;
   final String personaName;
@@ -1365,6 +1482,8 @@ class _AiRuntimeConfig {
   factory _AiRuntimeConfig.fromMap(Map<String, dynamic> data) {
     return _AiRuntimeConfig(
       onlineEnabled: data['onlineEnabled'] == true,
+      provider: (data['provider'] as String?) ?? 'custom',
+      apiKey: (data['apiKey'] as String?) ?? '',
       endpointUrl: (data['endpointUrl'] as String?) ?? '',
       modelUrl: (data['modelUrl'] as String?) ?? '',
       personaName: (data['personaName'] as String?) ?? 'Angelina',
@@ -1387,6 +1506,8 @@ class _AiRuntimeConfig {
   factory _AiRuntimeConfig.defaults() {
     return _AiRuntimeConfig(
       onlineEnabled: false,
+      provider: 'custom',
+      apiKey: '',
       endpointUrl: '',
       modelUrl: '',
       personaName: 'Angelina',

@@ -13,6 +13,15 @@ class LiveGameService {
   // --- Configurations ---
   static Future<List<LiveGameConfig>> getConfigs() async {
     final snap = await _db.collection(_configCol).get();
+    
+    // Check if critical new games exist (e.g. ps5). If not, re-seed.
+    final existingIds = snap.docs.map((d) => d.id).toSet();
+    if (!existingIds.contains('ps5')) {
+        await seedInitialConfigs();
+        final snap2 = await _db.collection(_configCol).get();
+        return snap2.docs.map((d) => LiveGameConfig.fromMap(d.id, d.data())).toList();
+    }
+    
     return snap.docs.map((d) => LiveGameConfig.fromMap(d.id, d.data())).toList();
   }
 
@@ -24,6 +33,7 @@ class LiveGameService {
   static Future<String> startSession({
     required String gameId,
     required int playerCount,
+    String collateralDescription = '',
   }) async {
     final user = _auth.currentUser;
     if (user == null) throw Exception('Auth required');
@@ -44,6 +54,7 @@ class LiveGameService {
       isApproved: false,
       playerCount: playerCount,
       totalCharge: 0,
+      collateralDescription: collateralDescription,
     );
 
     final doc = await _db.collection(_sessionCol).add(session.toMap());
@@ -103,6 +114,8 @@ class LiveGameService {
         maxPlayers: 4,
         rules: 'Return controllers to staff. No food/drink near console.',
         deposit: 20.0,
+        requireDeposit: true,
+        collateralType: 'ID', // Require ID
       ),
       LiveGameConfig(
         id: 'chess',
@@ -112,6 +125,8 @@ class LiveGameService {
         maxPlayers: 2,
         rules: 'Return all pieces. Report any damage.',
         deposit: 5.0,
+        requireDeposit: false,
+        collateralType: 'None',
       ),
       LiveGameConfig(
         id: 'checkers',
@@ -121,6 +136,8 @@ class LiveGameService {
         maxPlayers: 2,
         rules: 'Return all pieces.',
         deposit: 5.0,
+        requireDeposit: false,
+        collateralType: 'None',
       ),
       LiveGameConfig(
         id: 'cards',
@@ -130,6 +147,8 @@ class LiveGameService {
         maxPlayers: 6,
         rules: 'Complete deck must be returned.',
         deposit: 2.0,
+        requireDeposit: false,
+        collateralType: 'Cash', // Cash deposit preferred for small items
       ),
       LiveGameConfig(
         id: 'darts',
@@ -139,6 +158,8 @@ class LiveGameService {
         maxPlayers: 4,
         rules: 'Adult supervision required. Play in designated area.',
         deposit: 10.0,
+        requireDeposit: true,
+        collateralType: 'ID',
       ),
       LiveGameConfig(
         id: 'jenga',
@@ -148,6 +169,8 @@ class LiveGameService {
         maxPlayers: 6,
         rules: 'Stack safely. Watch your toes!',
         deposit: 15.0,
+        requireDeposit: false,
+        collateralType: 'None',
       ),
     ];
 

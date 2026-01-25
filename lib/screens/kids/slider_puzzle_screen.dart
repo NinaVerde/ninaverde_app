@@ -114,6 +114,7 @@ class _SliderPuzzleScreenState extends State<SliderPuzzleScreen> {
 
     return Scaffold(
       appBar: NvAppBar(
+        tickerVisible: AppState.of(context).showTicker.value,
         title: tr(context, en: 'Puzzle Dash', es: 'Rompecabezas'),
         showBack: true,
         extraActions: [

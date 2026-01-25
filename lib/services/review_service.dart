@@ -174,4 +174,28 @@ class ReviewService {
       'updatedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
   }
+
+  Future<void> resolveFlaggedReview(Review review, String notes) async {
+    final ref = _reviewsRoot(review.productId).doc(review.id);
+    await ref.set({
+      'resolved': true,
+      'managerNotes': notes,
+      'status': 'resolved', // Or keep as flagged but resolved
+      'resolvedAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
+  Stream<List<Review>> allReviews() {
+    return _db
+        .collectionGroup('items')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snap) {
+      return snap.docs.map((doc) {
+        final productId = doc.reference.parent.parent?.id ?? '';
+        return Review.fromFirestore(doc, productId);
+      }).toList();
+    });
+  }
 }

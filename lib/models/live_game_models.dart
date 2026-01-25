@@ -8,6 +8,8 @@ class LiveGameConfig {
   final double pricePerQuarterHour;
   final int maxPlayers;
   final String rules;
+  final bool requireDeposit;
+  final String collateralType; // 'None', 'ID', 'Keys', 'Cash'
   final double deposit;
   final String topPrize;
 
@@ -20,6 +22,8 @@ class LiveGameConfig {
     required this.rules,
     required this.deposit,
     this.topPrize = '',
+    this.requireDeposit = false,
+    this.collateralType = 'None',
   });
 
   factory LiveGameConfig.fromMap(String id, Map<String, dynamic> map) {
@@ -32,6 +36,8 @@ class LiveGameConfig {
       rules: map['rules'] ?? '',
       deposit: (map['deposit'] ?? 0.0).toDouble(),
       topPrize: map['topPrize'] ?? '',
+      requireDeposit: map['requireDeposit'] ?? false,
+      collateralType: map['collateralType'] ?? 'None',
     );
   }
 
@@ -42,6 +48,8 @@ class LiveGameConfig {
     int? maxPlayers,
     String? rules,
     double? deposit,
+    bool? requireDeposit,
+    String? collateralType,
   }) {
     return LiveGameConfig(
       id: id,
@@ -51,6 +59,8 @@ class LiveGameConfig {
       maxPlayers: maxPlayers ?? this.maxPlayers,
       rules: rules ?? this.rules,
       deposit: deposit ?? this.deposit,
+      requireDeposit: requireDeposit ?? this.requireDeposit,
+      collateralType: collateralType ?? this.collateralType,
     );
   }
 
@@ -62,6 +72,8 @@ class LiveGameConfig {
       'maxPlayers': maxPlayers,
       'rules': rules,
       'deposit': deposit,
+      'requireDeposit': requireDeposit,
+      'collateralType': collateralType,
     };
   }
 }
@@ -76,6 +88,7 @@ class LiveGameSession {
   final bool isApproved;
   final int playerCount;
   final double totalCharge;
+  final String collateralDescription; // e.g. "ID Card held"
 
   LiveGameSession({
     required this.id,
@@ -87,6 +100,7 @@ class LiveGameSession {
     required this.isApproved,
     required this.playerCount,
     required this.totalCharge,
+    this.collateralDescription = '',
   });
 
   factory LiveGameSession.fromFirestore(DocumentSnapshot doc) {
@@ -101,6 +115,7 @@ class LiveGameSession {
       isApproved: data['isApproved'] ?? false,
       playerCount: data['playerCount'] ?? 1,
       totalCharge: (data['totalCharge'] ?? 0.0).toDouble(),
+      collateralDescription: data['collateralDescription'] ?? '',
     );
   }
 
@@ -114,6 +129,7 @@ class LiveGameSession {
       'isApproved': isApproved,
       'playerCount': playerCount,
       'totalCharge': totalCharge,
+      'collateralDescription': collateralDescription,
     };
   }
 }
