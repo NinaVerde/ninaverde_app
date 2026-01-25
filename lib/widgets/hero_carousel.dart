@@ -138,13 +138,9 @@ class _HeroCategoryCarouselState extends State<HeroCategoryCarousel>
     }
   }
 
-  // State variables
   double? _lastSpeed;
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final app = AppState.of(context);
+  void _onSpeedChanged() {
     final speed = AppState.of(context).carouselSpeed.value;
     if (speed != _lastSpeed) {
       _lastSpeed = speed;
@@ -153,6 +149,8 @@ class _HeroCategoryCarouselState extends State<HeroCategoryCarousel>
       }
     }
   }
+
+
 
   @override
   void didUpdateWidget(HeroCategoryCarousel oldWidget) {

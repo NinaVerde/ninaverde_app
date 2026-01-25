@@ -15,62 +15,54 @@ class SandwichMenuButton extends StatelessWidget {
   Widget build(BuildContext context) {
     // "Elite" Stylish Button
     // Glass/Gradient effect with custom iconography
-    return Container(
-      margin: const EdgeInsets.all(8),
-        color: const Color(0xFF1B4D3E), // Dark Forest Green (Hardcoded to ensure match if brand var missing) 
-        shape: BoxShape.circle, // Xbox 360 button was circular. Assuming user wants circle? Or staying rect? 
-        // User said: "border around it that makes it look like a button on a flat surface that is indented, something like the main button on an xbox 360"
-        // The xbox 360 button was circular. But this menu button is likely square/rounded-rect in strict layout?
-        // Let's stick to rounded rect (14) but add the bevels.
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.15), // Subtle rim
-          width: 2,
-        ),
-        boxShadow: [
-          // "Indented" feel:
-          // Neumorphism usually uses Light top-left, Dark bottom-right for popped OUT.
-          // For Indented: Dark top-left, Light bottom-right (inner shadow). 
-          // Flutter BoxShadows are outset. To fake inset, we need a stack or a specific library.
-          // BUT "button on a flat surface that is indented" might mean the button ITSELF is in a divot?
-          // Let's try a strong dark shadow Top-Left and Light Bottom-Right to make it look "Pressed In" or "Recessed".
-          
-          BoxShadow(
-            color: Colors.black.withOpacity(0.6),
-            offset: const Offset(2, 2),
-            blurRadius: 4,
-            inset: true, // Flutter doesn't support inset: true in basic BoxShadow!
-          ),
-          // We can't do inset easily.
-          // Let's do the "Xbox Ring" style which is a Silver Border with a Glow.
-          BoxShadow(
-            color: Colors.greenAccent.withOpacity(0.6), // The "Lit up green" glow from the ring?
-            blurRadius: 10,
-            spreadRadius: 1,
-          ),
-          BoxShadow(
-            color: Colors.white.withOpacity(0.1),
-            offset: const Offset(-2, -2),
-            blurRadius: 4,
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
+    return Animate(
+      effects: [ScaleEffect(duration: 300.ms, curve: Curves.easeOutBack)],
+      child: Container(
+        margin: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1B4D3E), 
+          shape: BoxShape.circle, 
           borderRadius: BorderRadius.circular(14),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(10.0), // increased padding slightly for icon breathing room
-            child: SizedBox(
-                width: 24, 
-                height: 24,
-                child: CustomPaint(painter: _EliteMenuPainter()),
+          border: Border.all(
+            color: Colors.white.withOpacity(0.15), 
+            width: 2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.6),
+              offset: const Offset(2, 2),
+              blurRadius: 4,
+              // inset: true, // Manual inset simulation below? No, treating as standard for now.
+            ),
+            BoxShadow(
+              color: Colors.greenAccent.withOpacity(0.6), 
+              blurRadius: 10,
+              spreadRadius: 1,
+            ),
+            BoxShadow(
+              color: Colors.white.withOpacity(0.1),
+              offset: const Offset(-2, -2),
+              blurRadius: 4,
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(10.0), 
+              child: SizedBox(
+                  width: 24, 
+                  height: 24,
+                  child: CustomPaint(painter: _EliteMenuPainter()),
+              ),
             ),
           ),
         ),
       ),
-    ).animate().scale(duration: 300.ms, curve: Curves.easeOutBack);
+    );
   }
 }
 
