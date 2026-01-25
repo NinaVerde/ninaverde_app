@@ -18,7 +18,70 @@ class ConfigService {
     try {
       final doc = await _db.collection(_cfgCol).doc(_tickerDoc).get();
       if (!doc.exists || doc.data() == null) return const TickerConfig();
-      return TickerConfig.fromMap(doc.data()!);
+      
+      var config = TickerConfig.fromMap(doc.data()!);
+
+      // --- SELF-HEALING SANITIZATION ---
+      // Detect placeholder remnants but don't wipe user soul
+      bool needsHealing = false;
+      final badPatterns = [
+        'Login to collect', 'Inicie sesión'
+      ];
+      
+      bool isMessy(String s) => badPatterns.any((p) => s.contains(p));
+
+      // Clean English
+      final cleanEn = config.messagesEn.where((m) => !isMessy(m)).toList();
+      
+      // Clean Spanish 
+      final cleanEs = config.messagesEs.where((m) => !isMessy(m)).toList();
+
+      // Only HEAL if the results are TRULY empty (no user content found even after fallback)
+      if (cleanEn.isEmpty || cleanEs.isEmpty) {
+        needsHealing = true;
+        
+        if (cleanEn.isEmpty) {
+          cleanEn.addAll([
+            'Welcome to Niña Verde 🌿',
+            'Authentically Nicaraguan 🇳🇮',
+            'Farm to Table Freshness 🥬',
+            'Try our famous Smoothies 🥤',
+            'Breakfast served All Day 🍳',
+            'Relax and enjoy the vibes ✨'
+          ]);
+        }
+        if (cleanEs.isEmpty) {
+          cleanEs.addAll([
+            'Bienvenido a Niña Verde 🌿',
+            'Auténticamente Nicaragüense 🇳🇮',
+            'Frescura de la Granja a la Mesa 🥬',
+            'Prueba nuestros famosos Batidos 🥤',
+            'Desayuno servido Todo el Día 🍳',
+            'Relájate y disfruta del ambiente ✨'
+          ]);
+        }
+
+        // Reconstruct config with healed messages
+        config = TickerConfig(
+          show: config.show,
+          messagesEn: cleanEn,
+          messagesEs: cleanEs,
+          speedPx: config.speedPx,
+          direction: config.direction,
+          laneLight: config.laneLight,
+          laneDark: config.laneDark,
+          railLight: config.railLight,
+          railDark: config.railDark,
+          textLight: config.textLight,
+          textDark: config.textDark,
+        );
+
+        // HEAL FIRESTORE ONLY if we actually added defaults
+        debugPrint('Sanitized ticker config. Healing Firestore...');
+        await saveTickerConfig(config);
+      }
+      
+      return config;
     } catch (e) {
       debugPrint('Error fetching ticker config: $e');
       return const TickerConfig();
@@ -91,6 +154,45 @@ class ConfigService {
           config.toMap()..addAll({'updated_at': FieldValue.serverTimestamp()}),
           SetOptions(merge: true),
         );
+  }
+
+  // --- LOCALIZATION HELPERS ---
+
+  static Future<void> addLanguage(String code, String label) async {
+    final cfg = await getLocalizationConfig();
+    final languages = List<String>.from(cfg.languages);
+    if (!languages.contains(code)) languages.add(code);
+    final labels = Map<String, String>.from(cfg.languageLabels);
+    labels[code] = label;
+    await saveLocalizationConfig(cfg.copyWith(languages: languages, languageLabels: labels));
+  }
+
+  static Future<void> removeLanguage(String code) async {
+    final cfg = await getLocalizationConfig();
+    final languages = List<String>.from(cfg.languages)..remove(code);
+    final labels = Map<String, String>.from(cfg.languageLabels)..remove(code);
+    await saveLocalizationConfig(cfg.copyWith(languages: languages, languageLabels: labels));
+  }
+
+  static Future<void> addCurrency(String code, String symbol, double rate) async {
+    final cfg = await getLocalizationConfig();
+    final currencies = List<String>.from(cfg.currencies);
+    if (!currencies.contains(code)) currencies.add(code);
+    final configs = Map<String, dynamic>.from(cfg.currencyConfigs);
+    configs[code] = {
+      'code': code,
+      'symbol': symbol,
+      'rateFromUsd': rate,
+      'fractionDigits': 2,
+    };
+    await saveLocalizationConfig(cfg.copyWith(currencies: currencies, currencyConfigs: configs));
+  }
+
+  static Future<void> removeCurrency(String code) async {
+    final cfg = await getLocalizationConfig();
+    final currencies = List<String>.from(cfg.currencies)..remove(code);
+    final configs = Map<String, dynamic>.from(cfg.currencyConfigs)..remove(code);
+    await saveLocalizationConfig(cfg.copyWith(currencies: currencies, currencyConfigs: configs));
   }
 }
 

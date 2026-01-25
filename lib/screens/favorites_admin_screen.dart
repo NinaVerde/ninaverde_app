@@ -16,7 +16,7 @@ class FavoritesAdminScreen extends StatelessWidget {
     final service = FirestoreService();
 
     return Scaffold(
-      appBar: NvAppBar(title: title, showBack: true),
+      appBar: NvAppBar(tickerVisible: AppState.of(context).showTicker.value, title: title, showBack: true),
       body: StreamBuilder<List<Product>>(
         stream: service.getProducts(),
         builder: (context, productsSnap) {

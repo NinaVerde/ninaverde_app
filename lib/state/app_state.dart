@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import '../theme/brand_colors.dart' as brand;
 import '../services/translation_service.dart';
+import '../models/app_config_model.dart';
+import '../models/theme_config_model.dart';
 
 /// ---------- Global app state ----------
 class AppState extends InheritedWidget {
@@ -28,6 +30,9 @@ class AppState extends InheritedWidget {
 
   /// Ticker speed (px/s). Baseline ~77.1
   final ValueNotifier<double> tickerSpeedPx;
+  
+  /// Ticker scroll direction
+  final ValueNotifier<TickerDirection> tickerDirection;
 
   /// Ticker brand colors (lane/orange, rails/brown, text)
   final ValueNotifier<Color> laneLight;
@@ -44,6 +49,7 @@ class AppState extends InheritedWidget {
   final ValueNotifier<double> carouselSpeed; // Default ~25s
   final ValueNotifier<bool> carouselAutoPlay;
   final ValueNotifier<CarouselMode> carouselGlobalMode; // Still vs Animated
+  final ValueNotifier<List<String>> categoryOrder; // Dynamic order
   final ValueNotifier<Map<String, CategoryConfig>> categoryConfigs;
 
   /// Angelina Profile Picture Settings
@@ -51,6 +57,16 @@ class AppState extends InheritedWidget {
   final ValueNotifier<String?> selectedProfilePic; // Current selected pic URL (null = default)
   final ValueNotifier<bool> profilePicRandomize; // Randomization enabled
   final ValueNotifier<int> profilePicInterval; // Interval in seconds (default 300 = 5 min)
+
+  /// John AI Profile Picture Settings
+  final ValueNotifier<List<String>> johnProfilePics;
+  final ValueNotifier<String?> selectedJohnProfilePic;
+  final ValueNotifier<bool> johnProfilePicRandomize;
+  final ValueNotifier<int> johnProfilePicInterval;
+
+  /// Theme Settings
+  final ValueNotifier<List<CustomTheme>> availableThemes;
+  final ValueNotifier<String> currentThemeId;
 
   /// Convenience: open the video pop-up
   final void Function(BuildContext ctx) openPip;
@@ -68,27 +84,46 @@ class AppState extends InheritedWidget {
     required this.tickerEs,
     required this.tickerEn,
     required this.tickerSpeedPx,
+    required this.tickerDirection,
     required this.laneLight,
     required this.laneDark,
     required this.railLight,
     required this.railDark,
     required this.textLight,
     required this.textDark,
+    required this.availableThemes,
+    required this.currentThemeId,
     required this.isManager,
     required this.carouselSpeed,
     required this.carouselAutoPlay,
     required this.carouselGlobalMode,
+    required this.categoryOrder,
     required this.categoryConfigs,
     required this.angelinaProfilePics,
     required this.selectedProfilePic,
     required this.profilePicRandomize,
     required this.profilePicInterval,
+    required this.johnProfilePics,
+    required this.selectedJohnProfilePic,
+    required this.johnProfilePicRandomize,
+    required this.johnProfilePicInterval,
     required this.openPip,
     required super.child,
   });
 
-  static AppState of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<AppState>()!;
+  /// Access the AppState. Default to listen: false to prevent assertion errors
+  /// during rapid widget tree changes (like login/navigation).
+  static AppState of(BuildContext context, {bool listen = false}) {
+    if (listen) {
+      return context.dependOnInheritedWidgetOfExactType<AppState>()!;
+    } else {
+      return context.getElementForInheritedWidgetOfExactType<AppState>()!.widget as AppState;
+    }
+  }
+
+  /// Explicit non-listening read for clarity in initialization or one-off lookups.
+  static AppState read(BuildContext context) => 
+      context.getElementForInheritedWidgetOfExactType<AppState>()!.widget as AppState;
 
   Color get nvGreenDark => brand.nvGreenDark;
   Color get nvDarkSurface => brand.nvDarkSurface;
@@ -106,24 +141,31 @@ class AppState extends InheritedWidget {
       tickerEs != old.tickerEs ||
       tickerEn != old.tickerEn ||
       tickerSpeedPx != old.tickerSpeedPx ||
+      tickerDirection != old.tickerDirection ||
       laneLight != old.laneLight ||
       laneDark != old.laneDark ||
       railLight != old.railLight ||
       railDark != old.railDark ||
       textLight != old.textLight ||
       textDark != old.textDark ||
+      availableThemes != old.availableThemes ||
+      currentThemeId != old.currentThemeId ||
       isManager != old.isManager ||
       carouselSpeed != old.carouselSpeed ||
       carouselAutoPlay != old.carouselAutoPlay ||
       carouselGlobalMode != old.carouselGlobalMode ||
+      categoryOrder != old.categoryOrder ||
       categoryConfigs != old.categoryConfigs ||
       angelinaProfilePics != old.angelinaProfilePics ||
       selectedProfilePic != old.selectedProfilePic ||
       profilePicRandomize != old.profilePicRandomize ||
       profilePicInterval != old.profilePicInterval ||
+      johnProfilePics != old.johnProfilePics ||
+      selectedJohnProfilePic != old.selectedJohnProfilePic ||
+      johnProfilePicRandomize != old.johnProfilePicRandomize ||
+      johnProfilePicInterval != old.johnProfilePicInterval ||
       openPip != old.openPip;
 }
-
 
 
 enum CarouselMode {
@@ -132,41 +174,45 @@ enum CarouselMode {
   // 'default' implies falling back to Global setting
 }
 
+enum CarouselEffect {
+  still,
+  scrollSequence,
+  stopMotion,
+  video,
+}
+
 class CategoryConfig {
-  final CarouselMode modeOverride;
-  // Future: customAssetPath, etc.
+  final CarouselEffect effect;
+  final String? assetPath; // Local asset override
+  final String? videoUrl; // For video mode
+  final String? folderOverride; // For sequences
 
   const CategoryConfig({
-    this.modeOverride = CarouselMode.still, // Default to still/default
+    this.effect = CarouselEffect.still, 
+    this.assetPath,
+    this.videoUrl,
+    this.folderOverride,
   });
 
   Map<String, dynamic> toJson() => {
-    'mode': modeOverride.index,
+    'effect': effect.index,
+    'assetPath': assetPath,
+    'videoUrl': videoUrl,
+    'folderOverride': folderOverride,
   };
 
   factory CategoryConfig.fromJson(Map<String, dynamic> json) {
     return CategoryConfig(
-      modeOverride: CarouselMode.values[json['mode'] ?? 0],
+      effect: CarouselEffect.values[json['effect'] ?? 0],
+      assetPath: json['assetPath'],
+      videoUrl: json['videoUrl'],
+      folderOverride: json['folderOverride'],
     );
   }
 }
 
-class CurrencyConfig {
-  final String code;
-  final String symbol;
-  final double rateFromUsd;
-  final int fractionDigits;
-
-  const CurrencyConfig({
-    required this.code,
-    required this.symbol,
-    required this.rateFromUsd,
-    this.fractionDigits = 2,
-  });
-}
-
 String formatCurrency(BuildContext context, double usdAmount) {
-  final app = AppState.of(context);
+  final app = AppState.of(context, listen: false);
   final code = app.currencyCode.value;
   final cfg = app.currencyConfigs.value[code] ??
       app.currencyConfigs.value['USD'] ??
@@ -176,7 +222,7 @@ String formatCurrency(BuildContext context, double usdAmount) {
 }
 
 String tr(BuildContext context, {required String en, required String es}) {
-  final isEs = AppState.of(context).languageCode.value == 'es';
+  final isEs = AppState.of(context, listen: false).languageCode.value == 'es';
   // Final safety catch for branding normalize
   final out = isEs ? es : en;
   return out.replaceAll(RegExp(r'Nina Verde', caseSensitive: false), 'Niña Verde');

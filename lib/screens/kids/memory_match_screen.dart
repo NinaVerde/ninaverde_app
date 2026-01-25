@@ -109,6 +109,7 @@ class _MemoryMatchScreenState extends State<MemoryMatchScreen> {
 
     return Scaffold(
       appBar: NvAppBar(
+        tickerVisible: AppState.of(context).showTicker.value,
         title: tr(context, en: 'Memory Match', es: 'Memoria'),
         showBack: true,
         extraActions: [

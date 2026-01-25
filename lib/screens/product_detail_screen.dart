@@ -37,6 +37,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   bool _submittingReview = false;
   VideoPlayerController? _videoController;
   bool _videoReady = false;
+  
+  // Customization selections: groupId -> optionId(s)
+  final Map<String, dynamic> _selectedCustomizations = {};
 
   @override
   void initState() {
@@ -130,6 +133,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             final isFavorite = favorites.contains(widget.product.id);
             return Scaffold(
               appBar: NvAppBar(
+                tickerVisible: AppState.of(context).showTicker.value,
                 title: currentName, 
                 showBack: true,
                 extraActions: [
@@ -243,10 +247,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             const SizedBox(height: 16),
                           ],
                           Text(
-                            formatCurrency(context, widget.product.price),
+                            formatCurrency(context, _calculateTotalPrice()),
                             style: priceStyle,
                           ),
                           const SizedBox(height: 24),
+                          
+                          // CUSTOMIZATION OPTIONS
+                          if (widget.product.customizations.isNotEmpty) ...[
+                            _buildCustomizationSection(context, currentIsEs),
+                            const SizedBox(height: 24),
+                          ],
+                          
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -713,5 +724,132 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         ],
       ),
     ).animate().fadeIn(duration: 800.ms); // Whole container fades in
+  }
+  
+  Widget _buildCustomizationSection(BuildContext context, bool isEs) {
+    final theme = Theme.of(context);
+    final enabledGroups = widget.product.customizations.where((g) => g.enabled).toList();
+    
+    if (enabledGroups.isEmpty) return const SizedBox.shrink();
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          tr(context, en: 'Customize Your Order', es: 'Personaliza Tu Pedido'),
+          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
+        ...enabledGroups.map((group) => _buildCustomizationGroup(context, group, isEs)),
+      ],
+    );
+  }
+  
+  Widget _buildCustomizationGroup(BuildContext context, CustomizationGroup group, bool isEs) {
+    final theme = Theme.of(context);
+    final groupName = isEs ? group.nameEs : group.nameEn;
+    
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.tune, color: theme.colorScheme.primary, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  groupName,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ...group.options.map((option) {
+              final optionName = isEs ? option.nameEs : option.nameEn;
+              final priceText = option.price > 0 
+                  ? ' (+${formatCurrency(context, option.price)})'
+                  : '';
+              
+              if (group.multiSelect) {
+                // Checkboxes for multi-select (Toppings, Extras)
+                final selected = (_selectedCustomizations[group.id] as List<String>?) ?? [];
+                return CheckboxListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  title: Text('$optionName$priceText'),
+                  value: selected.contains(option.id),
+                  onChanged: (checked) {
+                    setState(() {
+                      if (!_selectedCustomizations.containsKey(group.id)) {
+                        _selectedCustomizations[group.id] = <String>[];
+                      }
+                      final list = _selectedCustomizations[group.id] as List<String>;
+                      if (checked == true) {
+                        list.add(option.id);
+                      } else {
+                        list.remove(option.id);
+                      }
+                    });
+                  },
+                );
+              } else {
+                // Radio buttons for single-select (Size, Flavor)
+                final selected = _selectedCustomizations[group.id] as String?;
+                return RadioListTile<String>(
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  title: Text('$optionName$priceText'),
+                  value: option.id,
+                  groupValue: selected,
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedCustomizations[group.id] = value;
+                    });
+                  },
+                );
+              }
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  double _calculateTotalPrice() {
+    double total = widget.product.price;
+    
+    // Add customization prices
+    for (final group in widget.product.customizations) {
+      if (!group.enabled) continue;
+      
+      final selection = _selectedCustomizations[group.id];
+      if (selection == null) continue;
+      
+      if (group.multiSelect && selection is List<String>) {
+        for (final optionId in selection) {
+          final option = group.options.firstWhere(
+            (o) => o.id == optionId,
+            orElse: () => CustomizationOption(id: '', nameEn: '', nameEs: '', price: 0),
+          );
+          total += option.price;
+        }
+      } else if (!group.multiSelect && selection is String) {
+        final option = group.options.firstWhere(
+          (o) => o.id == selection,
+          orElse: () => CustomizationOption(id: '', nameEn: '', nameEs: '', price: 0),
+        );
+        total += option.price;
+      }
+    }
+    
+    return total;
   }
 }

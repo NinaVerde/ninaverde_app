@@ -53,7 +53,7 @@ class AngelinaWidget extends StatelessWidget {
       case AngelinaPose.conciergeTablet:
         return 'assets/images/angelina/angelina_concierge_dog.jpg';
       case AngelinaPose.waitressMenu:
-        return 'assets/images/angelina/angelina_transparent_fix.png';
+        return 'assets/images/angelina/angelina_waitress_menu_transparent.png';
       case AngelinaPose.waitressFullBody:
         return 'assets/images/angelina/angelina_waitress_fullbody.jpg';
       case AngelinaPose.bartender:

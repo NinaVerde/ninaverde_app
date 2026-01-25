@@ -10,6 +10,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../state/app_state.dart';
 import '../widgets/nv_widgets.dart';
 import '../widgets/angelina_widget.dart';
+import '../widgets/sandwich_menu.dart';
 import '../theme/brand_colors.dart' as brand;
 import '../models/product_model.dart';
 import '../services/firestore_service.dart';
@@ -48,6 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String _searchQuery = '';
   String _selectedCategory = _allCategoryKey;
+  bool _isMenuOpen = false; // State for non-modal menu
 
 
   final GlobalKey _cartKey = GlobalKey();
@@ -66,6 +68,10 @@ class _HomeScreenState extends State<HomeScreen> {
     _commsPrefs.prefsStream().first.then((prefs) {
       _pushTokens.registerIfOptedIn(optInPush: prefs.optInPush);
     });
+  }
+
+  void _toggleMenu() {
+    setState(() => _isMenuOpen = !_isMenuOpen);
   }
 
 
@@ -148,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
     
     // Auto scroll down to products
     _mainScrollController.animateTo(
-      450,
+      550,
       duration: const Duration(milliseconds: 800),
       curve: Curves.easeInOutCubic,
     );
@@ -189,6 +195,13 @@ class _HomeScreenState extends State<HomeScreen> {
               canPop: false,
               onPopInvokedWithResult: (didPop, result) async {
                 if (didPop) return;
+                
+                // Handle Menu Back Navigation
+                if (_isMenuOpen) {
+                  setState(() => _isMenuOpen = false);
+                  return;
+                }
+
                 if (app.isManager.value) {
                   // Admin: Navigate to login screen but stay signed in
                   Navigator.pushReplacementNamed(context, '/login');
@@ -200,9 +213,9 @@ class _HomeScreenState extends State<HomeScreen> {
               },
               child: Scaffold(
                 appBar: NvAppBar(
-                  title: title, // unused if titleWidget provided
-                  titleWidget: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
-                  centerTitle: false, // "Hello Matthew" usually looks better left-aligned or center? Current was center (default). Let's stick to left for greeting or center? SliverAppBar default is left on Android, center on iOS. NvAppBar defaults to true. Let's keep true.
+                  tickerVisible: app.showTicker.value,
+                  title: title,
+                  centerWidget: SandwichMenuButton(onTap: _toggleMenu),
                   extraActions: [
                      if (app.isManager.value)
                         IconButton(
@@ -236,86 +249,122 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                   ],
                 ),
-                body: Stack(
+                body: Column(
                 children: [
 
-                  CustomScrollView(
-                    physics: const BouncingScrollPhysics(),
-                      controller: _mainScrollController, 
-                      slivers: [
-                        // Search Bar moved to SliverToBoxAdapter
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-                            child: TextField(
-                              onChanged: (value) =>
-                                  setState(() => _searchQuery = value),
-                              decoration: InputDecoration(
-                                hintText: searchHint,
-                                prefixIcon: const Icon(Icons.search),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(25.0),
-                                  borderSide: BorderSide.none,
+                  // Fixed Search Bar (Pinned)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+                    decoration: BoxDecoration(
+                      color: theme.scaffoldBackgroundColor, // Seamless blend
+                      boxShadow: [
+                         BoxShadow(
+                           color: Colors.black.withValues(alpha: 0.05),
+                           blurRadius: 4,
+                           offset: const Offset(0, 2),
+                         )
+                      ],
+                    ),
+                    child: TextField(
+                      onChanged: (value) =>
+                          setState(() => _searchQuery = value),
+                      decoration: InputDecoration(
+                        hintText: searchHint,
+                        prefixIcon: const Icon(Icons.search),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25.0),
+                          borderSide: BorderSide.none,
+                        ),
+                        filled: true,
+                        fillColor: searchFill,
+                      ),
+                    ),
+                  ),
+
+                  Expanded(
+                    child: Stack(
+                      children: [
+                        CustomScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          controller: _mainScrollController,
+                          slivers: [
+                            // --- ELITE HERO CAROUSEL ---
+                            SliverToBoxAdapter(
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 16, bottom: 24),
+                                child: HeroCategoryCarousel(
+                                  pageScrollController: _mainScrollController,
+                                  onCategorySelected: _onHeroCategorySelected,
+                                  currentCategory: _selectedCategory,
                                 ),
-                                filled: true,
-                                fillColor: searchFill,
                               ),
                             ),
-                          ),
-                        ),
-                        
-                        // --- ELITE HERO CAROUSEL ---
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 16, bottom: 24),
-                            child: HeroCategoryCarousel(
-                              pageScrollController: _mainScrollController,
-                              onCategorySelected: _onHeroCategorySelected,
-                              currentCategory: _selectedCategory,
-                            ),
-                          ),
-                        ),
-                        
-                        _buildPromoStrip(theme),
+                            
+                            _buildPromoStrip(theme),
 
-                         // Product List Header
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    _selectedCategory == _allCategoryKey 
-                                      ? tr(context, en: 'All Products', es: 'Todos los Productos')
-                                      : (isEs ? _selectedCategory : (HeroCategoryConfig.translations[_selectedCategory] ?? _selectedCategory)),
-                                    style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 2,
-                                  ),
+                             // Product List Header
+                            SliverToBoxAdapter(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        _selectedCategory == _allCategoryKey 
+                                          ? tr(context, en: 'All Products', es: 'Todos los Productos')
+                                          : (isEs ? _selectedCategory : (HeroCategoryConfig.translations[_selectedCategory] ?? _selectedCategory)),
+                                        style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 2,
+                                      ),
+                                    ),
+                                    if (_selectedCategory != _allCategoryKey)
+                                      TextButton(
+                                        onPressed: () {
+                                          setState(() => _selectedCategory = _allCategoryKey);
+                                          UserPrefsService.saveCategory(_allCategoryKey);
+                                        },
+                                        child: Text(tr(context, en: 'Clear Filter', es: 'Ver Todo')),
+                                      )
+                                  ],
                                 ),
-                                if (_selectedCategory != _allCategoryKey)
-                                  TextButton(
-                                    onPressed: () {
-                                      setState(() => _selectedCategory = _allCategoryKey);
-                                      UserPrefsService.saveCategory(_allCategoryKey);
-                                    },
-                                    child: Text(tr(context, en: 'Clear Filter', es: 'Ver Todo')),
-                                  )
-                              ],
+                              ),
                             ),
-                          ),
+
+                            _buildProductGrid(theme, favoriteIds.toSet()),
+                            const SliverToBoxAdapter(child: SizedBox(height: 100)),
+                          ],
+                        ),
+                        
+                        const Positioned(
+                          right: 16,
+                          bottom: 24,
+                          child: _HostessOverlay(),
                         ),
 
-                        _buildProductGrid(theme, favoriteIds.toSet()),
-                        const SliverToBoxAdapter(child: SizedBox(height: 100)),
+                        // SANDWICH MENU OVERLAY (Non-Modal)
+                        // Using Positioned without 'top' makes it fill? No, Positioned.fill fills.
+                        // We want it to start BELOW the parent stack?
+                        // Wait, the search bar is OUTSIDE this stack now (in the specific replacement).
+                        // So Positioned.fill here will fill the Expanded area (below search bar).
+                        // This effectively unblocks the search bar!
+                        if (_isMenuOpen)
+                          Positioned.fill(
+                            child: GestureDetector(
+                              onTap: _toggleMenu, // Tap outside to close
+                              child: Container(
+                                color: Colors.black54, // Dim background
+                                alignment: Alignment.bottomCenter,
+                                child: GestureDetector(
+                                  onTap: () {}, // Catch taps on the sheet itself
+                                  child: const SandwichMenuSheet(),
+                                ),
+                              ),
+                            ),
+                          ).animate().fadeIn(duration: 200.ms),
                       ],
-                  ),
-                  const Positioned(
-                    right: 16,
-                    bottom: 24,
-                    child: _HostessOverlay(),
+                    ),
                   ),
                 ],
               ),
@@ -389,73 +438,79 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
   Widget _buildProductGrid(ThemeData theme, Set<String> favoriteIds) {
-    return StreamBuilder<List<Product>>(
-      stream: _firestoreService.getProducts(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return _buildProductGridShimmer(theme);
-        }
-        if (snapshot.hasError) {
-          return SliverToBoxAdapter(
-            child: Center(
-              child: Text(
-                tr(
-                  context,
-                  en: 'Unable to load products.',
-                  es: 'No se pudieron cargar los productos.',
-                ),
-              ),
-            ),
-          );
-        }
-        if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return SliverToBoxAdapter(
-            child: Center(
-              child: Text(
-                tr(
-                  context,
-                  en: 'No products found.',
-                  es: 'No se encontraron productos.',
-                ),
-              ),
-            ),
-          );
-        }
-
-        var allProducts = snapshot.data!;
-        for (var p in allProducts) {
-          _productKeys.putIfAbsent(p.id, () => GlobalKey());
-        }
-
-        // Apply search filter
-        final searchFiltered = _searchQuery.isEmpty
-            ? allProducts
-            : allProducts.where((p) =>
-                p.name.toLowerCase().contains(_searchQuery.toLowerCase())
-              ).toList();
-
-        if (searchFiltered.isEmpty) {
-          return SliverToBoxAdapter(
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(32.0),
-                child: Text(
-                  tr(
-                    context,
-                    en: 'No products match your search.',
-                    es: 'No hay productos para tu busqueda.',
+    final app = AppState.of(context);
+    return ValueListenableBuilder<String>(
+      valueListenable: app.languageCode,
+      builder: (context, lang, _) {
+        return StreamBuilder<List<Product>>(
+          stream: _firestoreService.getProducts(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return _buildProductGridShimmer(theme);
+            }
+            if (snapshot.hasError) {
+              return SliverToBoxAdapter(
+                child: Center(
+                  child: Text(
+                    tr(
+                      context,
+                      en: 'Unable to load products.',
+                      es: 'No se pudieron cargar los productos.',
+                    ),
                   ),
                 ),
-              ),
-            ),
-          );
-        }
+              );
+            }
+            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return SliverToBoxAdapter(
+                child: Center(
+                  child: Text(
+                    tr(
+                      context,
+                      en: 'No products found.',
+                      es: 'No se encontraron productos.',
+                    ),
+                  ),
+                ),
+              );
+            }
 
-        // CATEGORY-GROUPED DISPLAY LOGIC
-        return _buildCategoryGroupedProducts(
-          theme,
-          searchFiltered,
-          favoriteIds,
+            var allProducts = snapshot.data!;
+            for (var p in allProducts) {
+              _productKeys.putIfAbsent(p.id, () => GlobalKey());
+            }
+
+            // Apply search filter
+            final searchFiltered = _searchQuery.isEmpty
+                ? allProducts
+                : allProducts.where((p) =>
+                    p.name.toLowerCase().contains(_searchQuery.toLowerCase())
+                  ).toList();
+
+            if (searchFiltered.isEmpty) {
+              return SliverToBoxAdapter(
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: Text(
+                      tr(
+                        context,
+                        en: 'No products match your search.',
+                        es: 'No hay productos para tu busqueda.',
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            // CATEGORY-GROUPED DISPLAY LOGIC
+            return _buildCategoryGroupedProducts(
+              theme,
+              searchFiltered,
+              favoriteIds,
+            );
+          },
         );
       },
     );
@@ -471,13 +526,19 @@ class _HomeScreenState extends State<HomeScreen> {
     // If a category is selected, we move it to the top.
     // If "All" is selected, we keep the default carousel order.
     List<String> displayOrder;
+    // Get dynamic order from AppState
+    final app = AppState.of(context);
+    final currentOrder = app.categoryOrder.value.isNotEmpty 
+        ? app.categoryOrder.value 
+        : HeroCategoryConfig.order;
+
     if (_selectedCategory == _allCategoryKey) {
-      displayOrder = HeroCategoryConfig.order;
+      displayOrder = currentOrder;
     } else {
       // Move selected to front, keep others in order
       displayOrder = [
         _selectedCategory,
-        ...HeroCategoryConfig.order.where((c) => c != _selectedCategory),
+        ...currentOrder.where((c) => c != _selectedCategory),
       ];
     }
 
@@ -662,8 +723,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final scheme = Theme.of(context).colorScheme;
     final shareLabel = tr(context, en: 'Share', es: 'Compartir');
+    // Force rebuild when language changes by using a key that includes the language code
+    final langCode = AppState.of(context).languageCode.value;
+    
     return Card(
-      key: productKey,
+      key: ValueKey('${product.id}_$langCode'),
       clipBehavior: Clip.antiAlias,
       color: scheme.surfaceContainerHighest,
       child: InkWell(
@@ -766,20 +830,11 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Builder(
-                    builder: (context) {
-                      final isEs = AppState.of(context).languageCode.value == 'es';
-                      final displayName = (isEs && product.nameEs.isNotEmpty) 
-                          ? product.nameEs 
-                          : product.name;
-                      
-                      return Text(
-                        displayName,
-                        style: theme.textTheme.titleMedium,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      );
-                    }
+                  TranslatedText(
+                    product.name, // Always pass source name (usually English/DB default)
+                    style: theme.textTheme.titleMedium,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   if (product.ratingCount > 0)
                     Padding(

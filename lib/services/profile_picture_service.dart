@@ -10,14 +10,15 @@ class ProfilePictureService {
 
   /// Upload profile picture to Firebase Storage
   /// Returns download URL
-  Future<String> uploadProfilePicture(File imageFile) async {
+  Future<String> uploadProfilePicture(File imageFile, {String hostId = 'angelina'}) async {
     final user = _auth.currentUser;
     if (user == null) throw Exception('No user logged in');
 
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final extension = path.extension(imageFile.path);
     final filename = '$timestamp$extension';
-    final ref = _storage.ref('angelina_profile_pics/${user.uid}/$filename');
+    final folder = hostId == 'john' ? 'john_profile_pics' : 'angelina_profile_pics';
+    final ref = _storage.ref('$folder/${user.uid}/$filename');
 
     final uploadTask = ref.putFile(imageFile);
     final snapshot = await uploadTask;
@@ -38,12 +39,13 @@ class ProfilePictureService {
   }
 
   /// Fetch all profile pictures for current user
-  Future<List<String>> fetchUserProfilePictures() async {
+  Future<List<String>> fetchUserProfilePictures({String hostId = 'angelina'}) async {
     final user = _auth.currentUser;
     if (user == null) return [];
 
     try {
-      final ref = _storage.ref('angelina_profile_pics/${user.uid}');
+      final folder = hostId == 'john' ? 'john_profile_pics' : 'angelina_profile_pics';
+      final ref = _storage.ref('$folder/${user.uid}');
       final result = await ref.listAll();
       
       final urls = <String>[];

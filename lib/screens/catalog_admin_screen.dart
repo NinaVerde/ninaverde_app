@@ -68,7 +68,7 @@ class _CatalogAdminScreenState extends State<CatalogAdminScreen>
         final admin = _isAdmin(snapshot.data?.data());
         if (!admin) {
           return Scaffold(
-            appBar: NvAppBar(title: title, showBack: true),
+            appBar: NvAppBar(tickerVisible: AppState.of(context).showTicker.value, title: title, showBack: true),
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(24),
@@ -89,6 +89,7 @@ class _CatalogAdminScreenState extends State<CatalogAdminScreen>
 
         return Scaffold(
           appBar: NvAppBar(
+            tickerVisible: AppState.of(context).showTicker.value,
             title: title,
             showBack: true,
           ),
@@ -155,61 +156,77 @@ class _ProductsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-      stream: FirebaseFirestore.instance.collection('products').snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        final docs = snapshot.data?.docs ?? [];
-        if (docs.isEmpty) {
-          return Center(
-            child: Text(
-              tr(context, en: 'No products yet.', es: 'Sin productos.'),
-            ),
-          );
-        }
-        final products =
-            docs.map((doc) => Product.fromFirestore(doc)).toList();
-        return ListView.separated(
-          padding: const EdgeInsets.all(16),
-          itemCount: products.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 8),
-          itemBuilder: (context, index) {
-            final product = products[index];
-            return Card(
-              child: ListTile(
-                leading: product.imageUrl.isNotEmpty
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          product.imageUrl,
-                          width: 52,
-                          height: 52,
-                          fit: BoxFit.cover,
+    return ValueListenableBuilder<String>(
+      valueListenable: AppState.of(context).languageCode,
+      builder: (context, lang, _) {
+        return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+          stream: FirebaseFirestore.instance.collection('products').snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final docs = snapshot.data?.docs ?? [];
+            if (docs.isEmpty) {
+              return Center(
+                child: Text(
+                  tr(context, en: 'No products yet.', es: 'Sin productos.'),
+                ),
+              );
+            }
+            final products = docs.map((doc) => Product.fromFirestore(doc)).toList();
+            return ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: products.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              itemBuilder: (context, index) {
+                final product = products[index];
+                final isEs = AppState.of(context).languageCode.value == 'es';
+
+                // Localized Display Name
+                final displayName = (isEs && product.nameEs.isNotEmpty) ? product.nameEs : product.name;
+
+                // Subtitle with Category (localized) + Price
+                final displayCategory = isEs
+                    ? product.categoryEs.isNotEmpty ? product.categoryEs : product.category
+                    : product.categoryEn.isNotEmpty ? product.categoryEn : product.category;
+
+                return Card(
+                  child: ListTile(
+                    leading: product.imageUrl.isNotEmpty
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              product.imageUrl,
+                              width: 52,
+                              height: 52,
+                              fit: BoxFit.cover,
+                              errorBuilder: (ctx, err, stack) =>
+                                  const Icon(Icons.broken_image, size: 40, color: Colors.grey),
+                            ),
+                          )
+                        : const Icon(Icons.image_not_supported_outlined),
+                    title: Text(displayName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Text(
+                      '$displayCategory • \$${product.price.toStringAsFixed(2)}',
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          tooltip: tr(context, en: 'Edit', es: 'Editar'),
+                          onPressed: () => openEditor(product: product),
+                          icon: const Icon(Icons.edit),
                         ),
-                      )
-                    : const Icon(Icons.image_not_supported_outlined),
-                title: Text(product.name),
-                subtitle: Text(
-                  '${product.category} • ${product.price.toStringAsFixed(2)}',
-                ),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      tooltip: tr(context, en: 'Edit', es: 'Editar'),
-                      onPressed: () => openEditor(product: product),
-                      icon: const Icon(Icons.edit),
+                        IconButton(
+                          tooltip: tr(context, en: 'Delete', es: 'Eliminar'),
+                          onPressed: () => deleteProduct(product),
+                          icon: const Icon(Icons.delete_outline),
+                        ),
+                      ],
                     ),
-                    IconButton(
-                      tooltip: tr(context, en: 'Delete', es: 'Eliminar'),
-                      onPressed: () => deleteProduct(product),
-                      icon: const Icon(Icons.delete_outline),
-                    ),
-                  ],
-                ),
-              ),
+                  ),
+                );
+              },
             );
           },
         );

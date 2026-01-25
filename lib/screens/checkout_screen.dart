@@ -84,51 +84,65 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     final app = AppState.of(context);
-    final isEs = app.languageCode.value == 'es';
-    // Helper tr
-    String t(String en, String es) => isEs ? es : en;
+    return AnimatedBuilder(
+      animation: Listenable.merge([app.languageCode, app.currencyCode, app.currencyConfigs]),
+      builder: (_, __) {
+        final isEs = app.languageCode.value == 'es';
+        // Check if currency changed to force recalculate items if needed, 
+        // strictly speaking _recalculate() uses current state so a rebuild triggers calls that might use it?
+        // Actually _recalculate is async and set on init. 
+        // If currency changes, we might want to re-run totals? 
+        // CheckoutService.calculateTotals uses values from Cart which are likely static numbers, 
+        // but the display values (formatCurrency) use the generic formatter.
+        // So simple rebuild is enough for display.
+        
+        // Helper tr
+        String t(String en, String es) => isEs ? es : en;
 
-    return Scaffold(
-      appBar: NvAppBar(
-        title: t('Checkout', 'Finalizar Pedido'),
-        showBack: true,
-      ),
-      body: Stepper(
-        type: StepperType.horizontal,
-        currentStep: _currentStep,
-        onStepContinue: _nextStep,
-        onStepCancel: _prevStep,
-        controlsBuilder: (ctx, details) {
-          // Custom controls at bottom
-          return const SizedBox.shrink(); 
-        },
-        steps: [
-          Step(
-            title: Text(t('Mode', 'Modo')),
-            content: _buildModeStep(t),
-            isActive: _currentStep >= 0,
-            state: _currentStep > 0 ? StepState.complete : StepState.editing,
+        return Scaffold(
+          appBar: NvAppBar(
+            tickerVisible: AppState.of(context).showTicker.value,
+            title: t('Checkout', 'Finalizar Pedido'),
+            showBack: true,
           ),
-          Step(
-            title: Text(t('Review', 'Revisar')),
-            content: _buildReviewStep(t),
-            isActive: _currentStep >= 1,
-            state: _currentStep > 1 ? StepState.complete : StepState.editing,
+          body: Stepper(
+            type: StepperType.horizontal,
+            currentStep: _currentStep,
+            onStepContinue: _nextStep,
+            onStepCancel: _prevStep,
+            controlsBuilder: (ctx, details) {
+              // Custom controls at bottom
+              return const SizedBox.shrink(); 
+            },
+            steps: [
+              Step(
+                title: Text(t('Mode', 'Modo')),
+                content: _buildModeStep(t),
+                isActive: _currentStep >= 0,
+                state: _currentStep > 0 ? StepState.complete : StepState.editing,
+              ),
+              Step(
+                title: Text(t('Review', 'Revisar')),
+                content: _buildReviewStep(t),
+                isActive: _currentStep >= 1,
+                state: _currentStep > 1 ? StepState.complete : StepState.editing,
+              ),
+              Step(
+                title: Text(t('Pay', 'Pagar')),
+                content: _buildPaymentStep(t),
+                isActive: _currentStep >= 2,
+                state: _currentStep > 2 ? StepState.complete : StepState.editing,
+              ),
+            ],
           ),
-          Step(
-            title: Text(t('Pay', 'Pagar')),
-            content: _buildPaymentStep(t),
-            isActive: _currentStep >= 2,
-            state: _currentStep > 2 ? StepState.complete : StepState.editing,
+          bottomNavigationBar: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: _buildBottomBar(t),
+            ),
           ),
-        ],
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: _buildBottomBar(t),
-        ),
-      ),
+        );
+      },
     );
   }
 

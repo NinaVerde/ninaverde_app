@@ -186,7 +186,7 @@ class _LeadsAdminScreenState extends State<LeadsAdminScreen> {
         final admin = _isAdmin(snapshot.data?.data());
         if (!admin) {
           return Scaffold(
-            appBar: NvAppBar(title: title, showBack: true),
+            appBar: NvAppBar(tickerVisible: AppState.of(context).showTicker.value, title: title, showBack: true),
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(24),
@@ -206,7 +206,7 @@ class _LeadsAdminScreenState extends State<LeadsAdminScreen> {
         }
 
         return Scaffold(
-          appBar: NvAppBar(title: title, showBack: true),
+          appBar: NvAppBar(tickerVisible: AppState.of(context).showTicker.value, title: title, showBack: true),
           body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
             stream: _db.collection('leads').snapshots(),
             builder: (context, snap) {

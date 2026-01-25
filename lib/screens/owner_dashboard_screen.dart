@@ -14,6 +14,7 @@ import '../widgets/nv_widgets.dart';
 import '../widgets/johns_insights_widget.dart';
 import 'kitchen_display_screen.dart';
 import 'driver_dashboard_screen.dart';
+import 'accounting_dashboard_screen.dart';
 
 class OwnerDashboardScreen extends StatefulWidget {
   const OwnerDashboardScreen({super.key});
@@ -131,6 +132,15 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
       subtitleEs: 'Flujo de pedidos, pantalla de cocina y gestión de entregas.',
       icon: Icons.restaurant_menu,
       color: Color(0xFFD84315),
+    ),
+    _DashboardModule(
+      id: 'accounting',
+      titleEn: 'Accounting',
+      titleEs: 'Contabilidad',
+      subtitleEn: 'P&L, expenses, and staff costs.',
+      subtitleEs: 'P&L, gastos y costos de personal.',
+      icon: Icons.account_balance_wallet,
+      color: Color(0xFFD4AF37), // Gold
     ),
   ];
 
@@ -276,6 +286,14 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
         context,
         MaterialPageRoute(builder: (context) => const _KitchenOpsPage()),
       );
+    } else if (module.id == 'accounting') {
+       Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const AccountingDashboardScreen()),
+      );
+    } else if (module.id == 'staff') {
+       // Navigate to Schedule Admin
+       Navigator.pushNamed(context, '/schedule-admin');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(isEs ? 'Módulo en desarrollo' : 'Module under development')),
@@ -298,6 +316,7 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
 
         return Scaffold(
           appBar: NvAppBar(
+            tickerVisible: app.showTicker.value,
             title: title,
             showBack: true,
             extraActions: [
@@ -848,6 +867,14 @@ class _AdminLinks extends StatelessWidget {
           },
         ),
         _LinkTile(
+          title: isEs ? 'Categorias Hero' : 'Hero Categories',
+          subtitle: isEs
+              ? 'Orden, efectos y contenido visual.'
+              : 'Order, effects, and visual assets.',
+          icon: Icons.view_carousel,
+          onTap: () => Navigator.pushNamed(context, '/carousel-settings'),
+        ),
+        _LinkTile(
           title: isEs ? 'Angelina AI' : 'Angelina AI',
           subtitle: isEs
               ? 'Control de voz, conocimiento y apariencia.'
@@ -856,12 +883,38 @@ class _AdminLinks extends StatelessWidget {
           onTap: () => Navigator.pushNamed(context, '/angelina-admin'),
         ),
         _LinkTile(
-          title: isEs ? 'Idiomas y monedas' : 'Languages & Currencies',
+          title: isEs ? 'John AI' : 'John AI',
           subtitle: isEs
-              ? 'Actualiza conversiones y preferencias globales.'
-              : 'Update conversions and global preferences.',
-          icon: Icons.translate,
-          onTap: () => Navigator.pushNamed(context, '/app-settings/localization'),
+              ? 'Anfitrión alternativo y configuraciones.'
+              : 'Alternative host and settings.',
+          icon: Icons.face_retouching_natural,
+          onTap: () => Navigator.pushNamed(context, '/john-admin'),
+        ),
+
+
+        _LinkTile(
+          title: isEs ? 'Idiomas' : 'Languages',
+          subtitle: isEs
+              ? 'Gestiona idiomas disponibles y traducciones.'
+              : 'Manage available languages and translations.',
+          icon: Icons.language,
+          onTap: () => Navigator.pushNamed(context, '/language-settings'),
+        ),
+        _LinkTile(
+          title: isEs ? 'Monedas' : 'Currencies',
+          subtitle: isEs
+              ? 'Gestiona monedas y tasas de cambio.'
+              : 'Manage currencies and exchange rates.',
+          icon: Icons.attach_money,
+          onTap: () => Navigator.pushNamed(context, '/currency-settings'),
+        ),
+        _LinkTile(
+          title: isEs ? 'Gestor de Temas' : 'Theme Manager',
+          subtitle: isEs
+              ? 'Personaliza colores y apariencia.'
+              : 'Customize colors and appearance.',
+          icon: Icons.palette,
+          onTap: () => Navigator.pushNamed(context, '/theme-settings'),
         ),
         _LinkTile(
           title: isEs ? 'Catalogo' : 'Catalog',
@@ -918,7 +971,7 @@ class _AdminLinks extends StatelessWidget {
               ? 'Moderacion y aprobaciones.'
               : 'Moderation and approvals.',
           icon: Icons.rate_review,
-          onTap: () => Navigator.pushNamed(context, '/app-settings/reviews'),
+          onTap: () => Navigator.pushNamed(context, '/reviews-admin'),
         ),
         _LinkTile(
           title: isEs ? 'Favoritos' : 'Favorites',
@@ -942,7 +995,7 @@ class _AdminLinks extends StatelessWidget {
               ? 'Configura el logo y el video de bienvenida.'
               : 'Configure login logo and welcome video.',
           icon: Icons.play_circle_outline,
-          onTap: () => Navigator.pushNamed(context, '/app-settings/intro'),
+          onTap: () => Navigator.pushNamed(context, '/login-video-settings'),
         ),
       ],
     );
@@ -1008,6 +1061,7 @@ class _GamingManagementPage extends StatelessWidget {
     
     return Scaffold(
       appBar: NvAppBar(
+        tickerVisible: AppState.of(context).showTicker.value,
         title: isEs ? 'Gestión de Juegos' : 'Gaming Management',
         showBack: true,
       ),

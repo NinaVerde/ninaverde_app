@@ -45,7 +45,7 @@ class _CommsSettingsAdminScreenState extends State<CommsSettingsAdminScreen> {
         final admin = _isAdmin(userSnap.data?.data());
         if (!admin) {
           return Scaffold(
-            appBar: NvAppBar(title: title, showBack: true),
+            appBar: NvAppBar(tickerVisible: AppState.of(context).showTicker.value, title: title, showBack: true),
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(24),
@@ -76,7 +76,7 @@ class _CommsSettingsAdminScreenState extends State<CommsSettingsAdminScreen> {
             bool defaultPush = (data['defaultOptInPush'] as bool?) ?? false;
 
             return Scaffold(
-              appBar: NvAppBar(title: title, showBack: true),
+              appBar: NvAppBar(tickerVisible: AppState.of(context).showTicker.value, title: title, showBack: true),
               body: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [

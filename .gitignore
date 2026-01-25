@@ -18,20 +18,36 @@ migrate_working_dir/
 *.iws
 .idea/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
-
 # Flutter/Dart/Pub related
 **/doc/api/
 **/ios/Flutter/.last_build_id
 .dart_tool/
-.flutter-plugins
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
 /build/
+/coverage/
+
+# Android
+**/android/.gradle
+**/android/local.properties
+**/android/build
+**/android/captures
+
+# iOS
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Pods
+**/ios/.symlinks
+
+# Temp / Logs
+fresh_inspect/
+midnight_inspect/
+old_inspect/
+temp_full_restore/
+temp_repair/
+*_log.txt
+restore_zip.ps1
 
 # Symbolication related
 app.*.symbols
@@ -43,24 +59,3 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
-.packages
-
-# Local backup artifacts
-*.bak
-*.bak_*
-*.bak-*
-*.kts.bak_*
-*.dart.bak*
-
-# FVM Version Cache
-.fvm/
-
-# Firebase secrets/configs (keep local)
-/ios/Runner/GoogleService-Info.plist
-/macos/Runner/GoogleService-Info.plist
-
-
-# Ensure Firebase Android config is tracked
-!android/app/google-services.json
-# Functions env
-functions/.env

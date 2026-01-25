@@ -18,6 +18,7 @@ class _IntroSettingsScreenState extends State<IntroSettingsScreen> {
   int _step = 0;
   bool _micGranted = false;
   bool _notifGranted = false;
+  bool _locGranted = false;
 
   @override
   void initState() {
@@ -28,9 +29,11 @@ class _IntroSettingsScreenState extends State<IntroSettingsScreen> {
   Future<void> _checkPermissions() async {
     final mic = await Permission.microphone.status;
     final notif = await Permission.notification.status;
+    final loc = await Permission.location.status;
     setState(() {
       _micGranted = mic.isGranted;
       _notifGranted = notif.isGranted;
+      _locGranted = loc.isGranted;
     });
   }
 
@@ -42,6 +45,11 @@ class _IntroSettingsScreenState extends State<IntroSettingsScreen> {
   Future<void> _requestNotif() async {
     final status = await Permission.notification.request();
     setState(() => _notifGranted = status.isGranted);
+  }
+
+  Future<void> _requestLoc() async {
+    final status = await Permission.location.request();
+    setState(() => _locGranted = status.isGranted);
   }
 
   void _next() {
@@ -57,89 +65,95 @@ class _IntroSettingsScreenState extends State<IntroSettingsScreen> {
   Widget build(BuildContext context) {
     final app = AppState.of(context);
     final theme = Theme.of(context);
-    final isEs = app.languageCode.value == 'es';
+    return ValueListenableBuilder<String>(
+      valueListenable: app.languageCode,
+      builder: (_, langCode, __) {
+        // Update isEs based on the listened value
+        final isEs = langCode == 'es';
 
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: SafeArea(
-        child: OrientationBuilder(
-          builder: (context, orientation) {
-            final isLandscape = orientation == Orientation.landscape;
+        return Scaffold(
+          backgroundColor: theme.scaffoldBackgroundColor,
+          body: SafeArea(
+            child: OrientationBuilder(
+              builder: (context, orientation) {
+                final isLandscape = orientation == Orientation.landscape;
 
-            if (isLandscape) {
-              // LANDSCAPE LAYOUT: Row (Side-by-Side)
-              return Row(
-                children: [
-                  // Left Side: Angelina
-                  Expanded(
-                    flex: 4, // 40% width
-                    child: Center(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                             // No 130px margin in landscape
-                            SizedBox(
-                              height: 280,
-                              child: AngelinaWidget(
-                                pose: _getAngelinaPose(),
-                                speech: _getSpeech(isEs),
-                                height: 280,
-                              ),
+                if (isLandscape) {
+                  // LANDSCAPE LAYOUT: Row (Side-by-Side)
+                  return Row(
+                    children: [
+                      // Left Side: Angelina
+                      Expanded(
+                        flex: 4, // 40% width
+                        child: Center(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                 // No 130px margin in landscape
+                                SizedBox(
+                                  height: 280,
+                                  child: AngelinaWidget(
+                                    pose: _getAngelinaPose(),
+                                    speech: _getSpeech(isEs),
+                                    height: 280,
+                                  ),
+                                ),
+                              ],
                             ),
+                          ),
+                        ),
+                      ),
+                      // Right Side: Content PageView
+                      Expanded(
+                        flex: 6, // 60% width
+                        child: PageView(
+                          physics: const NeverScrollableScrollPhysics(),
+                          children: [
+                            if (_step == 0) _buildLanguageStep(app, isEs, theme, isLandscape: true),
+                            if (_step == 1) _buildThemeModeStep(app, isEs, theme, isLandscape: true),
+                            if (_step == 2) _buildCurrencyStep(app, isEs, theme, isLandscape: true),
+                            if (_step == 3) _buildPermissionsStep(isEs, theme, isLandscape: true),
+                            if (_step == 4) _buildCompletionStep(isEs, theme, isLandscape: true),
                           ],
                         ),
                       ),
-                    ),
-                  ),
-                  // Right Side: Content PageView
-                  Expanded(
-                    flex: 6, // 60% width
-                    child: PageView(
-                      physics: const NeverScrollableScrollPhysics(),
-                      children: [
-                        if (_step == 0) _buildLanguageStep(app, isEs, theme, isLandscape: true),
-                        if (_step == 1) _buildThemeModeStep(app, isEs, theme, isLandscape: true),
-                        if (_step == 2) _buildCurrencyStep(app, isEs, theme, isLandscape: true),
-                        if (_step == 3) _buildPermissionsStep(isEs, theme, isLandscape: true),
-                        if (_step == 4) _buildCompletionStep(isEs, theme, isLandscape: true),
-                      ],
-                    ),
-                  ),
-                ],
-              );
-            } else {
-              // PORTRAIT LAYOUT: Column (Stacked)
-              return Column(
-                children: [
-                  const SizedBox(height: 130), // User requested top margin
-                  SizedBox(
-                    height: 280,
-                    child: AngelinaWidget(
-                      pose: _getAngelinaPose(),
-                      speech: _getSpeech(isEs),
-                      height: 280,
-                    ),
-                  ),
-                  // Use Expanded to safely fill remaining space (prevents negative height crash)
-                  Expanded(
-                    child: PageView(
-                      physics: const NeverScrollableScrollPhysics(),
-                      children: [
-                        if (_step == 0) _buildLanguageStep(app, isEs, theme),
-                        if (_step == 1) _buildThemeModeStep(app, isEs, theme),
-                        if (_step == 2) _buildCurrencyStep(app, isEs, theme),
-                        if (_step == 3) _buildPermissionsStep(isEs, theme),
-                        if (_step == 4) _buildCompletionStep(isEs, theme),
-                      ],
-                    ),
-                  ),
-                ],
-              );
-            }
-          },
-        ),
-      ),
+                    ],
+                  );
+                } else {
+                  // PORTRAIT LAYOUT: Column (Stacked)
+                  return Column(
+                    children: [
+                      const SizedBox(height: 130), // User requested top margin
+                      SizedBox(
+                        height: 280,
+                        child: AngelinaWidget(
+                          pose: _getAngelinaPose(),
+                          speech: _getSpeech(isEs),
+                          height: 280,
+                        ),
+                      ),
+                      // Use Expanded to safely fill remaining space (prevents negative height crash)
+                      Expanded(
+                        child: PageView(
+                          physics: const NeverScrollableScrollPhysics(),
+                          children: [
+                            if (_step == 0) _buildLanguageStep(app, isEs, theme),
+                            if (_step == 1) _buildThemeModeStep(app, isEs, theme),
+                            if (_step == 2) _buildCurrencyStep(app, isEs, theme),
+                            if (_step == 3) _buildPermissionsStep(isEs, theme),
+                            if (_step == 4) _buildCompletionStep(isEs, theme),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                }
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -188,41 +202,54 @@ class _IntroSettingsScreenState extends State<IntroSettingsScreen> {
   }
 
   Widget _buildLanguageStep(AppState app, bool isEs, ThemeData theme, {bool isLandscape = false}) {
+    // Dynamically load all configured languages
+    var languages = List<String>.from(app.languageOptions.value);
+    final labels = app.languageLabels.value;
+    
+    // Sort so 'en' is first (left), 'es' is second (right), matching the image
+    languages.sort((a, b) {
+      if (a == 'en') return -1;
+      if (b == 'en') return 1;
+      return 0;
+    });
+    
     return Padding(
       padding: EdgeInsets.all(isLandscape ? 16 : 32),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center, // Center vertically
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (!isLandscape) const SizedBox(height: 20), // Narrow gap to Angelina
+          if (!isLandscape) const SizedBox(height: 20),
           Text(
             isEs ? 'Selecciona tu idioma' : 'Select your language',
             style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: isLandscape ? 16 : 60), // Push features down
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(
-                child: _LanguageCard(
-                  label: 'English',
-                  flag: '🇨🇦',
-                  selected: app.languageCode.value == 'en',
-                  onSelect: () => _updateLang(app, 'en'),
-                ),
+          SizedBox(height: isLandscape ? 16 : 40),
+          // Dynamic grid of language options
+          Expanded(
+            child: GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: isLandscape ? 3 : 2,
+                childAspectRatio: 0.85,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _LanguageCard(
-                  label: 'Español',
-                  flag: '🇳🇮',
-                  selected: app.languageCode.value == 'es',
-                  onSelect: () => _updateLang(app, 'es'),
-                ),
-              ),
-            ],
+              itemCount: languages.length,
+              itemBuilder: (context, index) {
+                final code = languages[index];
+                final label = labels[code] ?? code.toUpperCase();
+                // Get flag from a map or use default
+                final flag = _getLanguageFlag(code);
+                
+                return _LanguageCard(
+                  label: label,
+                  flag: flag,
+                  selected: app.languageCode.value == code,
+                  onSelect: () => _updateLang(app, code),
+                );
+              },
+            ),
           ),
-          if (!isLandscape) const Spacer(),
-          if (isLandscape) const SizedBox(height: 24),
+          const SizedBox(height: 16),
           ElevatedButton(
             onPressed: _next,
             style: ElevatedButton.styleFrom(
@@ -232,10 +259,29 @@ class _IntroSettingsScreenState extends State<IntroSettingsScreen> {
             ),
             child: Text(isEs ? 'Continuar' : 'Continue'),
           ),
-          const SizedBox(height: 20), // Bottom padding
+          const SizedBox(height: 20),
         ],
       ).animate().fadeIn().slideY(begin: 0.1, end: 0),
     );
+  }
+
+  String _getLanguageFlag(String code) {
+    // Map of language codes to flags
+    const flags = {
+      'en': '🇨🇦',
+      'es': '🇳🇮',
+      'fr': '🇫🇷',
+      'de': '🇩🇪',
+      'it': '🇮🇹',
+      'pt': '🇵🇹',
+      'ja': '🇯🇵',
+      'zh': '🇨🇳',
+      'ko': '🇰🇷',
+      'ar': '🇸🇦',
+      'ru': '🇷🇺',
+      'hi': '🇮🇳',
+    };
+    return flags[code] ?? '🌐';
   }
 
   Widget _buildThemeModeStep(AppState app, bool isEs, ThemeData theme, {bool isLandscape = false}) {
@@ -290,6 +336,10 @@ class _IntroSettingsScreenState extends State<IntroSettingsScreen> {
   }
 
   Widget _buildCurrencyStep(AppState app, bool isEs, ThemeData theme, {bool isLandscape = false}) {
+    // Dynamically load all configured currencies
+    final currencies = app.currencyOptions.value;
+    final configs = app.currencyConfigs.value;
+    
     return Padding(
       padding: EdgeInsets.all(isLandscape ? 16 : 32),
       child: Column(
@@ -300,31 +350,32 @@ class _IntroSettingsScreenState extends State<IntroSettingsScreen> {
             isEs ? 'Selecciona tu moneda' : 'Select your currency',
             style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: isLandscape ? 16 : 60),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(
-                child: _CurrencyCard(
-                  label: 'USD',
-                  symbol: '\$',
-                  selected: app.currencyCode.value == 'USD',
-                  onSelect: () => _updateCurr(app, 'USD'),
-                ),
+          SizedBox(height: isLandscape ? 16 : 40),
+          // Dynamic grid of currency options
+          Expanded(
+            child: GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: isLandscape ? 3 : 2,
+                childAspectRatio: 0.85,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _CurrencyCard(
-                  label: 'NIO',
-                  symbol: 'C\$',
-                  selected: app.currencyCode.value == 'NIO',
-                  onSelect: () => _updateCurr(app, 'NIO'),
-                ),
-              ),
-            ],
+              itemCount: currencies.length,
+              itemBuilder: (context, index) {
+                final code = currencies[index];
+                final config = configs[code];
+                final symbol = config?.symbol ?? code;
+                
+                return _CurrencyCard(
+                  label: code,
+                  symbol: symbol,
+                  selected: app.currencyCode.value == code,
+                  onSelect: () => _updateCurr(app, code),
+                );
+              },
+            ),
           ),
-          if (!isLandscape) const Spacer(),
-          if (isLandscape) const SizedBox(height: 24),
+          const SizedBox(height: 16),
           ElevatedButton(
             onPressed: _next,
             style: ElevatedButton.styleFrom(
@@ -334,7 +385,7 @@ class _IntroSettingsScreenState extends State<IntroSettingsScreen> {
             ),
             child: Text(isEs ? 'Continuar' : 'Continue'),
           ),
-          const SizedBox(height: 20), // Bottom padding
+          const SizedBox(height: 20),
         ],
       ).animate().fadeIn().slideX(begin: -0.1, end: 0),
     );
@@ -364,6 +415,13 @@ class _IntroSettingsScreenState extends State<IntroSettingsScreen> {
             icon: Icons.notifications,
             granted: _notifGranted,
             onPressed: _requestNotif,
+          ),
+          const SizedBox(height: 16),
+          _PermissionCard(
+            label: isEs ? 'Ubicación' : 'Location',
+            icon: Icons.location_on,
+            granted: _locGranted,
+            onPressed: _requestLoc,
           ),
           if (!isLandscape) const Spacer(),
           if (isLandscape) const SizedBox(height: 24),
@@ -456,7 +514,7 @@ class _LanguageCard extends StatelessWidget {
     return GestureDetector(
       onTap: onSelect,
       child: Container(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: selected ? nvGreen.withValues(alpha: 0.1) : null,
           borderRadius: BorderRadius.circular(16),
@@ -467,7 +525,7 @@ class _LanguageCard extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Text(flag, style: const TextStyle(fontSize: 48)),
+            Text(flag, style: const TextStyle(fontSize: 40)),
             const SizedBox(height: 12),
             Text(
               label,
@@ -506,7 +564,7 @@ class _ThemeModeCard extends StatelessWidget {
     return GestureDetector(
       onTap: onSelect,
       child: Container(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: selected ? nvGreen.withValues(alpha: 0.1) : null,
           borderRadius: BorderRadius.circular(16),
@@ -517,7 +575,7 @@ class _ThemeModeCard extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Icon(icon, size: 48, color: selected ? nvGreen : Colors.grey),
+            Icon(icon, size: 40, color: selected ? nvGreen : Colors.grey),
             const SizedBox(height: 12),
             Text(
               label,
@@ -556,7 +614,7 @@ class _CurrencyCard extends StatelessWidget {
     return GestureDetector(
       onTap: onSelect,
       child: Container(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: selected ? nvGreen.withValues(alpha: 0.1) : null,
           borderRadius: BorderRadius.circular(16),
@@ -570,7 +628,7 @@ class _CurrencyCard extends StatelessWidget {
             Text(
               symbol,
               style: TextStyle(
-                fontSize: 48,
+                fontSize: 40,
                 fontWeight: FontWeight.bold,
                 color: selected ? nvGreen : Colors.grey,
               ),

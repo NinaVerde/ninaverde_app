@@ -26,7 +26,7 @@ class _AngelinaProfileSettingsScreenState extends State<AngelinaProfileSettingsS
   }
 
   Future<void> _loadProfilePictures() async {
-    final urls = await _service.fetchUserProfilePictures();
+    final urls = await _service.fetchUserProfilePictures(hostId: 'angelina');
     if (mounted) {
       AppState.of(context).angelinaProfilePics.value = urls;
     }
@@ -58,7 +58,7 @@ class _AngelinaProfileSettingsScreenState extends State<AngelinaProfileSettingsS
       if (app.angelinaProfilePics.value.length >= 20) {
         if (!mounted) return; // Added safety check
         // ignore: use_build_context_synchronously
-        setState(() => _uploadError = 'Maximum 20 pictures allowed');
+        setState(() => _uploadError = tr(context, en: 'Maximum 20 pictures allowed', es: 'Máximo 20 imágenes permitidas'));
         return;
       }
 
@@ -68,7 +68,7 @@ class _AngelinaProfileSettingsScreenState extends State<AngelinaProfileSettingsS
       });
 
       // Upload
-      final url = await _service.uploadProfilePicture(file);
+      final url = await _service.uploadProfilePicture(file, hostId: 'angelina');
       
       // Add to list
       final updated = List<String>.from(app.angelinaProfilePics.value)..add(url);
@@ -83,7 +83,7 @@ class _AngelinaProfileSettingsScreenState extends State<AngelinaProfileSettingsS
     } catch (e) {
       setState(() {
         _uploading = false;
-        _uploadError = 'Upload failed: $e';
+        _uploadError = '${tr(context, en: 'Upload failed: ', es: 'Error de carga: ')}$e';
       });
     }
   }
@@ -93,16 +93,16 @@ class _AngelinaProfileSettingsScreenState extends State<AngelinaProfileSettingsS
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Picture?'),
-        content: const Text('This action cannot be undone.'),
+        title: Text(tr(context, en: 'Delete Picture?', es: '¿Eliminar imagen?')),
+        content: Text(tr(context, en: 'This action cannot be undone.', es: 'Esta acción no se puede deshacer.')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(tr(context, en: 'Cancel', es: 'Cancelar')),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: Text(tr(context, en: 'Delete', es: 'Eliminar'), style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -124,9 +124,9 @@ class _AngelinaProfileSettingsScreenState extends State<AngelinaProfileSettingsS
   }
 
   String _formatInterval(int seconds) {
-    if (seconds < 60) return '$seconds seconds';
-    if (seconds < 3600) return '${(seconds / 60).round()} minutes';
-    return '${(seconds / 3600).round()} hours';
+    if (seconds < 60) return '$seconds ${tr(context, en: 'seconds', es: 'segundos')}';
+    if (seconds < 3600) return '${(seconds / 60).round()} ${tr(context, en: 'minutes', es: 'minutos')}';
+    return '${(seconds / 3600).round()} ${tr(context, en: 'hours', es: 'horas')}';
   }
 
   @override
@@ -137,7 +137,7 @@ class _AngelinaProfileSettingsScreenState extends State<AngelinaProfileSettingsS
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Angelina Profile Pictures'),
+        title: Text(tr(context, en: 'Angelina Profile Pictures', es: 'Fotos de Perfil de Angelina')),
         backgroundColor: nvGreenDark,
       ),
       body: ValueListenableBuilder<List<String>>(
@@ -183,7 +183,7 @@ class _AngelinaProfileSettingsScreenState extends State<AngelinaProfileSettingsS
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Current Profile Picture',
+                  tr(context, en: 'Current Profile Picture', es: 'Foto de Perfil Actual'),
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 12),
@@ -215,7 +215,9 @@ class _AngelinaProfileSettingsScreenState extends State<AngelinaProfileSettingsS
                 const SizedBox(height: 8),
                 Center(
                   child: Text(
-                    selected != null ? 'Custom Picture' : 'Default Avatar',
+                    selected != null 
+                        ? tr(context, en: 'Custom Picture', es: 'Foto Personalizada') 
+                        : tr(context, en: 'Default Avatar', es: 'Avatar Predeterminado'),
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ),
@@ -238,7 +240,7 @@ class _AngelinaProfileSettingsScreenState extends State<AngelinaProfileSettingsS
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Upload New Picture',
+                  tr(context, en: 'Upload New Picture', es: 'Subir Nueva Foto'),
                   style: theme.textTheme.titleMedium,
                 ),
                 Text(
@@ -265,7 +267,9 @@ class _AngelinaProfileSettingsScreenState extends State<AngelinaProfileSettingsS
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.add_a_photo),
-              label: Text(_uploading ? 'Uploading...' : 'Select from Gallery'),
+              label: Text(_uploading 
+                  ? tr(context, en: 'Uploading...', es: 'Subiendo...') 
+                  : tr(context, en: 'Select from Gallery', es: 'Seleccionar de Galería')),
               style: ElevatedButton.styleFrom(
                 backgroundColor: nvGreenDark,
                 foregroundColor: Colors.white,
@@ -274,7 +278,7 @@ class _AngelinaProfileSettingsScreenState extends State<AngelinaProfileSettingsS
             ),
             const SizedBox(height: 8),
             Text(
-              'Max 5MB • JPG, PNG, or WebP • 200x200 to 2000x2000 px',
+              tr(context, en: 'Max 5MB • JPG, PNG, or WebP • 200x200 to 2000x2000 px', es: 'Max 5MB • JPG, PNG, o WebP • 200x200 a 2000x2000 px'),
               style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
             ),
           ],
@@ -284,91 +288,49 @@ class _AngelinaProfileSettingsScreenState extends State<AngelinaProfileSettingsS
   }
 
   Widget _buildGallerySection(AppState app, List<String> pics, ColorScheme scheme) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Your Pictures (${pics.length})',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 12),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-              ),
-              itemCount: pics.length,
-              itemBuilder: (context, index) {
-                final url = pics[index];
-                return ValueListenableBuilder<String?>(
-                  valueListenable: app.selectedProfilePic,
-                  builder: (context, selected, _) {
-                    final isSelected = selected == url;
-                    return GestureDetector(
-                      onTap: () => app.selectedProfilePic.value = url,
-                      onLongPress: () => _deleteImage(url),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: isSelected ? nvAccentOrange : Colors.grey[300]!,
-                            width: isSelected ? 3 : 1,
-                          ),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Stack(
-                            children: [
-                              CachedNetworkImage(
-                                imageUrl: url,
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                height: double.infinity,
-                                placeholder: (_, __) => const Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                                errorWidget: (_, __, ___) => const Icon(Icons.error),
-                              ),
-                              if (isSelected)
-                                Positioned(
-                                  top: 4,
-                                  right: 4,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      color: nvAccentOrange,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.check,
-                                      size: 16,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Tap to select • Long-press to delete',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
-            ),
-          ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            '${tr(context, en: 'Select Persona Avatar', es: 'Seleccionar Avatar')} (${pics.length})',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
         ),
-      ),
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 320, // Taller for cards
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            itemCount: pics.length,
+            itemBuilder: (context, index) {
+              final url = pics[index];
+              return ValueListenableBuilder<String?>(
+                valueListenable: app.selectedProfilePic,
+                builder: (context, selected, _) {
+                  final isSelected = selected == url;
+                  return _PersonaCard(
+                    url: url,
+                    isSelected: isSelected,
+                    onTap: () => app.selectedProfilePic.value = url,
+                    onDelete: () => _deleteImage(url),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+          child: Text(
+            tr(context, en: 'Swipe to browse • Tap to select • Long-press to delete', es: 'Desliza para ver • Toca para seleccionar • Mantén para borrar'),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ],
     );
   }
 
@@ -380,7 +342,7 @@ class _AngelinaProfileSettingsScreenState extends State<AngelinaProfileSettingsS
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Randomization',
+              tr(context, en: 'Randomization', es: 'Aleatorización'),
               style: theme.textTheme.titleMedium,
             ),
             const SizedBox(height: 12),
@@ -388,10 +350,12 @@ class _AngelinaProfileSettingsScreenState extends State<AngelinaProfileSettingsS
               valueListenable: app.profilePicRandomize,
               builder: (context, randomize, _) {
                 return SwitchListTile(
-                  title: const Text('Randomize Profile Picture'),
+                  title: Text(tr(context, en: 'Randomize Profile Picture', es: 'Aleatorizar Foto de Perfil')),
                   subtitle: pics.length < 2
-                      ? const Text('Upload at least 2 pictures to enable')
-                      : Text(randomize ? 'Pictures will cycle automatically' : 'Show selected picture only'),
+                      ? Text(tr(context, en: 'Upload at least 2 pictures to enable', es: 'Sube al menos 2 fotos para habilitar'))
+                      : Text(randomize 
+                          ? tr(context, en: 'Pictures will cycle automatically', es: 'Las fotos rotarán automáticamente') 
+                          : tr(context, en: 'Show selected picture only', es: 'Mostrar solo foto seleccionada')),
                   value: randomize,
                   onChanged: pics.length < 2
                       ? null
@@ -415,7 +379,7 @@ class _AngelinaProfileSettingsScreenState extends State<AngelinaProfileSettingsS
                         const Divider(),
                         const SizedBox(height: 8),
                         Text(
-                          'Change Interval: ${_formatInterval(interval)}',
+                          '${tr(context, en: 'Change Interval: ', es: 'Intervalo de Cambio: ')}${_formatInterval(interval)}',
                           style: theme.textTheme.bodyMedium,
                         ),
                         Slider(
@@ -434,6 +398,92 @@ class _AngelinaProfileSettingsScreenState extends State<AngelinaProfileSettingsS
                   },
                 );
               },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PersonaCard extends StatelessWidget {
+  final String url;
+  final bool isSelected;
+  final VoidCallback onTap;
+  final VoidCallback onDelete;
+
+  const _PersonaCard({
+    required this.url,
+    required this.isSelected,
+    required this.onTap,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Elegant Persona Card
+    return GestureDetector(
+      onTap: onTap,
+      onLongPress: onDelete,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        width: 220,
+        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF1B5E20) : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: isSelected 
+             ? Border.all(color: Colors.greenAccent, width: 2)
+             : Border.all(color: Colors.grey.withOpacity(0.2)),
+          boxShadow: [
+             if (isSelected) 
+               BoxShadow(color: Colors.greenAccent.withOpacity(0.4), blurRadius: 15, spreadRadius: 2)
+             else 
+               const BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 5))
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              flex: 5,
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+                child: CachedNetworkImage(
+                  imageUrl: url,
+                  fit: BoxFit.cover,
+                  placeholder: (_, __) => Container(color: Colors.grey[200]),
+                  errorWidget: (_, __, ___) => const Icon(Icons.error),
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: isSelected ? Colors.green[900] : Colors.white,
+                  borderRadius: const BorderRadius.vertical(bottom: Radius.circular(18)),
+                ),
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      isSelected ? 'ACTIVE PERSONA' : 'AVAILABLE',
+                      style: TextStyle(
+                        color: isSelected ? Colors.greenAccent : Colors.grey[600],
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        letterSpacing: 1.2
+                      ),
+                    ),
+                    if (isSelected) ...[
+                      const SizedBox(height: 4),
+                       const Icon(Icons.check_circle, color: Colors.greenAccent, size: 20),
+                    ]
+                  ],
+                ),
+              ),
             ),
           ],
         ),

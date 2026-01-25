@@ -9,6 +9,9 @@ class Review {
   final String comment;
   final String status;
   final DateTime createdAt;
+  final bool resolved;
+  final String managerNotes;
+  final String? rejectionReason;
 
   Review({
     required this.id,
@@ -19,6 +22,9 @@ class Review {
     required this.comment,
     required this.status,
     required this.createdAt,
+    this.resolved = false,
+    this.managerNotes = '',
+    this.rejectionReason,
   });
 
   factory Review.fromFirestore(DocumentSnapshot doc, String productId) {
@@ -34,6 +40,9 @@ class Review {
       status: (data['status'] as String?) ?? 'pending',
       createdAt:
           createdTs != null ? createdTs.toDate() : DateTime.now(),
+      resolved: data['resolved'] == true,
+      managerNotes: (data['managerNotes'] as String?) ?? '',
+      rejectionReason: (data['rejectionReason'] as String?),
     );
   }
 }
