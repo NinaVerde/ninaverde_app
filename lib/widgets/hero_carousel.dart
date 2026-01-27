@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:ui';
-import 'dart:io';
 import 'package:vector_math/vector_math_64.dart' as vector;
 import 'package:video_player/video_player.dart'; // Add video support
 import 'package:cached_network_image/cached_network_image.dart'; // Add cached image support
@@ -139,6 +138,7 @@ class _HeroCategoryCarouselState extends State<HeroCategoryCarousel>
   }
 
   double? _lastSpeed;
+
   void _onSpeedChanged() {
     final speed = AppState.of(context).carouselSpeed.value;
     if (speed != _lastSpeed) {
@@ -148,6 +148,8 @@ class _HeroCategoryCarouselState extends State<HeroCategoryCarousel>
       }
     }
   }
+
+
 
   @override
   void didUpdateWidget(HeroCategoryCarousel oldWidget) {
@@ -228,7 +230,7 @@ class _HeroCategoryCarouselState extends State<HeroCategoryCarousel>
       height: 400,
       child: Listener(
         onPointerDown: (_) {
-          setState(() => _isManualInteracting = true);
+          _isManualInteracting = true;
           _stopAutoPlay();
         },
         onPointerUp: (_) {
@@ -359,22 +361,22 @@ class HeroCard extends StatelessWidget {
               boxShadow: [
                 BoxShadow(
                   color: isSelected 
-                    ? Colors.greenAccent.withValues(alpha: 0.7) 
-                    : Colors.black.withValues(alpha: 0.6),
-                  blurRadius: isSelected ? 50 : 25,
-                  spreadRadius: isSelected ? 6 : 1,
+                    ? Colors.greenAccent.withOpacity(0.6) // Strong Green Glow (Xbox style)
+                    : Colors.black.withOpacity(0.6),
+                  blurRadius: isSelected ? 40 : 25,
+                  spreadRadius: isSelected ? 4 : 1, // Wider spread for the "Ring of Light" feel
                   offset: const Offset(0, 20),
                 ),
                 if (isSelected)
                   BoxShadow(
-                    color: Colors.greenAccent.withValues(alpha: 0.4),
+                    color: Colors.green.withOpacity(0.4), // Inner depth
                     blurRadius: 80,
                     spreadRadius: 10,
                     offset: const Offset(0, 30),
                   ),
                 if (isFocused)
                   BoxShadow(
-                    color: Colors.white.withValues(alpha: glowIntensity * 0.3),
+                    color: Colors.white.withOpacity(glowIntensity * 0.3),
                     blurRadius: 60,
                     spreadRadius: 0,
                     offset: const Offset(0, 0),

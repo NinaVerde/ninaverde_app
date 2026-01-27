@@ -15,39 +15,54 @@ class SandwichMenuButton extends StatelessWidget {
   Widget build(BuildContext context) {
     // "Elite" Stylish Button
     // Glass/Gradient effect with custom iconography
-    return Container(
-      margin: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: brand.nvGreenDark, // Match home screen background green
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.1),
-          width: 0.5
-        ),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
+    return Animate(
+      effects: [ScaleEffect(duration: 300.ms, curve: Curves.easeOutBack)],
+      child: Container(
+        margin: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1B4D3E), 
+          shape: BoxShape.circle, 
           borderRadius: BorderRadius.circular(14),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(10.0), // increased padding slightly for icon breathing room
-            child: SizedBox(
-                width: 24, 
-                height: 24,
-                child: CustomPaint(painter: _EliteMenuPainter()),
+          border: Border.all(
+            color: Colors.white.withOpacity(0.15), 
+            width: 2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.6),
+              offset: const Offset(2, 2),
+              blurRadius: 4,
+              // inset: true, // Manual inset simulation below? No, treating as standard for now.
+            ),
+            BoxShadow(
+              color: Colors.greenAccent.withOpacity(0.6), 
+              blurRadius: 10,
+              spreadRadius: 1,
+            ),
+            BoxShadow(
+              color: Colors.white.withOpacity(0.1),
+              offset: const Offset(-2, -2),
+              blurRadius: 4,
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(10.0), 
+              child: SizedBox(
+                  width: 24, 
+                  height: 24,
+                  child: CustomPaint(painter: _EliteMenuPainter()),
+              ),
             ),
           ),
         ),
       ),
-    ).animate().scale(duration: 300.ms, curve: Curves.easeOutBack);
+    );
   }
 }
 

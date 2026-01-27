@@ -8,8 +8,6 @@ import '../services/config_service.dart' hide debugPrint;
 import '../models/app_config_model.dart';
 import '../services/theme_service.dart';
 import '../models/theme_config_model.dart';
-import '../services/theme_service.dart';
-import '../models/theme_config_model.dart';
 
 /// ---------- Language Settings ----------
 class LanguageSettingsPage extends StatefulWidget {
@@ -494,7 +492,7 @@ class _TickerSettingsPageState extends State<TickerSettingsPage> {
   
   final GoogleTranslator _translator = GoogleTranslator();
   bool _isSaving = false;
-  bool _isTranslating = false;
+  final bool _isTranslating = false;
   String? _lastLanguageCode;
   double? _initialSpeed; // To revert on cancel
 
