@@ -1,0 +1,191 @@
+Resolving dependencies...
+Downloading packages...
+  characters 1.4.0 (1.4.1 available)
+  geolocator 13.0.4 (14.0.2 available)
+  geolocator_android 4.6.2 (5.0.2 available)
+  google_fonts 7.1.0 (8.0.0 available)
+  matcher 0.12.17 (0.12.18 available)
+  material_color_utilities 0.11.1 (0.13.0 available)
+  meta 1.17.0 (1.18.0 available)
+  shared_preferences_android 2.4.18 (2.4.20 available)
+  test_api 0.7.7 (0.7.9 available)
+  timezone 0.10.1 (0.11.0 available)
+Got dependencies!
+10 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Analyzing sandwich_menu.dart...                                 
+
+  error - Expected a method, getter, setter or operator declaration - lib\widgets\sandwich_menu.dart:78:1 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\widgets\sandwich_menu.dart:78:3 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\widgets\sandwich_menu.dart:78:5 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\widgets\sandwich_menu.dart:78:7 - expected_executable
+   info - An uninitialized variable should have an explicit type annotation - lib\widgets\sandwich_menu.dart:78:9 - prefer_typing_uninitialized_variables
+   info - Missing type annotation - lib\widgets\sandwich_menu.dart:78:9 - strict_top_level_inference
+   info - The variable name 'HEAD' isn't a lowerCamelCase identifier - lib\widgets\sandwich_menu.dart:78:9 - non_constant_identifier_names
+  error - Expected to find ';' - lib\widgets\sandwich_menu.dart:78:9 - expected_token
+  error - Variables must be declared using the keywords 'const', 'final', 'var' or a type name - lib\widgets\sandwich_menu.dart:78:9 - missing_const_final_var_or_type
+  error - Expected a method, getter, setter or operator declaration - lib\widgets\sandwich_menu.dart:81:1 - expected_executable
+  error - The '===' operator is not supported - lib\widgets\sandwich_menu.dart:81:1 - unsupported_operator
+  error - Expected a method, getter, setter or operator declaration - lib\widgets\sandwich_menu.dart:81:4 - expected_executable
+  error - The '===' operator is not supported - lib\widgets\sandwich_menu.dart:81:4 - unsupported_operator
+  error - Expected a method, getter, setter or operator declaration - lib\widgets\sandwich_menu.dart:81:7 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\widgets\sandwich_menu.dart:82:1 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\widgets\sandwich_menu.dart:82:4 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\widgets\sandwich_menu.dart:82:7 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\widgets\sandwich_menu.dart:82:9 - expected_executable
+   info - Missing type annotation - lib\widgets\sandwich_menu.dart:82:13 - strict_top_level_inference
+   info - Missing type annotation - lib\widgets\sandwich_menu.dart:82:18 - strict_top_level_inference
+  error - Named parameters must be enclosed in curly braces ('{' and '}') - lib\widgets\sandwich_menu.dart:82:22 - named_parameter_outside_group
+  error - Using a colon as the separator before a default value is no longer supported - lib\widgets\sandwich_menu.dart:82:22 - obsolete_colon_for_default_value
+  error - Undefined name 'On' - lib\widgets\sandwich_menu.dart:82:24 - undefined_identifier
+  error - Undefined name 'the' - lib\widgets\sandwich_menu.dart:82:27 - undefined_identifier
+  error - Undefined name 'fly' - lib\widgets\sandwich_menu.dart:82:31 - undefined_identifier
+  error - Expected to find ',' - lib\widgets\sandwich_menu.dart:82:35 - expected_token
+  error - Undefined class 'Product' - lib\widgets\sandwich_menu.dart:82:35 - undefined_class
+   info - The variable name 'Translation' isn't a lowerCamelCase identifier - lib\widgets\sandwich_menu.dart:82:43 - non_constant_identifier_names
+  error - Undefined class 'Ticker' - lib\widgets\sandwich_menu.dart:82:56 - undefined_class
+   info - The variable name 'Improvements' isn't a lowerCamelCase identifier - lib\widgets\sandwich_menu.dart:82:63 - non_constant_identifier_names
+   info - Use the generic function type syntax to declare the parameter 'B…' - lib\widgets\sandwich_menu.dart:82:77 - use_function_type_syntax_for_parameters
+  error - Undefined class 'Search' - lib\widgets\sandwich_menu.dart:82:77 - undefined_class
+   info - The variable name 'B…' isn't a lowerCamelCase identifier - lib\widgets\sandwich_menu.dart:82:84 - non_constant_identifier_names
+  error - Illegal character '8230' - lib\widgets\sandwich_menu.dart:82:85 - illegal_character
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:82:88 - missing_identifier
+  error - Expected to find ')' - lib\widgets\sandwich_menu.dart:82:89 - expected_token
+  error - A function body must be provided - lib\widgets\sandwich_menu.dart:83:1 - missing_function_body
+   info - The 'child' argument should be last in widget constructor invocations - lib\widgets\sandwich_menu.dart:104:13 - sort_child_properties_last
+  error - The named parameter 'borderRadius' isn't defined - lib\widgets\sandwich_menu.dart:277:25 - undefined_named_parameter
+  error - The named parameter 'boxShadow' isn't defined - lib\widgets\sandwich_menu.dart:278:25 - undefined_named_parameter
+  error - The argument for the named parameter 'child' was already specified - lib\widgets\sandwich_menu.dart:286:23 - duplicate_named_argument
+  error - Expected to find ';' - lib\widgets\sandwich_menu.dart:291:96 - expected_token
+warning - Dead code - lib\widgets\sandwich_menu.dart:291:97 - dead_code
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:291:97 - missing_identifier
+  error - Unexpected text ';' - lib\widgets\sandwich_menu.dart:291:97 - unexpected_token
+  error - Expected to find ';' - lib\widgets\sandwich_menu.dart:292:45 - expected_token
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:292:46 - missing_identifier
+  error - Unexpected text ';' - lib\widgets\sandwich_menu.dart:292:46 - unexpected_token
+  error - Expected to find ';' - lib\widgets\sandwich_menu.dart:314:21 - expected_token
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:314:22 - missing_identifier
+  error - Expected to find ';' - lib\widgets\sandwich_menu.dart:314:22 - expected_token
+  error - Unexpected text ';' - lib\widgets\sandwich_menu.dart:314:22 - unexpected_token
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:315:19 - missing_identifier
+  error - Expected to find ';' - lib\widgets\sandwich_menu.dart:315:19 - expected_token
+  error - Unexpected text ';' - lib\widgets\sandwich_menu.dart:315:19 - unexpected_token
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:315:20 - missing_identifier
+  error - Unexpected text ';' - lib\widgets\sandwich_menu.dart:315:20 - unexpected_token
+  error - Expected to find ';' - lib\widgets\sandwich_menu.dart:316:17 - expected_token
+  error - Expected to find '}' - lib\widgets\sandwich_menu.dart:316:17 - expected_token
+warning - Dead code - lib\widgets\sandwich_menu.dart:316:18 - dead_code
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:316:18 - missing_identifier
+  error - Expected to find ';' - lib\widgets\sandwich_menu.dart:316:18 - expected_token
+  error - Unexpected text ';' - lib\widgets\sandwich_menu.dart:316:18 - unexpected_token
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:317:15 - missing_identifier
+  error - Expected to find ';' - lib\widgets\sandwich_menu.dart:317:15 - expected_token
+  error - Unexpected text ';' - lib\widgets\sandwich_menu.dart:317:15 - unexpected_token
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:317:16 - missing_identifier
+  error - Unexpected text ';' - lib\widgets\sandwich_menu.dart:317:16 - unexpected_token
+  error - Expected to find ';' - lib\widgets\sandwich_menu.dart:319:39 - expected_token
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:319:40 - missing_identifier
+  error - Unexpected text ';' - lib\widgets\sandwich_menu.dart:319:40 - unexpected_token
+  error - Expected to find ';' - lib\widgets\sandwich_menu.dart:393:15 - expected_token
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:393:16 - missing_identifier
+  error - Unexpected text ';' - lib\widgets\sandwich_menu.dart:393:16 - unexpected_token
+  error - Undefined name 'isEs' - lib\widgets\sandwich_menu.dart:399:19 - undefined_identifier
+  error - Undefined name 'theme' - lib\widgets\sandwich_menu.dart:400:26 - undefined_identifier
+  error - Undefined name 'isDark' - lib\widgets\sandwich_menu.dart:401:28 - undefined_identifier
+  error - Expected to find ';' - lib\widgets\sandwich_menu.dart:405:47 - expected_token
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:405:48 - missing_identifier
+  error - Expected to find ';' - lib\widgets\sandwich_menu.dart:405:48 - expected_token
+  error - Unexpected text ';' - lib\widgets\sandwich_menu.dart:405:48 - unexpected_token
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:406:13 - missing_identifier
+  error - Expected to find ';' - lib\widgets\sandwich_menu.dart:406:13 - expected_token
+  error - Unexpected text ';' - lib\widgets\sandwich_menu.dart:406:13 - unexpected_token
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:406:14 - missing_identifier
+  error - Unexpected text ';' - lib\widgets\sandwich_menu.dart:406:14 - unexpected_token
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:407:1 - missing_identifier
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:407:4 - missing_identifier
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:407:7 - missing_identifier
+  error - Expected to find ';' - lib\widgets\sandwich_menu.dart:407:9 - expected_token
+  error - Undefined name 'On' - lib\widgets\sandwich_menu.dart:407:24 - undefined_identifier
+  error - Undefined name 'the' - lib\widgets\sandwich_menu.dart:407:27 - undefined_identifier
+  error - Undefined name 'fly' - lib\widgets\sandwich_menu.dart:407:31 - undefined_identifier
+  error - Expected to find ',' - lib\widgets\sandwich_menu.dart:407:35 - expected_token
+  error - Undefined name 'Product' - lib\widgets\sandwich_menu.dart:407:35 - undefined_identifier
+  error - Expected to find ',' - lib\widgets\sandwich_menu.dart:407:43 - expected_token
+  error - Undefined name 'Translation' - lib\widgets\sandwich_menu.dart:407:43 - undefined_identifier
+  error - Undefined name 'Ticker' - lib\widgets\sandwich_menu.dart:407:56 - undefined_identifier
+  error - Expected to find ',' - lib\widgets\sandwich_menu.dart:407:63 - expected_token
+  error - Too many positional arguments: 3 expected, but 6 found - lib\widgets\sandwich_menu.dart:407:63 - extra_positional_arguments
+  error - Undefined name 'Improvements' - lib\widgets\sandwich_menu.dart:407:63 - undefined_identifier
+  error - Undefined name 'Search' - lib\widgets\sandwich_menu.dart:407:77 - undefined_identifier
+  error - Expected to find ',' - lib\widgets\sandwich_menu.dart:407:84 - expected_token
+  error - Illegal character '8230' - lib\widgets\sandwich_menu.dart:407:85 - illegal_character
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:407:89 - missing_identifier
+  error - Expected to find ',' - lib\widgets\sandwich_menu.dart:407:89 - expected_token
+  error - Expected to find ';' - lib\widgets\sandwich_menu.dart:407:92 - expected_token
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:408:11 - missing_identifier
+  error - Expected to find ';' - lib\widgets\sandwich_menu.dart:408:11 - expected_token
+  error - Unexpected text ';' - lib\widgets\sandwich_menu.dart:408:11 - unexpected_token
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:408:12 - missing_identifier
+  error - Expected to find ';' - lib\widgets\sandwich_menu.dart:408:12 - expected_token
+  error - Unexpected text ';' - lib\widgets\sandwich_menu.dart:408:12 - unexpected_token
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:409:9 - missing_identifier
+  error - Unexpected text ';' - lib\widgets\sandwich_menu.dart:409:9 - unexpected_token
+   info - Unnecessary empty statement - lib\widgets\sandwich_menu.dart:409:10 - empty_statements
+  error - Expected a class member - lib\widgets\sandwich_menu.dart:410:8 - expected_class_member
+  error - Expected a class member - lib\widgets\sandwich_menu.dart:411:5 - expected_class_member
+  error - Expected a class member - lib\widgets\sandwich_menu.dart:411:6 - expected_class_member
+  error - Expected a method, getter, setter or operator declaration - lib\widgets\sandwich_menu.dart:413:1 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\widgets\sandwich_menu.dart:413:3 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\widgets\sandwich_menu.dart:413:5 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\widgets\sandwich_menu.dart:413:7 - expected_executable
+   info - An uninitialized variable should have an explicit type annotation - lib\widgets\sandwich_menu.dart:413:9 - prefer_typing_uninitialized_variables
+   info - Missing type annotation - lib\widgets\sandwich_menu.dart:413:9 - strict_top_level_inference
+   info - The variable name 'HEAD' isn't a lowerCamelCase identifier - lib\widgets\sandwich_menu.dart:413:9 - non_constant_identifier_names
+  error - Expected to find ';' - lib\widgets\sandwich_menu.dart:413:9 - expected_token
+  error - The name 'HEAD' is already defined - lib\widgets\sandwich_menu.dart:413:9 - duplicate_definition
+  error - Variables must be declared using the keywords 'const', 'final', 'var' or a type name - lib\widgets\sandwich_menu.dart:413:9 - missing_const_final_var_or_type
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:417:1 - missing_identifier
+  error - The '===' operator is not supported - lib\widgets\sandwich_menu.dart:417:1 - unsupported_operator
+  error - Illegal assignment to non-assignable expression - lib\widgets\sandwich_menu.dart:417:4 - illegal_assignment_to_non_assignable
+  error - Missing selector such as '.identifier' or '[0]' - lib\widgets\sandwich_menu.dart:417:4 - missing_assignable_selector
+  error - The '===' operator is not supported - lib\widgets\sandwich_menu.dart:417:4 - unsupported_operator
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:417:7 - missing_identifier
+  error - Function expressions can't be named - lib\widgets\sandwich_menu.dart:419:8 - named_function_expression
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:421:1 - missing_identifier
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:421:4 - missing_identifier
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:421:7 - missing_identifier
+  error - Expected to find ';' - lib\widgets\sandwich_menu.dart:421:9 - expected_token
+  error - Undefined name 'On' - lib\widgets\sandwich_menu.dart:421:24 - undefined_identifier
+  error - Undefined name 'the' - lib\widgets\sandwich_menu.dart:421:27 - undefined_identifier
+  error - Undefined name 'fly' - lib\widgets\sandwich_menu.dart:421:31 - undefined_identifier
+  error - Expected to find ',' - lib\widgets\sandwich_menu.dart:421:35 - expected_token
+  error - Undefined name 'Product' - lib\widgets\sandwich_menu.dart:421:35 - undefined_identifier
+  error - Expected to find ',' - lib\widgets\sandwich_menu.dart:421:43 - expected_token
+  error - Undefined name 'Translation' - lib\widgets\sandwich_menu.dart:421:43 - undefined_identifier
+  error - Undefined name 'Ticker' - lib\widgets\sandwich_menu.dart:421:56 - undefined_identifier
+  error - Expected to find ',' - lib\widgets\sandwich_menu.dart:421:63 - expected_token
+  error - Too many positional arguments: 3 expected, but 6 found - lib\widgets\sandwich_menu.dart:421:63 - extra_positional_arguments
+  error - Undefined name 'Improvements' - lib\widgets\sandwich_menu.dart:421:63 - undefined_identifier
+  error - Undefined name 'Search' - lib\widgets\sandwich_menu.dart:421:77 - undefined_identifier
+  error - Expected to find ',' - lib\widgets\sandwich_menu.dart:421:84 - expected_token
+  error - The function 'B…' isn't defined - lib\widgets\sandwich_menu.dart:421:84 - undefined_function
+  error - Illegal character '8230' - lib\widgets\sandwich_menu.dart:421:85 - illegal_character
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:421:89 - missing_identifier
+  error - Expected to find ',' - lib\widgets\sandwich_menu.dart:421:89 - expected_token
+  error - Expected to find ';' - lib\widgets\sandwich_menu.dart:421:92 - expected_token
+  error - Expected to find ';' - lib\widgets\sandwich_menu.dart:431:3 - expected_token
+   info - The local variable '_handleStartOrder' starts with an underscore - lib\widgets\sandwich_menu.dart:433:8 - no_leading_underscores_for_local_identifiers
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:435:1 - missing_identifier
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:435:3 - missing_identifier
+  error - Expected an identifier - lib\widgets\sandwich_menu.dart:435:5 - missing_identifier
+  error - Expected to find ';' - lib\widgets\sandwich_menu.dart:435:9 - expected_token
+  error - Expected to find '>' - lib\widgets\sandwich_menu.dart:435:9 - expected_token
+  error - The name 'HEAD' isn't a type, so it can't be used as a type argument - lib\widgets\sandwich_menu.dart:435:9 - non_type_as_type_argument
+  error - Expected to find '[' - lib\widgets\sandwich_menu.dart:436:5 - expected_token
+   info - The local variable '_handleAbout' starts with an underscore - lib\widgets\sandwich_menu.dart:439:8 - no_leading_underscores_for_local_identifiers
+   info - The local variable '_handleLocation' starts with an underscore - lib\widgets\sandwich_menu.dart:443:8 - no_leading_underscores_for_local_identifiers
+  error - Undefined name 'gradient' - lib\widgets\sandwich_menu.dart:626:31 - undefined_identifier
+  error - Undefined name 'gradient' - lib\widgets\sandwich_menu.dart:633:32 - undefined_identifier
+  error - Undefined name 'title' - lib\widgets\sandwich_menu.dart:650:25 - undefined_identifier
+  error - Undefined name 'subtitle' - lib\widgets\sandwich_menu.dart:658:25 - undefined_identifier
+

@@ -1,4 +1,8 @@
 // lib/screens/login_screen.dart
+// import 'registration_screen.dart'; // Unused
+// import 'intro_settings_screen.dart'; // Unused
+import 'reset_password_screen.dart';
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
@@ -7,19 +11,25 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:firebase_auth_platform_interface/firebase_auth_platform_interface.dart'
+    as auth_platform;
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+// import 'package:youtube_player_iframe/youtube_player_iframe.dart'; // Unused
+// import 'package:video_player/video_player.dart'; // Unused
 
-import '../main.dart'; // AppState + NvAppBar
+import '../state/app_state.dart';
+import '../widgets/nv_widgets.dart';
 import '../services/user_service.dart'; // Firestore upsert on sign-in
+import '../services/auth_service.dart';
+import '../services/user_prefs_service.dart';
+import '../widgets/nv_video_overlay.dart';
+import '../theme/brand_colors.dart';
+// import '../widgets/angelina_widget.dart'; // Unused
 
-// Brand colors
-const Color kNvGreenDark = Color(0xFF022F18); // link color on light theme
-const Color kNvAccentOrange = Color(0xFFF3A70B); // highlight Register!
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -35,7 +45,6 @@ class _LoginScreenState extends State<LoginScreen>
   final formKey = GlobalKey<FormState>();
   bool obscured = true;
   bool busy = false;
-  final Future<void> _googleInit = GoogleSignIn.instance.initialize();
 
   // --- Video & logo config (Firestore: app_config/video) ----
   static const _cfgCol = 'app_config';
@@ -46,16 +55,31 @@ class _LoginScreenState extends State<LoginScreen>
   static const String _appDefaultLogoUrl =
       'https://raw.githubusercontent.com/example/nv_logo_round.png';
 
-  String? _videoUrl; // stored full URL
-  String? _logoUrl; // stored full URL
+  static const String _googleServerClientId =
+      '615971922286-875kbmm3rkhkr1lp75ctql5qadjlqo84.apps.googleusercontent.com';
+
+  // Video Settings
+  String _videoSource = 'asset'; 
+  String? _videoUrl; 
+  String? _videoAsset;
+  
+  // Logo Settings
+  String _logoSource = 'asset';
+  String? _logoUrl;
+  String? _logoAsset;
+
   bool _videoLoaded = false;
+  bool _isVideoOpen = false; // Guard against double-taps
 
   // Overlay state to allow unlimited open/close
-  bool _isVideoOpen = false;
   OverlayEntry? _videoEntry;
 
   // Key to find the logo position for the opening animation
   final GlobalKey _logoKey = GlobalKey();
+
+  bool _googleReady = false;
+  static const MethodChannel _facebookChannel =
+      MethodChannel('native_facebook_auth');
 
   @override
   void initState() {
@@ -71,41 +95,19 @@ class _LoginScreenState extends State<LoginScreen>
           .get();
       if (doc.exists) {
         final data = doc.data()!;
-        _videoUrl = (data['url'] as String?)?.trim();
-        _logoUrl = (data['logo'] as String?)?.trim();
+        _videoSource = data['videoSource'] ?? 'asset'; // Default to asset to prefer local playback
+        _videoUrl = (data['videoUrl'] ?? data['url'] ?? _appDefaultYouTubeUrl).toString().trim();
+        _videoAsset = (data['videoAsset'] ?? 'assets/videos/nina_verde_intro.mp4').toString().trim();
+
+        _logoSource = data['logoSource'] ?? (data['logo'] != null ? 'network' : 'asset');
+        _logoUrl = (data['logoUrl'] ?? data['logo'] ?? _appDefaultLogoUrl).toString().trim();
+        _logoAsset = (data['logoAsset'] ?? 'assets/images/app_icon_foreground.png').toString().trim();
       }
     } catch (_) {
       // Silent; fall back to defaults
     } finally {
       if (mounted) setState(() => _videoLoaded = true);
     }
-  }
-
-  Future<void> _saveVideoLogo({
-    String? url,
-    String? logo,
-    bool setAsDefault = false,
-  }) async {
-    final payload = <String, dynamic>{
-      if (url != null) 'url': url.trim(),
-      if (logo != null) 'logo': logo.trim(),
-      'updated_at': FieldValue.serverTimestamp(),
-    };
-    if (setAsDefault) {
-      if (url != null) payload['default_url'] = url.trim();
-      if (logo != null) payload['default_logo'] = logo.trim();
-    }
-
-    await FirebaseFirestore.instance
-        .collection(_cfgCol)
-        .doc(_videoDoc)
-        .set(payload, SetOptions(merge: true));
-
-    setState(() {
-      if (url != null) _videoUrl = url.trim();
-      if (logo != null) _logoUrl = logo.trim();
-    });
-    _showSnack(t(context, 'saved_ok'));
   }
 
   @override
@@ -118,51 +120,53 @@ class _LoginScreenState extends State<LoginScreen>
 
   // ---- Tiny ES/EN map ------------------------------------------------------
   String t(BuildContext context, String key) {
-    final es = AppState.of(context).isSpanish.value;
+    final es = AppState.read(context).languageCode.value == 'es';
 
     const esMap = {
-      'title': 'Iniciar sesión',
+      'title': 'Iniciar sesion',
       'email': 'Correo',
-      'password': 'Contraseña',
-      'login': 'Iniciar sesión',
-      'forgot': '¿Olvidaste tu contraseña?',
+      'password': 'Contrasena',
+      'login': 'Iniciar sesion',
+      'forgot': 'Olvidaste tu contrasena?',
       'google': 'Google',
       'facebook': 'Facebook',
       'apple': 'Apple',
       'microsoft': 'Microsoft',
       'guest': 'Continuar como invitado',
-      'noAccount': '¿No tienes cuenta? Regístrate!',
-      'contact': 'Contáctenos',
-      'privacy': 'Política de Privacidad',
-      'deletion': 'Eliminación de Datos',
+      'noAccount': 'No tienes cuenta? Registrate!',
+      'contact': 'Contactenos',
+      'privacy': 'Politica de Privacidad',
+      'deletion': 'Eliminacion de Datos',
       'show': 'Mostrar',
       'hide': 'Ocultar',
       'enter_email': 'Ingresa tu correo',
-      'enter_password': 'Ingresa tu contraseña',
-      'reset_title': 'Restablecer contraseña',
+      'enter_password': 'Ingresa tu contrasena',
+      'reset_title': 'Restablecer contrasena',
       'send': 'Enviar',
       'cancel': 'Cancelar',
       'reset_sent': 'Correo de restablecimiento enviado.',
-      'err_invalid_email': 'Correo inválido.',
+      'err_invalid_email': 'Correo invalido.',
       'err_user_not_found': 'No existe un usuario con ese correo.',
-      'err_wrong_password': 'Contraseña incorrecta.',
+      'err_wrong_password': 'Contrasena incorrecta.',
       'err_network': 'Error de red. Intenta de nuevo.',
-      'err_generic': 'Error al iniciar sesin',
+      'err_generic': 'Error al iniciar sesion',
       'err_provider_disabled':
-          'Este proveedor no est habilitado. Configralo en Firebase.',
+          'Este proveedor no esta habilitado. Configuralo en Firebase.',
       'err_provider_unsupported':
           'Este proveedor no es compatible en esta plataforma.',
       'err_oauth_missing':
           'Faltan credenciales OAuth. Configura el proveedor en Firebase.',
-      'fb_no_email':
-          'No recibimos tu correo electrónico de Facebook. Por favor, otorga el permiso de correo electrónico.',
-      'fb_cancelled': 'Inicio de sesión con Facebook cancelado.',
-      'play_video': 'Reproducir video de introducción',
-      'or_rapid': 'O inicia sesión con',
+      'fb_cancelled': 'Inicio de sesion con Facebook cancelado.',
+      'fb_failed': 'Error al iniciar sesion con Facebook.',
+      'play_video': 'Reproducir video de introduccion',
+      'or_rapid': 'O inicio rapido con',
       'video_url_hint': 'Pega la URL de YouTube (https://youtu.be/ o watch?v=)',
       'logo_url_hint': 'Pega la URL del logo (https:// .png/.jpg)',
+      'open_youtube': 'Abrir YouTube',
+      'video_unavailable': 'Video no disponible',
+      'video_open_hint': 'Abrir en YouTube.',
       // Popup dialog:
-      'popup_title': 'Configuración del popup',
+      'popup_title': 'Configuracion del popup',
       'yt_label': 'URL de YouTube',
       'logo_label': 'URL del logo (opcional)',
       'save_btn': 'Guardar',
@@ -208,13 +212,15 @@ class _LoginScreenState extends State<LoginScreen>
           'This provider is not supported on this platform.',
       'err_oauth_missing':
           'OAuth credentials are missing. Configure the provider in Firebase.',
-      'fb_no_email':
-          'We did not receive your Facebook email. Please ensure the email permission is granted.',
       'fb_cancelled': 'Facebook sign-in cancelled.',
+      'fb_failed': 'Facebook sign-in failed.',
       'play_video': 'Play intro video',
-      'or_rapid': 'Or sign in with',
+      'or_rapid': 'Or rapid sign in with',
       'video_url_hint': 'Paste YouTube URL (https://youtu.be/ or watch?v=)',
       'logo_url_hint': 'Paste logo image URL (https:// .png/.jpg)',
+      'open_youtube': 'Open YouTube',
+      'video_unavailable': 'Video unavailable',
+      'video_open_hint': 'Open in YouTube instead.',
       // Popup dialog:
       'popup_title': 'Popup Settings',
       'yt_label': 'YouTube URL',
@@ -234,6 +240,86 @@ class _LoginScreenState extends State<LoginScreen>
   // --------------------------------------------------------------------------
   // Auth flows (all call UserService.upsertCurrentUser on success)
   // --------------------------------------------------------------------------
+  Future<void> _handleAccountExists(FirebaseAuthException e) async {
+    final email = e.email;
+    final pending = e.credential;
+    if (email == null || pending == null) {
+      _showError(t(context, 'err_oauth_missing'));
+      return;
+    }
+
+    final methods = await auth_platform.FirebaseAuthPlatform.instance
+        .fetchSignInMethodsForEmail(email);
+    if (methods.isEmpty) {
+      if (!mounted) return;
+      _showError(t(context, 'err_oauth_missing'));
+      return;
+    }
+
+    UserCredential? existing;
+    if (methods.contains('google.com')) {
+      final googleCred = await _getGoogleCredential();
+      if (googleCred != null) {
+        existing =
+            await FirebaseAuth.instance.signInWithCredential(googleCred);
+      }
+    } else if (methods.contains('facebook.com')) {
+      final fbToken =
+          await _facebookChannel.invokeMethod<String>('logIn');
+      if (fbToken != null && fbToken.isNotEmpty) {
+        final fbCred = FacebookAuthProvider.credential(fbToken);
+        existing =
+            await FirebaseAuth.instance.signInWithCredential(fbCred);
+      }
+    } else if (methods.contains('apple.com')) {
+      existing = await AuthService.signInWithApple();
+    } else if (methods.contains('microsoft.com')) {
+      existing = await AuthService.signInWithMicrosoft();
+    }
+
+    if (existing?.user == null) {
+      if (!mounted) return;
+      _showError(t(context, 'err_oauth_missing'));
+      return;
+    }
+
+    await existing!.user!.linkWithCredential(pending);
+    await UserService.upsertCurrentUser();
+    await _navigateToHome();
+  }
+
+  Future<void> _navigateToHome() async {
+    if (!mounted) return;
+    
+    // Check if Intro has been seen (for existing users or new logins)
+    // We already sync from cloud in main() but for explicit login flow we can check local pref
+    // which should be fresh or synced.
+    if (!UserPrefsService.introSeen) {
+       Navigator.pushNamedAndRemoveUntil(context, '/intro', (route) => false);
+       return;
+    }
+
+
+
+
+    if (!mounted) return;
+
+    // Use pushNamedAndRemoveUntil to clear login from stack
+    // so back button doesn't return to login
+    Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+  }
+
+  Future<AuthCredential?> _getGoogleCredential() async {
+    await _ensureGoogleReady();
+    final g = GoogleSignIn.instance;
+    final account = await g.authenticate();
+    final auth = account.authentication;
+    if (auth.idToken == null) return null;
+    return GoogleAuthProvider.credential(idToken: auth.idToken);
+  }
+
+  // Removed _getAppleCredential as it is now handled in AuthService
+
   Future<void> signInEmailPassword() async {
     if (!formKey.currentState!.validate()) return;
     setState(() => busy = true);
@@ -243,8 +329,7 @@ class _LoginScreenState extends State<LoginScreen>
         password: passCtrl.text,
       );
       await UserService.upsertCurrentUser();
-      if (!mounted) return;
-      Navigator.pushReplacementNamed(context, '/home');
+      await _navigateToHome();
     } on FirebaseAuthException catch (e) {
       _showError(_firebaseMessage(e));
     } catch (e) {
@@ -267,34 +352,67 @@ class _LoginScreenState extends State<LoginScreen>
       } else if (defaultTargetPlatform == TargetPlatform.android ||
           defaultTargetPlatform == TargetPlatform.iOS ||
           defaultTargetPlatform == TargetPlatform.macOS) {
-        final g = GoogleSignIn.instance;
-
-        // New API: authenticate() replaces signIn/signInSilently
-        final account = await g.authenticate();
-        if (account == null) return;
-
-        // New API: authentication is sync (no await)
-        final auth = account.authentication;
-
-        // Firebase accepts idToken; accessToken may not exist in this API version
-        final cred = GoogleAuthProvider.credential(
-          idToken: auth.idToken,
-        );
-
-        await FirebaseAuth.instance.signInWithCredential(cred);
+        final cred = await _getGoogleCredential();
+        if (cred == null) {
+          throw FirebaseAuthException(
+              code: 'missing-client-identifier',
+              message: 'Missing Google credential.');
+        }
+        final current = FirebaseAuth.instance.currentUser;
+        if (current != null) {
+          try {
+            await current.linkWithCredential(cred);
+          } on FirebaseAuthException catch (le) {
+            if (le.code == 'credential-already-in-use' || le.code == 'provider-already-linked') {
+              await FirebaseAuth.instance.signInWithCredential(cred);
+            } else {
+              rethrow;
+            }
+          }
+        } else {
+          await FirebaseAuth.instance.signInWithCredential(cred);
+        }
       } else {
         await FirebaseAuth.instance.signInWithProvider(GoogleAuthProvider());
       }
       await UserService.upsertCurrentUser();
-      if (!mounted) return;
-      Navigator.pushReplacementNamed(context, '/home');
+      await _navigateToHome();
     } on FirebaseAuthException catch (e) {
-      _showError(_firebaseMessage(e));
+      if (e.code == 'account-exists-with-different-credential') {
+        await _handleAccountExists(e);
+      } else {
+        if (e.code == 'provider-already-linked' || e.code == 'credential-already-in-use') {
+          await _navigateToHome();
+        } else {
+          _showError(_firebaseMessage(e));
+        }
+      }
+    } on PlatformException catch (e) {
+      // Handle native cancellation
+      if (e.code == 'sign_in_canceled' || e.code == 'canceled') {
+         _showSnack(t(context, 'fb_cancelled').replaceAll('Facebook', 'Google')); // Reuse or add new str
+      } else {
+         _showError(e.message ?? e.toString());
+      }
     } catch (e) {
-      _showError(e.toString());
+       // Check for GoogleSignInException by string if type is not exported or wrapped
+       final s = e.toString();
+       if (s.contains('GoogleSignInException') && (s.contains('canceled') || s.contains('code 12501') || s.contains('code 16'))) {
+          _showSnack(t(context, 'fb_cancelled').replaceAll('Facebook', 'Google'));
+       } else {
+          _showError(e.toString());
+       }
     } finally {
       if (mounted) setState(() => busy = false);
     }
+  }
+
+  Future<void> _ensureGoogleReady() async {
+    if (_googleReady) return;
+    await GoogleSignIn.instance.initialize(
+      serverClientId: _googleServerClientId,
+    );
+    _googleReady = true;
   }
 
   Future<void> signInFacebook() async {
@@ -304,41 +422,60 @@ class _LoginScreenState extends State<LoginScreen>
         await FirebaseAuth.instance.signInWithPopup(FacebookAuthProvider());
       } else if (defaultTargetPlatform == TargetPlatform.android ||
           defaultTargetPlatform == TargetPlatform.iOS) {
-        final result = await FacebookAuth.instance.login(
-          permissions: const ['public_profile', 'email'],
-        );
-
-        if (result.status == LoginStatus.success) {
-          final token = result.accessToken!.tokenString; // v6+
-          final cred = FacebookAuthProvider.credential(token);
-          await FirebaseAuth.instance.signInWithCredential(cred);
-
-          // Optional: sanity check for email presence
-          final userData =
-              await FacebookAuth.instance.getUserData(fields: 'email,name');
-          final u = FirebaseAuth.instance.currentUser;
-          if ((u?.email == null || (u?.email ?? '').isEmpty) &&
-              (userData['email'] == null ||
-                  (userData['email'] as String?)?.isEmpty == true)) {
-            _showSnack(t(context, 'fb_no_email'));
-          }
-        } else if (result.status == LoginStatus.cancelled) {
+        final token =
+            await _facebookChannel.invokeMethod<String>('logIn');
+        if (token == null || token.isEmpty) {
+          if (!mounted) return;
           _showSnack(t(context, 'fb_cancelled'));
           return;
+        }
+        final cred = FacebookAuthProvider.credential(token);
+        final current = FirebaseAuth.instance.currentUser;
+        if (current != null) {
+          try {
+            await current.linkWithCredential(cred);
+          } on FirebaseAuthException catch (le) {
+            if (le.code == 'credential-already-in-use' || le.code == 'provider-already-linked') {
+              await FirebaseAuth.instance.signInWithCredential(cred);
+            } else {
+              rethrow;
+            }
+          }
         } else {
-          throw result.message ?? 'Facebook login failed.';
+          await FirebaseAuth.instance.signInWithCredential(cred);
         }
       } else {
         await FirebaseAuth.instance.signInWithProvider(FacebookAuthProvider());
       }
 
       await UserService.upsertCurrentUser();
+      await _navigateToHome();
+    } on PlatformException catch (e) {
       if (!mounted) return;
-      Navigator.pushReplacementNamed(context, '/home');
+      if (e.code == 'cancelled' || e.code == 'sign_in_canceled') {
+        _showSnack(t(context, 'fb_cancelled'));
+      } else {
+        _showError(e.message ?? t(context, 'fb_failed'));
+      }
     } on FirebaseAuthException catch (e) {
-      _showError(_firebaseMessage(e));
+      if (e.code == 'account-exists-with-different-credential') {
+        await _handleAccountExists(e);
+      } else {
+        if (e.code == 'provider-already-linked' ||
+            e.code == 'credential-already-in-use') {
+          await _navigateToHome();
+        } else if (e.code == 'web-context-canceled' || e.code == 'canceled') {
+          _showSnack(t(context, 'fb_cancelled'));
+        } else {
+          _showError(_firebaseMessage(e));
+        }
+      }
     } catch (e) {
-      _showError(e.toString());
+      if (e.toString().contains('canceled')) {
+        _showSnack(t(context, 'fb_cancelled'));
+      } else {
+        _showError(e.toString());
+      }
     } finally {
       if (mounted) setState(() => busy = false);
     }
@@ -348,42 +485,14 @@ class _LoginScreenState extends State<LoginScreen>
   Future<void> signInApple() async {
     setState(() => busy = true);
     try {
-      if (kIsWeb) {
-        await FirebaseAuth.instance.signInWithPopup(OAuthProvider('apple.com'));
-      } else if (defaultTargetPlatform == TargetPlatform.iOS ||
-          defaultTargetPlatform == TargetPlatform.macOS) {
-        final rawNonce = _randomNonce();
-        final nonce = _sha256ofString(rawNonce);
-
-        final appleCred = await SignInWithApple.getAppleIDCredential(
-          scopes: [
-            AppleIDAuthorizationScopes.email,
-            AppleIDAuthorizationScopes.fullName
-          ],
-          nonce: nonce,
-        );
-
-        final oauth = OAuthProvider('apple.com').credential(
-          idToken: appleCred.identityToken,
-          rawNonce: rawNonce,
-        );
-
-        await FirebaseAuth.instance.signInWithCredential(oauth);
+      await AuthService.signInWithApple();
+      await _navigateToHome();
+    } on Exception catch (e) {
+      if (e.toString().contains('canceled')) {
+        _showSnack(t(context, 'fb_cancelled').replaceAll('Facebook', 'Apple'));
       } else {
-        await FirebaseAuth.instance
-            .signInWithProvider(OAuthProvider('apple.com'));
+        _showError(e.toString());
       }
-      await UserService.upsertCurrentUser();
-      if (!mounted) return;
-      Navigator.pushReplacementNamed(context, '/home');
-    } on SignInWithAppleAuthorizationException catch (e) {
-      if (e.code != AuthorizationErrorCode.canceled) {
-        _showError('Apple sign-in failed: ${e.code.name}');
-      }
-    } on FirebaseAuthException catch (e) {
-      _showError(_firebaseMessage(e));
-    } catch (e) {
-      _showError(e.toString());
     } finally {
       if (mounted) setState(() => busy = false);
     }
@@ -393,31 +502,29 @@ class _LoginScreenState extends State<LoginScreen>
   Future<void> signInMicrosoft() async {
     setState(() => busy = true);
     try {
-      final provider = OAuthProvider('microsoft.com');
-      provider.setCustomParameters({'prompt': 'select_account'});
-      provider
-        ..addScope('openid')
-        ..addScope('profile')
-        ..addScope('email')
-        ..addScope('User.Read');
-
-      UserCredential cred;
-      if (kIsWeb) {
-        cred = await FirebaseAuth.instance.signInWithPopup(provider);
-      } else {
-        cred = await FirebaseAuth.instance.signInWithProvider(provider);
-      }
-      if (cred.user == null) {
-        throw FirebaseAuthException(
-            code: 'microsoft-error', message: 'No user returned.');
-      }
-      await UserService.upsertCurrentUser();
-      if (!mounted) return;
-      Navigator.pushReplacementNamed(context, '/home');
+      await AuthService.signInWithMicrosoft();
+      await _navigateToHome();
     } on FirebaseAuthException catch (e) {
-      _showError(_firebaseMessage(e));
+      if (e.code == 'account-exists-with-different-credential') {
+        await _handleAccountExists(e);
+      } else {
+        if (e.code == 'provider-already-linked' ||
+            e.code == 'credential-already-in-use') {
+          await _navigateToHome();
+        } else if (e.code == 'web-context-canceled' || e.code == 'canceled') {
+          _showSnack(
+              t(context, 'fb_cancelled').replaceAll('Facebook', 'Microsoft'));
+        } else {
+          _showError(_firebaseMessage(e));
+        }
+      }
     } catch (e) {
-      _showError(e.toString());
+      if (e.toString().contains('canceled')) {
+        _showSnack(
+            t(context, 'fb_cancelled').replaceAll('Facebook', 'Microsoft'));
+      } else {
+        _showError(e.toString());
+      }
     } finally {
       if (mounted) setState(() => busy = false);
     }
@@ -429,8 +536,7 @@ class _LoginScreenState extends State<LoginScreen>
     try {
       await FirebaseAuth.instance.signInAnonymously();
       await UserService.upsertCurrentUser();
-      if (!mounted) return;
-      Navigator.pushReplacementNamed(context, '/home');
+      await _navigateToHome();
     } on FirebaseAuthException catch (e) {
       _showError(_firebaseMessage(e));
     } catch (e) {
@@ -440,43 +546,8 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
-  // Forgot Password
-  Future<void> forgotPasswordDialog() async {
-    final c = TextEditingController(text: emailCtrl.text.trim());
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(t(context, 'reset_title')),
-        content: TextFormField(
-          controller: c,
-          keyboardType: TextInputType.emailAddress,
-          decoration: InputDecoration(
-            labelText: t(context, 'email'),
-            prefixIcon: const Icon(Icons.email_outlined),
-          ),
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text(t(context, 'cancel'))),
-          FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(t(context, 'send'))),
-        ],
-      ),
-    );
-    if (ok != true) return;
 
-    try {
-      await FirebaseAuth.instance.sendPasswordResetEmail(email: c.text.trim());
-      if (!mounted) return;
-      _showSnack(t(context, 'reset_sent'));
-    } on FirebaseAuthException catch (e) {
-      _showError(_firebaseMessage(e));
-    } catch (e) {
-      _showError(e.toString());
-    }
-  }
+
 
   // ---- Helpers -------------------------------------------------------------
   String _firebaseMessage(FirebaseAuthException e) {
@@ -496,7 +567,7 @@ class _LoginScreenState extends State<LoginScreen>
       case 'missing-or-invalid-nonce':
       case 'missing-client-identifier':
       case 'unauthorized-domain':
-        return t(context, 'err_oauth_missing');
+        return '${t(context, 'err_oauth_missing')} (${e.code})';
       case 'provider-not-supported':
         return t(context, 'err_provider_unsupported');
       default:
@@ -531,288 +602,38 @@ class _LoginScreenState extends State<LoginScreen>
 
   // --------- Animated YouTube overlay (logo centered) ----------
   void _openVideoFromLogo() {
-    if (_isVideoOpen) return; // prevent double-open
+    try {
+      if (_isVideoOpen) return;
+      _isVideoOpen = true;
 
-    final id =
-        _extractYoutubeId(_videoUrl ?? _appDefaultYouTubeUrl) ?? 'ZczKlWNp5qY';
-
-    final overlay = Overlay.of(context);
-    if (overlay == null) return;
-
-    // Where is the logo on screen?
-    final logoContext = _logoKey.currentContext;
-    if (logoContext == null) return;
-    final box = logoContext.findRenderObject() as RenderBox?;
-    if (box == null || !box.hasSize) return;
-    final logoOffset = box.localToGlobal(Offset.zero);
-    final logoSize = box.size;
-    final logoRect = Rect.fromLTWH(
-      logoOffset.dx,
-      logoOffset.dy,
-      logoSize.width,
-      logoSize.height,
-    );
-
-    // Target rect: large 16:9 centered under AppBar + ticker
-    final size = MediaQuery.of(context).size;
-    final paddingTop = MediaQuery.of(context).padding.top;
-    final reservedTop =
-        paddingTop + kToolbarHeight + NvAppBar.tickerHeight + 16;
-
-    double width = size.width * 0.70; // ~70% screen width
-    double height = width * 9 / 16;
-
-    final maxHeight = size.height - reservedTop - 32;
-    if (height > maxHeight) {
-      height = maxHeight;
-      width = height * 16 / 9;
-    }
-
-    final targetRect = Rect.fromLTWH(
-      (size.width - width) / 2,
-      reservedTop,
-      width,
-      height,
-    );
-
-    final yt = YoutubePlayerController.fromVideoId(
-      videoId: id,
-      autoPlay: true,
-      params: const YoutubePlayerParams(
-        playsInline: true,
-        showFullscreenButton: true,
-        strictRelatedVideos: true,
-      ),
-    );
-
-    final ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 350),
-      reverseDuration: const Duration(milliseconds: 250),
-    );
-    final rectAnim = RectTween(begin: logoRect, end: targetRect)
-        .animate(CurvedAnimation(parent: ctrl, curve: Curves.easeOutCubic));
-
-    _isVideoOpen = true;
-
-    late OverlayEntry entry;
-    entry = OverlayEntry(builder: (_) {
-      return AnimatedBuilder(
-        animation: rectAnim,
-        builder: (_, __) {
-          final rect = rectAnim.value ?? targetRect;
-          return Stack(children: [
-            // Dim background => tap to close
-            Positioned.fill(
-              child: GestureDetector(
-                onTap: () async {
-                  await ctrl.reverse();
-                  yt.close();
-                  entry.remove();
-                  ctrl.dispose();
-                  _isVideoOpen = false;
-                  _videoEntry = null;
-                },
-                child: Container(color: Colors.black54),
-              ),
-            ),
-            // Video window
-            Positioned(
-              left: rect.left,
-              top: rect.top,
-              child: Material(
-                color: Colors.transparent,
-                elevation: 14,
-                borderRadius: BorderRadius.circular(18),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(18),
-                  child: SizedBox(
-                    width: rect.width,
-                    height: rect.height,
-                    child: Stack(children: [
-                      const Positioned.fill(
-                          child: ColoredBox(color: Colors.black)),
-                      Positioned.fill(child: YoutubePlayer(controller: yt)),
-                      Positioned(
-                        right: 8,
-                        top: 8,
-                        child: IconButton(
-                          style: IconButton.styleFrom(
-                            backgroundColor: Colors.black54,
-                            foregroundColor: Colors.white,
-                            minimumSize: const Size(36, 36),
-                            padding: EdgeInsets.zero,
-                          ),
-                          icon: const Icon(Icons.close),
-                          onPressed: () async {
-                            await ctrl.reverse();
-                            yt.close();
-                            entry.remove();
-                            ctrl.dispose();
-                            _isVideoOpen = false;
-                            _videoEntry = null;
-                          },
-                        ),
-                      ),
-                    ]),
-                  ),
-                ),
-              ),
-            ),
-          ]);
-        },
+      // Uses the new Global Video Controller (Phase 3)
+      NvVideoOverlay.showGlobal(
+        context,
+        videoUrl: _videoUrl,
+        videoAsset: _videoAsset,
+        source: _videoSource,
+        originKey: _logoKey, // The GlobalKey on the logo
+        onClose: () => _isVideoOpen = false,
       );
-    });
-
-    _videoEntry = entry;
-    overlay.insert(entry);
-    ctrl.forward();
-  }
-
-  String? _extractYoutubeId(String? url) {
-    if (url == null || url.trim().isEmpty) return null;
-    final u = Uri.tryParse(url.trim());
-    if (u == null) return null;
-    // youtu.be/<id>
-    if (u.host.contains('youtu.be') && u.pathSegments.isNotEmpty) {
-      return u.pathSegments.first;
-    }
-    // youtube.com/watch?v=<id> (and shorts/<id>, embed/<id>)
-    if (u.host.contains('youtube.com') || u.host.contains('youtube-nocookie')) {
-      final segments = u.pathSegments;
-      if (segments.length >= 2 && segments[0] == 'shorts') return segments[1];
-      if (segments.length >= 2 && segments[0] == 'embed') return segments[1];
-      return u.queryParameters['v'];
-    }
-    // raw id
-    if (RegExp(r'^[A-Za-z0-9_-]{6,}$').hasMatch(url)) return url;
-    return null;
-  }
-
-  Future<void> _editVideoAndLogoDialog() async {
-    // Only allow if manager
-    final isMgr = AppState.of(context).isManager.value;
-    if (!isMgr) {
-      _showSnack(t(context, 'insufficient'));
-      return;
-    }
-
-    final doc = await FirebaseFirestore.instance
-        .collection(_cfgCol)
-        .doc(_videoDoc)
-        .get();
-    final data = doc.data() ?? <String, dynamic>{};
-
-    final urlCtl = TextEditingController(text: _videoUrl ?? '');
-    final logoCtl = TextEditingController(text: _logoUrl ?? '');
-
-    final defaultUrl =
-        (data['default_url'] as String?) ?? _appDefaultYouTubeUrl;
-    final defaultLogo = (data['default_logo'] as String?) ?? _appDefaultLogoUrl;
-
-    bool saving = false;
-
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) {
-        String tr(String k) => t(context, k);
-        return StatefulBuilder(
-          builder: (ctx, setLocal) => AlertDialog(
-            title: Text(tr('popup_title')),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: urlCtl,
-                    decoration: InputDecoration(
-                      labelText: tr('yt_label'),
-                      helperText: t(context, 'video_url_hint'),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: logoCtl,
-                    decoration: InputDecoration(
-                      labelText: tr('logo_label'),
-                      helperText: t(context, 'logo_url_hint'),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  urlCtl.text = defaultUrl;
-                  logoCtl.text = defaultLogo;
-                  setLocal(() {});
-                },
-                child: Text(tr('reset_default_btn')),
-              ),
-              TextButton(
-                onPressed: saving
-                    ? null
-                    : () async {
-                        setLocal(() => saving = true);
-                        try {
-                          await _saveVideoLogo(
-                            url: urlCtl.text,
-                            logo: logoCtl.text,
-                            setAsDefault: true,
-                          );
-                          if (mounted) Navigator.pop(ctx, true);
-                        } catch (e) {
-                          _showError('${t(context, 'save_failed')}: $e');
-                        } finally {
-                          if (mounted) setLocal(() => saving = false);
-                        }
-                      },
-                child: Text(tr('make_default_btn')),
-              ),
-              const SizedBox(width: 8),
-              TextButton(
-                onPressed: saving ? null : () => Navigator.pop(ctx, false),
-                child: Text(t(context, 'cancel')),
-              ),
-              FilledButton(
-                onPressed: saving
-                    ? null
-                    : () async {
-                        setLocal(() => saving = true);
-                        try {
-                          await _saveVideoLogo(
-                            url: urlCtl.text,
-                            logo: logoCtl.text,
-                            setAsDefault: false,
-                          );
-                          if (mounted) Navigator.pop(ctx, true);
-                        } catch (e) {
-                          _showError('${t(context, 'save_failed')}: $e');
-                        } finally {
-                          if (mounted) setLocal(() => saving = false);
-                        }
-                      },
-                child: Text(
-                    saving ? t(context, 'saving_btn') : t(context, 'save_btn')),
-              ),
-            ],
+    } catch (e) {
+      _isVideoOpen = false;
+      debugPrint('Error opening video: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red.shade700,
+          content: Text(
+            tr(context, en: 'Unable to open video', es: 'No se puede abrir el video'),
           ),
-        );
-      },
-    );
+        ),
+      );
+    }
 
-    if (ok == true) {
-      // Immediately use the new video URL if valid
-      try {
-        final id = _extractYoutubeId(urlCtl.text);
-        if (id != null) {
-          await Future.delayed(const Duration(milliseconds: 50));
-          _openVideoFromLogo();
-        }
-      } catch (_) {
-        // ignore
-      }
+    // 3. Regex fallback
+    final trimmed = _videoUrl ?? ''; // Fix undefined 'trimmed'
+    final reg = RegExp(r'(?:v=|\/|embed\/|shorts\/|live\/|^)([A-Za-z0-9_-]{11})(?:[?&]|$)');
+    final match = reg.firstMatch(trimmed)?.group(1);
+    if (match != null) {
+       // logic to handle match if needed, but this function is void and opens overlay above
     }
   }
 
@@ -822,14 +643,14 @@ class _LoginScreenState extends State<LoginScreen>
     final app = AppState.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final linkColor =
-        isDark ? Theme.of(context).colorScheme.primary : kNvGreenDark;
+        isDark ? Theme.of(context).colorScheme.primary : nvGreenDark;
 
-    return ValueListenableBuilder<bool>(
-      valueListenable: app.isSpanish,
+    return ValueListenableBuilder<String>(
+      valueListenable: app.languageCode,
       builder: (_, __, ___) {
         return Scaffold(
           resizeToAvoidBottomInset: true,
-          appBar: NvAppBar(title: t(context, 'title')),
+          appBar: NvAppBar(tickerVisible: app.showTicker.value, title: t(context, 'title'), centerTitle: false),
           body: SafeArea(
             child: GestureDetector(
               onTap: () => FocusScope.of(context).unfocus(),
@@ -861,7 +682,11 @@ class _LoginScreenState extends State<LoginScreen>
                                     if (!_videoLoaded) return;
                                     _openVideoFromLogo();
                                   },
-                                  onLongPress: _editVideoAndLogoDialog,
+                                  onLongPress: () {
+                                    if (AppState.of(context).isManager.value) {
+                                    Navigator.pushNamed(context, '/login-video-settings');
+                                    }
+                                  },
                                   child: Hero(
                                     tag: 'nv.logo',
                                     child: _buildLogoWidget(),
@@ -978,7 +803,7 @@ class _LoginScreenState extends State<LoginScreen>
                                       TextSpan(
                                         text: right,
                                         style:
-                                            const TextStyle(color: kNvAccentOrange),
+                                            const TextStyle(color: nvAccentOrange),
                                       ),
                                     ],
                                   ),
@@ -987,7 +812,10 @@ class _LoginScreenState extends State<LoginScreen>
                             ),
                             const SizedBox(height: 4),
                             TextButton(
-                              onPressed: busy ? null : forgotPasswordDialog,
+                              onPressed: busy ? null : () => Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const ResetPasswordScreen()),
+                              ),
                               style: TextButton.styleFrom(
                                 foregroundColor: linkColor,
                                 textStyle: const TextStyle(
@@ -1054,7 +882,7 @@ class _LoginScreenState extends State<LoginScreen>
                             // Guest (full width)
                             _SocialButton(
                               onPressed: busy ? null : signInGuest,
-                              bg: Theme.of(context).colorScheme.surfaceVariant,
+                              bg: Theme.of(context).colorScheme.surfaceContainerHighest,
                               fg: Theme.of(context)
                                   .colorScheme
                                   .onSurfaceVariant,
@@ -1067,39 +895,39 @@ class _LoginScreenState extends State<LoginScreen>
                             const SizedBox(height: 20),
 
                             // ---- Footer links (wrap to 2 lines if needed) ----
-                            Wrap(
-                              alignment: WrapAlignment.center,
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              spacing: 18,
-                              runSpacing: 6,
-                              children: [
-                                TextButton.icon(
-                                  onPressed: busy
-                                      ? null
-                                      : () => Navigator.pushNamed(
-                                          context, '/contact'),
-                                  icon:
-                                      const Icon(Icons.support_agent_outlined),
-                                  label: Text(t(context, 'contact')),
-                                ),
-                                TextButton.icon(
-                                  onPressed: busy
-                                      ? null
-                                      : () => Navigator.pushNamed(
-                                          context, '/privacy'),
-                                  icon: const Icon(Icons.privacy_tip_outlined),
-                                  label: Text(t(context, 'privacy')),
-                                ),
-                                TextButton.icon(
-                                  onPressed: busy
-                                      ? null
-                                      : () => Navigator.pushNamed(
-                                          context, '/data-deletion'),
-                                  icon: const Icon(Icons.delete_outline),
-                                  label: Text(t(context, 'deletion')),
-                                ),
-                              ],
-                            ),
+                              Wrap(
+                                alignment: WrapAlignment.center,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                spacing: 18,
+                                runSpacing: 6,
+                                children: [
+                                  TextButton.icon(
+                                    onPressed: busy
+                                        ? null
+                                        : () => Navigator.pushNamed(
+                                            context, '/privacy'),
+                                    icon: const Icon(Icons.privacy_tip_outlined),
+                                    label: Text(t(context, 'privacy')),
+                                  ),
+                                  TextButton.icon(
+                                    onPressed: busy
+                                        ? null
+                                        : () => Navigator.pushNamed(
+                                            context, '/data-deletion'),
+                                    icon: const Icon(Icons.delete_outline),
+                                    label: Text(t(context, 'deletion')),
+                                  ),
+                                  TextButton.icon(
+                                    onPressed: busy
+                                        ? null
+                                        : () => Navigator.pushNamed(
+                                            context, '/contact'),
+                                    icon:
+                                        const Icon(Icons.support_agent_outlined),
+                                    label: Text(t(context, 'contact')),
+                                  ),
+                                ],
+                              ),
 
                             const SizedBox(height: 8),
                           ],
@@ -1117,24 +945,34 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _buildLogoWidget() {
-    final fallback = Image.asset(
-      'assets/images/app_icon_foreground.png',
-      key: _logoKey,
-      width: 120,
-      height: 120,
-      fit: BoxFit.contain,
-    );
-
-    if (_logoUrl == null || _logoUrl!.trim().isEmpty) {
-      return fallback;
+    final defaultAsset = 'assets/images/app_icon_foreground.png';
+    
+    Widget logoImage;
+    if (_logoSource == 'asset') {
+      logoImage = Image.asset(
+        _logoAsset ?? defaultAsset,
+        width: 120,
+        height: 120,
+        fit: BoxFit.contain,
+        errorBuilder: (_, __, ___) => Image.asset(defaultAsset, width: 120, height: 120),
+      );
+    } else {
+      logoImage = Image.network(
+        _logoUrl ?? _appDefaultLogoUrl,
+        width: 120,
+        height: 120,
+        fit: BoxFit.contain,
+        errorBuilder: (_, __, ___) => Image.asset(defaultAsset, width: 120, height: 120),
+      );
     }
-    return Image.network(
-      _logoUrl!,
+    
+    // Wrap in Container with key for proper positioning
+    return Container(
       key: _logoKey,
       width: 120,
       height: 120,
-      fit: BoxFit.contain,
-      errorBuilder: (_, __, ___) => fallback,
+      alignment: Alignment.center,
+      child: logoImage,
     );
   }
 }
@@ -1178,7 +1016,7 @@ class _GoogleButton extends StatelessWidget {
     const yellow = Color(0xFFFBBC05);
     const green = Color(0xFF34A853);
 
-    TextSpan _wordmark() => const TextSpan(children: [
+    TextSpan wordmark() => const TextSpan(children: [
           TextSpan(
               text: 'G',
               style: TextStyle(color: blue, fontWeight: FontWeight.w700)),
@@ -1226,7 +1064,7 @@ class _GoogleButton extends StatelessWidget {
           RichText(
             text: TextSpan(
               style: const TextStyle(fontSize: 16, letterSpacing: 0.2),
-              children: [_wordmark()],
+              children: [wordmark()],
             ),
           ),
         ],
@@ -1332,4 +1170,5 @@ class _MicrosoftLogo extends StatelessWidget {
     );
   }
 }
+
 

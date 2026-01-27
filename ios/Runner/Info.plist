@@ -6,6 +6,28 @@
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
 	<string>Niña Verde</string>
+	<key>FacebookAppID</key>
+	<string>1449626349514795</string>
+	<key>FacebookClientToken</key>
+	<string>9ca8cb1113725c94268ee347af5bc1f9</string>
+	<key>FacebookDisplayName</key>
+	<string>Niña Verde</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>fb1449626349514795</string>
+			</array>
+		</dict>
+	</array>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>fbapi</string>
+		<string>fb-messenger-share-api</string>
+		<string>fbauth2</string>
+		<string>fbshareextension</string>
+	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -45,5 +67,17 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Microphone access is needed for voice input.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Speech recognition is used to turn your voice into text.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Camera access is used to capture media for Angelina.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Photo library access is used to upload media for Angelina.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs access to location to provide delivery estimates and location-based services.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This app needs access to location to provide delivery estimates and location-based services.</string>
 </dict>
 </plist>

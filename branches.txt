@@ -1,0 +1,16 @@
+  origin/HEAD -> origin/develop
+  origin/codex/fix-authentication-for-third-party-login-buttons
+  origin/codex/fix-authentication-for-third-party-login-buttons-dc60uz
+  origin/codex/fix-ci-errors-in-pr-#57-and-pr-#58
+  origin/codex/fix-ci-errors-in-pr-#57-and-pr-#58-5sujjl
+  origin/codex/fix-ci-errors-in-pr-#57-and-pr-#58-dirogs
+  origin/codex/fix-ci-test-merge-issues
+  origin/codex/fix-ci-test-merge-issues-6ne24n
+  origin/codex/fix-ci-test-merge-issues-lb9q2h
+  origin/codex/fix-ci-test-merge-issues-y3oo6c
+  origin/dependabot/pub/develop/dart-deps-52469735ce
+  origin/develop
+  origin/feature/audit-fixes
+  origin/fixhome_screen
+  origin/main
+  origin/master

@@ -1,0 +1,13 @@
+Analyzing ninaverde_app...                                      
+
+  error - The named parameter 'color' isn't defined - lib\screens\owner_dashboard_screen.dart:509:72 - undefined_named_parameter
+  error - The named parameter 'blurRadius' isn't defined - lib\screens\owner_dashboard_screen.dart:509:98 - undefined_named_parameter
+  error - The argument type 'double?' can't be assigned to the parameter type 'num'.  - lib\services\payroll_service.dart:36:31 - argument_type_not_assignable
+  error - Undefined name 'UserProfile' - lib\services\schedule_service.dart:207:48 - undefined_identifier
+  error - The name 'StaffRole' isn't a type, so it can't be used as a type argument - lib\services\schedule_service.dart:212:26 - non_type_as_type_argument
+  error - The name 'UserProfile' isn't a type, so it can't be used as a type argument - lib\services\schedule_service.dart:212:42 - non_type_as_type_argument
+  error - The property 'uid' can't be unconditionally accessed because the receiver can be 'null' - lib\services\schedule_service.dart:231:57 - unchecked_use_of_nullable_value
+  error - The property 'uid' can't be unconditionally accessed because the receiver can be 'null' - lib\services\schedule_service.dart:231:92 - unchecked_use_of_nullable_value
+  error - The named parameter 'color' isn't defined - lib\widgets\john_copilot_sheet.dart:211:19 - undefined_named_parameter
+  error - The named parameter 'blurRadius' isn't defined - lib\widgets\john_copilot_sheet.dart:211:45 - undefined_named_parameter
+
