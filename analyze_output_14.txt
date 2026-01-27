@@ -1,0 +1,315 @@
+Analyzing ninaverde_app...                                      
+
+  error - Expected a method, getter, setter or operator declaration - lib\services\data_standardization_service.dart:2:1 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\services\data_standardization_service.dart:2:3 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\services\data_standardization_service.dart:2:5 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\services\data_standardization_service.dart:2:7 - expected_executable
+   info - An uninitialized variable should have an explicit type annotation - lib\services\data_standardization_service.dart:2:9 - prefer_typing_uninitialized_variables
+   info - Missing type annotation - lib\services\data_standardization_service.dart:2:9 - strict_top_level_inference
+   info - The variable name 'HEAD' isn't a lowerCamelCase identifier - lib\services\data_standardization_service.dart:2:9 - non_constant_identifier_names
+  error - Expected to find ';' - lib\services\data_standardization_service.dart:2:9 - expected_token
+  error - Variables must be declared using the keywords 'const', 'final', 'var' or a type name - lib\services\data_standardization_service.dart:2:9 - missing_const_final_var_or_type
+  error - Expected a method, getter, setter or operator declaration - lib\services\data_standardization_service.dart:3:1 - expected_executable
+  error - The '===' operator is not supported - lib\services\data_standardization_service.dart:3:1 - unsupported_operator
+  error - Expected a method, getter, setter or operator declaration - lib\services\data_standardization_service.dart:3:4 - expected_executable
+  error - The '===' operator is not supported - lib\services\data_standardization_service.dart:3:4 - unsupported_operator
+  error - Expected a method, getter, setter or operator declaration - lib\services\data_standardization_service.dart:3:7 - expected_executable
+  error - Directives must appear before any declarations - lib\services\data_standardization_service.dart:4:1 - directive_after_declaration
+  error - Expected a method, getter, setter or operator declaration - lib\services\data_standardization_service.dart:5:1 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\services\data_standardization_service.dart:5:4 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\services\data_standardization_service.dart:5:7 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\services\data_standardization_service.dart:5:9 - expected_executable
+   info - Missing type annotation - lib\services\data_standardization_service.dart:5:13 - strict_top_level_inference
+   info - Missing type annotation - lib\services\data_standardization_service.dart:5:18 - strict_top_level_inference
+  error - Named parameters must be enclosed in curly braces ('{' and '}') - lib\services\data_standardization_service.dart:5:22 - named_parameter_outside_group
+  error - Using a colon as the separator before a default value is no longer supported - lib\services\data_standardization_service.dart:5:22 - obsolete_colon_for_default_value
+  error - Undefined name 'On' - lib\services\data_standardization_service.dart:5:24 - undefined_identifier
+  error - Undefined name 'the' - lib\services\data_standardization_service.dart:5:27 - undefined_identifier
+  error - Undefined name 'fly' - lib\services\data_standardization_service.dart:5:31 - undefined_identifier
+  error - Expected to find ',' - lib\services\data_standardization_service.dart:5:35 - expected_token
+  error - Undefined class 'Product' - lib\services\data_standardization_service.dart:5:35 - undefined_class
+   info - The variable name 'Translation' isn't a lowerCamelCase identifier - lib\services\data_standardization_service.dart:5:43 - non_constant_identifier_names
+  error - Undefined class 'Ticker' - lib\services\data_standardization_service.dart:5:56 - undefined_class
+   info - The variable name 'Improvements' isn't a lowerCamelCase identifier - lib\services\data_standardization_service.dart:5:63 - non_constant_identifier_names
+   info - Use the generic function type syntax to declare the parameter 'B…' - lib\services\data_standardization_service.dart:5:77 - use_function_type_syntax_for_parameters
+  error - Undefined class 'Search' - lib\services\data_standardization_service.dart:5:77 - undefined_class
+   info - The variable name 'B…' isn't a lowerCamelCase identifier - lib\services\data_standardization_service.dart:5:84 - non_constant_identifier_names
+  error - Illegal character '8230' - lib\services\data_standardization_service.dart:5:85 - illegal_character
+  error - Expected an identifier - lib\services\data_standardization_service.dart:5:88 - missing_identifier
+  error - Expected to find ')' - lib\services\data_standardization_service.dart:5:89 - expected_token
+  error - A function body must be provided - lib\services\data_standardization_service.dart:6:1 - missing_function_body
+  error - Directives must appear before any declarations - lib\services\data_standardization_service.dart:6:1 - directive_after_declaration
+  error - Expected an identifier - lib\services\data_standardization_service.dart:133:1 - missing_identifier
+  error - Expected an identifier - lib\services\data_standardization_service.dart:133:3 - missing_identifier
+  error - Expected an identifier - lib\services\data_standardization_service.dart:133:5 - missing_identifier
+  error - Expected to find ';' - lib\services\data_standardization_service.dart:133:9 - expected_token
+  error - Expected to find '>' - lib\services\data_standardization_service.dart:133:9 - expected_token
+  error - The name 'HEAD' isn't a type, so it can't be used as a type argument - lib\services\data_standardization_service.dart:133:9 - non_type_as_type_argument
+  error - Expected to find '[' - lib\services\data_standardization_service.dart:134:11 - expected_token
+  error - Expected an identifier - lib\services\data_standardization_service.dart:139:1 - missing_identifier
+  error - The '===' operator is not supported - lib\services\data_standardization_service.dart:139:1 - unsupported_operator
+  error - Illegal assignment to non-assignable expression - lib\services\data_standardization_service.dart:139:4 - illegal_assignment_to_non_assignable
+  error - Missing selector such as '.identifier' or '[0]' - lib\services\data_standardization_service.dart:139:4 - missing_assignable_selector
+  error - The '===' operator is not supported - lib\services\data_standardization_service.dart:139:4 - unsupported_operator
+  error - Expected an identifier - lib\services\data_standardization_service.dart:139:7 - missing_identifier
+  error - Expected to find ';' - lib\services\data_standardization_service.dart:139:7 - expected_token
+  error - Expected an identifier - lib\services\data_standardization_service.dart:140:11 - missing_identifier
+  error - Expected an identifier - lib\services\data_standardization_service.dart:142:1 - missing_identifier
+  error - Expected an identifier - lib\services\data_standardization_service.dart:142:4 - missing_identifier
+  error - Expected an identifier - lib\services\data_standardization_service.dart:142:7 - missing_identifier
+  error - Expected to find ';' - lib\services\data_standardization_service.dart:142:9 - expected_token
+  error - Undefined name 'On' - lib\services\data_standardization_service.dart:142:24 - undefined_identifier
+  error - Undefined name 'the' - lib\services\data_standardization_service.dart:142:27 - undefined_identifier
+  error - Undefined name 'fly' - lib\services\data_standardization_service.dart:142:31 - undefined_identifier
+  error - Expected to find ',' - lib\services\data_standardization_service.dart:142:35 - expected_token
+  error - Undefined name 'Product' - lib\services\data_standardization_service.dart:142:35 - undefined_identifier
+  error - Expected to find ',' - lib\services\data_standardization_service.dart:142:43 - expected_token
+  error - Undefined name 'Translation' - lib\services\data_standardization_service.dart:142:43 - undefined_identifier
+  error - Undefined name 'Ticker' - lib\services\data_standardization_service.dart:142:56 - undefined_identifier
+  error - Expected to find ',' - lib\services\data_standardization_service.dart:142:63 - expected_token
+  error - Too many positional arguments: 3 expected, but 6 found - lib\services\data_standardization_service.dart:142:63 - extra_positional_arguments
+  error - Undefined name 'Improvements' - lib\services\data_standardization_service.dart:142:63 - undefined_identifier
+  error - Undefined name 'Search' - lib\services\data_standardization_service.dart:142:77 - undefined_identifier
+  error - Expected to find ',' - lib\services\data_standardization_service.dart:142:84 - expected_token
+  error - Illegal character '8230' - lib\services\data_standardization_service.dart:142:85 - illegal_character
+  error - Expected an identifier - lib\services\data_standardization_service.dart:142:89 - missing_identifier
+  error - Expected to find ',' - lib\services\data_standardization_service.dart:142:89 - expected_token
+  error - Expected to find ';' - lib\services\data_standardization_service.dart:142:92 - expected_token
+  error - 1 positional argument expected by 'initialize', but 0 found - lib\services\reservation_service.dart:19:37 - not_enough_positional_arguments
+  error - The named parameter 'settings' isn't defined - lib\services\reservation_service.dart:19:37 - undefined_named_parameter
+  error - 4 positional arguments expected by 'show', but 0 found - lib\services\reservation_service.dart:247:7 - not_enough_positional_arguments
+  error - The named parameter 'id' isn't defined - lib\services\reservation_service.dart:247:7 - undefined_named_parameter
+  error - The named parameter 'title' isn't defined - lib\services\reservation_service.dart:248:7 - undefined_named_parameter
+  error - The named parameter 'body' isn't defined - lib\services\reservation_service.dart:249:7 - undefined_named_parameter
+  error - The named parameter 'notificationDetails' isn't defined - lib\services\reservation_service.dart:250:7 - undefined_named_parameter
+  error - Expected a method, getter, setter or operator declaration - lib\services\schedule_service.dart:5:1 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\services\schedule_service.dart:5:3 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\services\schedule_service.dart:5:5 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\services\schedule_service.dart:5:7 - expected_executable
+  error - Expected to find ';' - lib\services\schedule_service.dart:5:9 - expected_token
+  error - Undefined class 'HEAD' - lib\services\schedule_service.dart:5:9 - undefined_class
+  error - Directives must appear before any declarations - lib\services\schedule_service.dart:6:1 - directive_after_declaration
+  error - Expected an identifier - lib\services\schedule_service.dart:6:1 - missing_identifier
+  error - Expected a method, getter, setter or operator declaration - lib\services\schedule_service.dart:7:1 - expected_executable
+  error - The '===' operator is not supported - lib\services\schedule_service.dart:7:1 - unsupported_operator
+  error - Expected a method, getter, setter or operator declaration - lib\services\schedule_service.dart:7:4 - expected_executable
+  error - The '===' operator is not supported - lib\services\schedule_service.dart:7:4 - unsupported_operator
+  error - Expected a method, getter, setter or operator declaration - lib\services\schedule_service.dart:7:7 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\services\schedule_service.dart:8:1 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\services\schedule_service.dart:8:4 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\services\schedule_service.dart:8:7 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\services\schedule_service.dart:8:9 - expected_executable
+   info - Missing type annotation - lib\services\schedule_service.dart:8:13 - strict_top_level_inference
+   info - Missing type annotation - lib\services\schedule_service.dart:8:18 - strict_top_level_inference
+  error - Named parameters must be enclosed in curly braces ('{' and '}') - lib\services\schedule_service.dart:8:22 - named_parameter_outside_group
+  error - Using a colon as the separator before a default value is no longer supported - lib\services\schedule_service.dart:8:22 - obsolete_colon_for_default_value
+  error - Undefined name 'On' - lib\services\schedule_service.dart:8:24 - undefined_identifier
+  error - Undefined name 'the' - lib\services\schedule_service.dart:8:27 - undefined_identifier
+  error - Undefined name 'fly' - lib\services\schedule_service.dart:8:31 - undefined_identifier
+  error - Expected to find ',' - lib\services\schedule_service.dart:8:35 - expected_token
+  error - Undefined class 'Product' - lib\services\schedule_service.dart:8:35 - undefined_class
+   info - The variable name 'Translation' isn't a lowerCamelCase identifier - lib\services\schedule_service.dart:8:43 - non_constant_identifier_names
+  error - Undefined class 'Ticker' - lib\services\schedule_service.dart:8:56 - undefined_class
+   info - The variable name 'Improvements' isn't a lowerCamelCase identifier - lib\services\schedule_service.dart:8:63 - non_constant_identifier_names
+   info - Use the generic function type syntax to declare the parameter 'B…' - lib\services\schedule_service.dart:8:77 - use_function_type_syntax_for_parameters
+  error - Undefined class 'Search' - lib\services\schedule_service.dart:8:77 - undefined_class
+   info - The variable name 'B…' isn't a lowerCamelCase identifier - lib\services\schedule_service.dart:8:84 - non_constant_identifier_names
+  error - Illegal character '8230' - lib\services\schedule_service.dart:8:85 - illegal_character
+  error - Expected an identifier - lib\services\schedule_service.dart:8:88 - missing_identifier
+  error - Expected to find ')' - lib\services\schedule_service.dart:8:89 - expected_token
+  error - A function body must be provided - lib\services\schedule_service.dart:10:1 - missing_function_body
+   info - Missing type annotation - lib\services\schedule_service.dart:135:1 - strict_top_level_inference
+  error - Methods must have an explicit list of parameters - lib\services\schedule_service.dart:135:1 - missing_method_parameters
+  error - Operator '<<' should declare exactly 1 parameters, but 0 found - lib\services\schedule_service.dart:135:1 - wrong_number_of_parameters_for_operator
+  error - Operator declarations must be preceded by the keyword 'operator' - lib\services\schedule_service.dart:135:1 - missing_keyword_operator
+   info - Missing type annotation - lib\services\schedule_service.dart:135:3 - strict_top_level_inference
+  error - A function body must be provided - lib\services\schedule_service.dart:135:3 - missing_function_body
+  error - Methods must have an explicit list of parameters - lib\services\schedule_service.dart:135:3 - missing_method_parameters
+  error - Operator '<<' should declare exactly 1 parameters, but 0 found - lib\services\schedule_service.dart:135:3 - wrong_number_of_parameters_for_operator
+  error - Operator declarations must be preceded by the keyword 'operator' - lib\services\schedule_service.dart:135:3 - missing_keyword_operator
+  error - The name '<<' is already defined - lib\services\schedule_service.dart:135:3 - duplicate_definition
+   info - Missing type annotation - lib\services\schedule_service.dart:135:5 - strict_top_level_inference
+  error - A function body must be provided - lib\services\schedule_service.dart:135:5 - missing_function_body
+  error - Methods must have an explicit list of parameters - lib\services\schedule_service.dart:135:5 - missing_method_parameters
+  error - Operator '<<' should declare exactly 1 parameters, but 0 found - lib\services\schedule_service.dart:135:5 - wrong_number_of_parameters_for_operator
+  error - Operator declarations must be preceded by the keyword 'operator' - lib\services\schedule_service.dart:135:5 - missing_keyword_operator
+  error - The name '<<' is already defined - lib\services\schedule_service.dart:135:5 - duplicate_definition
+  error - Types parameters aren't allowed when defining an operator - lib\services\schedule_service.dart:135:7 - type_parameter_on_operator
+  error - Expected to find '>' - lib\services\schedule_service.dart:135:9 - expected_token
+  error - A function body must be provided - lib\services\schedule_service.dart:137:3 - missing_function_body
+  error - The body might complete normally, causing 'null' to be returned, but the return type, 'Stream<List<ShiftSwapRequestModel>>', is a potentially non-nullable type - lib\services\schedule_service.dart:137:46 - body_might_complete_normally
+  error - Expected an identifier - lib\services\schedule_service.dart:139:1 - missing_identifier
+  error - The '===' operator is not supported - lib\services\schedule_service.dart:139:1 - unsupported_operator
+  error - Illegal assignment to non-assignable expression - lib\services\schedule_service.dart:139:4 - illegal_assignment_to_non_assignable
+  error - Missing selector such as '.identifier' or '[0]' - lib\services\schedule_service.dart:139:4 - missing_assignable_selector
+  error - The '===' operator is not supported - lib\services\schedule_service.dart:139:4 - unsupported_operator
+  error - Expected an identifier - lib\services\schedule_service.dart:139:7 - missing_identifier
+  error - Expected to find ';' - lib\services\schedule_service.dart:141:3 - expected_token
+  error - Undefined name 'static' - lib\services\schedule_service.dart:141:3 - undefined_identifier
+  error - Expected an identifier - lib\services\schedule_service.dart:145:1 - missing_identifier
+  error - Expected an identifier - lib\services\schedule_service.dart:145:4 - missing_identifier
+  error - Expected an identifier - lib\services\schedule_service.dart:145:7 - missing_identifier
+  error - Expected to find ';' - lib\services\schedule_service.dart:145:9 - expected_token
+  error - Undefined name 'On' - lib\services\schedule_service.dart:145:24 - undefined_identifier
+  error - Undefined name 'the' - lib\services\schedule_service.dart:145:27 - undefined_identifier
+  error - Undefined name 'fly' - lib\services\schedule_service.dart:145:31 - undefined_identifier
+  error - Expected to find ',' - lib\services\schedule_service.dart:145:35 - expected_token
+  error - Undefined name 'Product' - lib\services\schedule_service.dart:145:35 - undefined_identifier
+  error - Expected to find ',' - lib\services\schedule_service.dart:145:43 - expected_token
+  error - Undefined name 'Translation' - lib\services\schedule_service.dart:145:43 - undefined_identifier
+  error - Undefined name 'Ticker' - lib\services\schedule_service.dart:145:56 - undefined_identifier
+  error - Expected to find ',' - lib\services\schedule_service.dart:145:63 - expected_token
+  error - Too many positional arguments: 3 expected, but 6 found - lib\services\schedule_service.dart:145:63 - extra_positional_arguments
+  error - Undefined name 'Improvements' - lib\services\schedule_service.dart:145:63 - undefined_identifier
+  error - Undefined name 'Search' - lib\services\schedule_service.dart:145:77 - undefined_identifier
+  error - Expected to find ',' - lib\services\schedule_service.dart:145:84 - expected_token
+  error - Illegal character '8230' - lib\services\schedule_service.dart:145:85 - illegal_character
+  error - Expected an identifier - lib\services\schedule_service.dart:145:89 - missing_identifier
+  error - Expected to find ',' - lib\services\schedule_service.dart:145:89 - expected_token
+  error - Expected to find ';' - lib\services\schedule_service.dart:145:92 - expected_token
+  error - Expected an identifier - lib\services\schedule_service.dart:153:1 - missing_identifier
+  error - Expected an identifier - lib\services\schedule_service.dart:153:3 - missing_identifier
+  error - Expected an identifier - lib\services\schedule_service.dart:153:5 - missing_identifier
+  error - Expected to find ';' - lib\services\schedule_service.dart:153:9 - expected_token
+  error - Expected to find '>' - lib\services\schedule_service.dart:153:9 - expected_token
+  error - The name 'HEAD' isn't a type, so it can't be used as a type argument - lib\services\schedule_service.dart:153:9 - non_type_as_type_argument
+  error - Can't have modifier 'static' here - lib\services\schedule_service.dart:155:3 - extraneous_modifier
+  error - Expected to find '[' - lib\services\schedule_service.dart:155:3 - expected_token
+  error - Expected an identifier - lib\services\schedule_service.dart:163:1 - missing_identifier
+  error - The '===' operator is not supported - lib\services\schedule_service.dart:163:1 - unsupported_operator
+  error - Illegal assignment to non-assignable expression - lib\services\schedule_service.dart:163:4 - illegal_assignment_to_non_assignable
+  error - Missing selector such as '.identifier' or '[0]' - lib\services\schedule_service.dart:163:4 - missing_assignable_selector
+  error - The '===' operator is not supported - lib\services\schedule_service.dart:163:4 - unsupported_operator
+  error - Expected an identifier - lib\services\schedule_service.dart:163:7 - missing_identifier
+  error - Expected an identifier - lib\services\schedule_service.dart:164:1 - missing_identifier
+  error - Expected an identifier - lib\services\schedule_service.dart:164:4 - missing_identifier
+  error - Expected an identifier - lib\services\schedule_service.dart:164:7 - missing_identifier
+  error - Expected to find ';' - lib\services\schedule_service.dart:164:9 - expected_token
+  error - Undefined name 'On' - lib\services\schedule_service.dart:164:24 - undefined_identifier
+  error - Undefined name 'the' - lib\services\schedule_service.dart:164:27 - undefined_identifier
+  error - Undefined name 'fly' - lib\services\schedule_service.dart:164:31 - undefined_identifier
+  error - Expected to find ',' - lib\services\schedule_service.dart:164:35 - expected_token
+  error - Undefined name 'Product' - lib\services\schedule_service.dart:164:35 - undefined_identifier
+  error - Expected to find ',' - lib\services\schedule_service.dart:164:43 - expected_token
+  error - Undefined name 'Translation' - lib\services\schedule_service.dart:164:43 - undefined_identifier
+  error - Undefined name 'Ticker' - lib\services\schedule_service.dart:164:56 - undefined_identifier
+  error - Expected to find ',' - lib\services\schedule_service.dart:164:63 - expected_token
+  error - Too many positional arguments: 3 expected, but 6 found - lib\services\schedule_service.dart:164:63 - extra_positional_arguments
+  error - Undefined name 'Improvements' - lib\services\schedule_service.dart:164:63 - undefined_identifier
+  error - Undefined name 'Search' - lib\services\schedule_service.dart:164:77 - undefined_identifier
+  error - Expected to find ',' - lib\services\schedule_service.dart:164:84 - expected_token
+  error - Illegal character '8230' - lib\services\schedule_service.dart:164:85 - illegal_character
+  error - Expected an identifier - lib\services\schedule_service.dart:164:89 - missing_identifier
+  error - Expected to find ',' - lib\services\schedule_service.dart:164:89 - expected_token
+  error - Expected to find ';' - lib\services\schedule_service.dart:164:92 - expected_token
+  error - Can't have modifier 'static' here - lib\services\schedule_service.dart:166:3 - extraneous_modifier
+  error - Expected an identifier - lib\services\schedule_service.dart:201:1 - missing_identifier
+  error - Expected an identifier - lib\services\schedule_service.dart:201:3 - missing_identifier
+  error - Expected an identifier - lib\services\schedule_service.dart:201:5 - missing_identifier
+  error - Expected to find ';' - lib\services\schedule_service.dart:201:9 - expected_token
+  error - Expected to find '>' - lib\services\schedule_service.dart:201:9 - expected_token
+  error - The name 'HEAD' isn't a type, so it can't be used as a type argument - lib\services\schedule_service.dart:201:9 - non_type_as_type_argument
+  error - Can't have modifier 'static' here - lib\services\schedule_service.dart:203:3 - extraneous_modifier
+  error - Expected to find '[' - lib\services\schedule_service.dart:203:3 - expected_token
+  error - Expected an identifier - lib\services\schedule_service.dart:264:1 - missing_identifier
+  error - The '===' operator is not supported - lib\services\schedule_service.dart:264:1 - unsupported_operator
+  error - Illegal assignment to non-assignable expression - lib\services\schedule_service.dart:264:4 - illegal_assignment_to_non_assignable
+  error - Missing selector such as '.identifier' or '[0]' - lib\services\schedule_service.dart:264:4 - missing_assignable_selector
+  error - The '===' operator is not supported - lib\services\schedule_service.dart:264:4 - unsupported_operator
+  error - Expected an identifier - lib\services\schedule_service.dart:264:7 - missing_identifier
+  error - Expected an identifier - lib\services\schedule_service.dart:265:1 - missing_identifier
+  error - Expected an identifier - lib\services\schedule_service.dart:265:4 - missing_identifier
+  error - Expected an identifier - lib\services\schedule_service.dart:265:7 - missing_identifier
+  error - Expected to find ';' - lib\services\schedule_service.dart:265:9 - expected_token
+  error - Undefined name 'On' - lib\services\schedule_service.dart:265:24 - undefined_identifier
+  error - Undefined name 'the' - lib\services\schedule_service.dart:265:27 - undefined_identifier
+  error - Undefined name 'fly' - lib\services\schedule_service.dart:265:31 - undefined_identifier
+  error - Expected to find ',' - lib\services\schedule_service.dart:265:35 - expected_token
+  error - Undefined name 'Product' - lib\services\schedule_service.dart:265:35 - undefined_identifier
+  error - Expected to find ',' - lib\services\schedule_service.dart:265:43 - expected_token
+  error - Undefined name 'Translation' - lib\services\schedule_service.dart:265:43 - undefined_identifier
+  error - Undefined name 'Ticker' - lib\services\schedule_service.dart:265:56 - undefined_identifier
+  error - Expected to find ',' - lib\services\schedule_service.dart:265:63 - expected_token
+  error - Too many positional arguments: 3 expected, but 6 found - lib\services\schedule_service.dart:265:63 - extra_positional_arguments
+  error - Undefined name 'Improvements' - lib\services\schedule_service.dart:265:63 - undefined_identifier
+  error - Undefined name 'Search' - lib\services\schedule_service.dart:265:77 - undefined_identifier
+  error - Expected to find ',' - lib\services\schedule_service.dart:265:84 - expected_token
+  error - Illegal character '8230' - lib\services\schedule_service.dart:265:85 - illegal_character
+  error - Expected an identifier - lib\services\schedule_service.dart:265:89 - missing_identifier
+  error - Expected to find ',' - lib\services\schedule_service.dart:265:89 - expected_token
+  error - Expected to find ';' - lib\services\schedule_service.dart:265:92 - expected_token
+  error - Expected to find '}' - lib\services\schedule_service.dart:267:1 - expected_token
+  error - Expected a method, getter, setter or operator declaration - lib\widgets\accounting\john_cfo_widget.dart:5:1 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\widgets\accounting\john_cfo_widget.dart:5:3 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\widgets\accounting\john_cfo_widget.dart:5:5 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\widgets\accounting\john_cfo_widget.dart:5:7 - expected_executable
+   info - An uninitialized variable should have an explicit type annotation - lib\widgets\accounting\john_cfo_widget.dart:5:9 - prefer_typing_uninitialized_variables
+   info - Missing type annotation - lib\widgets\accounting\john_cfo_widget.dart:5:9 - strict_top_level_inference
+   info - The variable name 'HEAD' isn't a lowerCamelCase identifier - lib\widgets\accounting\john_cfo_widget.dart:5:9 - non_constant_identifier_names
+  error - Expected to find ';' - lib\widgets\accounting\john_cfo_widget.dart:5:9 - expected_token
+  error - Variables must be declared using the keywords 'const', 'final', 'var' or a type name - lib\widgets\accounting\john_cfo_widget.dart:5:9 - missing_const_final_var_or_type
+  error - Expected a method, getter, setter or operator declaration - lib\widgets\accounting\john_cfo_widget.dart:7:1 - expected_executable
+  error - The '===' operator is not supported - lib\widgets\accounting\john_cfo_widget.dart:7:1 - unsupported_operator
+  error - Expected a method, getter, setter or operator declaration - lib\widgets\accounting\john_cfo_widget.dart:7:4 - expected_executable
+  error - The '===' operator is not supported - lib\widgets\accounting\john_cfo_widget.dart:7:4 - unsupported_operator
+  error - Expected a method, getter, setter or operator declaration - lib\widgets\accounting\john_cfo_widget.dart:7:7 - expected_executable
+  error - Directives must appear before any declarations - lib\widgets\accounting\john_cfo_widget.dart:8:1 - directive_after_declaration
+  error - Expected a method, getter, setter or operator declaration - lib\widgets\accounting\john_cfo_widget.dart:9:1 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\widgets\accounting\john_cfo_widget.dart:9:4 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\widgets\accounting\john_cfo_widget.dart:9:7 - expected_executable
+  error - Expected a method, getter, setter or operator declaration - lib\widgets\accounting\john_cfo_widget.dart:9:9 - expected_executable
+   info - Missing type annotation - lib\widgets\accounting\john_cfo_widget.dart:9:13 - strict_top_level_inference
+   info - Missing type annotation - lib\widgets\accounting\john_cfo_widget.dart:9:18 - strict_top_level_inference
+  error - Named parameters must be enclosed in curly braces ('{' and '}') - lib\widgets\accounting\john_cfo_widget.dart:9:22 - named_parameter_outside_group
+  error - Using a colon as the separator before a default value is no longer supported - lib\widgets\accounting\john_cfo_widget.dart:9:22 - obsolete_colon_for_default_value
+  error - Undefined name 'On' - lib\widgets\accounting\john_cfo_widget.dart:9:24 - undefined_identifier
+  error - Undefined name 'the' - lib\widgets\accounting\john_cfo_widget.dart:9:27 - undefined_identifier
+  error - Undefined name 'fly' - lib\widgets\accounting\john_cfo_widget.dart:9:31 - undefined_identifier
+  error - Expected to find ',' - lib\widgets\accounting\john_cfo_widget.dart:9:35 - expected_token
+  error - Undefined class 'Product' - lib\widgets\accounting\john_cfo_widget.dart:9:35 - undefined_class
+   info - The variable name 'Translation' isn't a lowerCamelCase identifier - lib\widgets\accounting\john_cfo_widget.dart:9:43 - non_constant_identifier_names
+  error - Undefined class 'Ticker' - lib\widgets\accounting\john_cfo_widget.dart:9:56 - undefined_class
+   info - The variable name 'Improvements' isn't a lowerCamelCase identifier - lib\widgets\accounting\john_cfo_widget.dart:9:63 - non_constant_identifier_names
+   info - Use the generic function type syntax to declare the parameter 'B…' - lib\widgets\accounting\john_cfo_widget.dart:9:77 - use_function_type_syntax_for_parameters
+  error - Undefined class 'Search' - lib\widgets\accounting\john_cfo_widget.dart:9:77 - undefined_class
+   info - The variable name 'B…' isn't a lowerCamelCase identifier - lib\widgets\accounting\john_cfo_widget.dart:9:84 - non_constant_identifier_names
+  error - Illegal character '8230' - lib\widgets\accounting\john_cfo_widget.dart:9:85 - illegal_character
+  error - Expected an identifier - lib\widgets\accounting\john_cfo_widget.dart:9:88 - missing_identifier
+  error - Expected to find ')' - lib\widgets\accounting\john_cfo_widget.dart:9:89 - expected_token
+  error - A function body must be provided - lib\widgets\accounting\john_cfo_widget.dart:11:1 - missing_function_body
+  error - Expected an identifier - lib\widgets\admin\product_editor_sheet.dart:217:1 - missing_identifier
+  error - Expected an identifier - lib\widgets\admin\product_editor_sheet.dart:217:3 - missing_identifier
+  error - Expected an identifier - lib\widgets\admin\product_editor_sheet.dart:217:5 - missing_identifier
+  error - Expected to find ';' - lib\widgets\admin\product_editor_sheet.dart:217:9 - expected_token
+  error - Expected to find '>' - lib\widgets\admin\product_editor_sheet.dart:217:9 - expected_token
+  error - The name 'HEAD' isn't a type, so it can't be used as a type argument - lib\widgets\admin\product_editor_sheet.dart:217:9 - non_type_as_type_argument
+  error - Expected to find '[' - lib\widgets\admin\product_editor_sheet.dart:220:7 - expected_token
+  error - Expected an identifier - lib\widgets\admin\product_editor_sheet.dart:248:1 - missing_identifier
+  error - The '===' operator is not supported - lib\widgets\admin\product_editor_sheet.dart:248:1 - unsupported_operator
+  error - Illegal assignment to non-assignable expression - lib\widgets\admin\product_editor_sheet.dart:248:4 - illegal_assignment_to_non_assignable
+  error - Missing selector such as '.identifier' or '[0]' - lib\widgets\admin\product_editor_sheet.dart:248:4 - missing_assignable_selector
+  error - The '===' operator is not supported - lib\widgets\admin\product_editor_sheet.dart:248:4 - unsupported_operator
+  error - Expected an identifier - lib\widgets\admin\product_editor_sheet.dart:248:7 - missing_identifier
+  error - Expected to find ';' - lib\widgets\admin\product_editor_sheet.dart:248:7 - expected_token
+  error - Expected an identifier - lib\widgets\admin\product_editor_sheet.dart:250:7 - missing_identifier
+  error - Expected an identifier - lib\widgets\admin\product_editor_sheet.dart:254:1 - missing_identifier
+  error - Expected an identifier - lib\widgets\admin\product_editor_sheet.dart:254:4 - missing_identifier
+  error - Expected an identifier - lib\widgets\admin\product_editor_sheet.dart:254:7 - missing_identifier
+  error - Expected to find ';' - lib\widgets\admin\product_editor_sheet.dart:254:9 - expected_token
+  error - Undefined name 'On' - lib\widgets\admin\product_editor_sheet.dart:254:24 - undefined_identifier
+  error - Undefined name 'the' - lib\widgets\admin\product_editor_sheet.dart:254:27 - undefined_identifier
+  error - Undefined name 'fly' - lib\widgets\admin\product_editor_sheet.dart:254:31 - undefined_identifier
+  error - Expected to find ',' - lib\widgets\admin\product_editor_sheet.dart:254:35 - expected_token
+  error - Expected to find ',' - lib\widgets\admin\product_editor_sheet.dart:254:43 - expected_token
+  error - Undefined name 'Translation' - lib\widgets\admin\product_editor_sheet.dart:254:43 - undefined_identifier
+  error - Undefined name 'Ticker' - lib\widgets\admin\product_editor_sheet.dart:254:56 - undefined_identifier
+  error - Expected to find ',' - lib\widgets\admin\product_editor_sheet.dart:254:63 - expected_token
+  error - Undefined name 'Improvements' - lib\widgets\admin\product_editor_sheet.dart:254:63 - undefined_identifier
+  error - Undefined name 'Search' - lib\widgets\admin\product_editor_sheet.dart:254:77 - undefined_identifier
+  error - Expected to find ',' - lib\widgets\admin\product_editor_sheet.dart:254:84 - expected_token
+  error - Illegal character '8230' - lib\widgets\admin\product_editor_sheet.dart:254:85 - illegal_character
+  error - Expected an identifier - lib\widgets\admin\product_editor_sheet.dart:254:89 - missing_identifier
+  error - Expected to find ',' - lib\widgets\admin\product_editor_sheet.dart:254:89 - expected_token
+  error - Expected to find ';' - lib\widgets\admin\product_editor_sheet.dart:254:92 - expected_token
+  error - Expected to find '}' - lib\widgets\admin\product_editor_sheet.dart:292:5 - expected_token
+
