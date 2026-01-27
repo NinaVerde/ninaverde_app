@@ -75,11 +75,6 @@ class SandwichMenuButton extends StatelessWidget {
   }
 }
 
-<<<<<<< HEAD
-/// The actual Menu Content. 
-/// Designed to be "Glass" - seeing the app behind it blurred.
-=======
->>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
 class SandwichMenuSheet extends StatelessWidget {
   const SandwichMenuSheet({super.key});
 
@@ -273,152 +268,17 @@ class SandwichMenuSheet extends StatelessWidget {
                   ).animate().fadeIn(delay: 800.ms),
                 ],
               ),
+
             ),
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: brand.nvAccentOrange.withValues(alpha: 0.3),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Icon(
-                        Icons.restaurant_menu_rounded,
-                        color: Colors.white,
-                        size: 28,
-                      ),
-                    ).animate().scale(delay: 100.ms, duration: 400.ms, curve: Curves.elasticOut),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            isEs ? '¿Qué deseas hacer?' : 'What would you like?',
-                            style: theme.textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: -0.5,
-                              fontSize: 20,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            isEs ? 'Elige una opción' : 'Choose an option',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: isDark ? Colors.white60 : Colors.black54,
-                            ),
-                          ),
-                        ],
-                      ).animate().fadeIn(delay: 150.ms).slideX(begin: -0.2, end: 0),
-                    ),
-                  ],
-                ),
-              ),
-
-              const Divider(height: 32),
-
-              // Menu Items
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  children: [
-                    _MenuItem(
-                      icon: Icons.event_available_rounded,
-                      iconGradient: const [Color(0xFFFF6B6B), Color(0xFFFF8E53)],
-                      titleEn: 'Make Reservations',
-                      titleEs: 'Hacer Reservación',
-                      subtitleEn: 'Book a table or plan an event',
-                      subtitleEs: 'Reserva una mesa o planea un evento',
-                      onTap: () {
-                        Navigator.pop(context);
-                        _handleReservation(context);
-                      },
-                      delay: 0,
-                    ),
-                    _MenuItem(
-                      icon: Icons.shopping_bag_rounded,
-                      iconGradient: const [Color(0xFF4ECDC4), Color(0xFF44A08D)],
-                      titleEn: 'Start an Order',
-                      titleEs: 'Iniciar Pedido',
-                      subtitleEn: 'Pickup, delivery, dine-in, or preorder',
-                      subtitleEs: 'Recoger, entrega, comer aquí o preordenar',
-                      onTap: () {
-                        Navigator.pop(context);
-                        _handleStartOrder(context);
-                      },
-                      delay: 100,
-                    ),
-                    _MenuItem(
-                      icon: Icons.info_rounded,
-                      iconGradient: const [Color(0xFF667EEA), Color(0xFF764BA2)],
-                      titleEn: 'About Nina Verde',
-                      titleEs: 'Sobre Nina Verde',
-                      subtitleEn: 'Our story and values',
-                      subtitleEs: 'Nuestra historia y valores',
-                      onTap: () {
-                        Navigator.pop(context);
-                        _handleAbout(context);
-                      },
-                      delay: 200,
-                    ),
-                    _MenuItem(
-                      icon: Icons.location_on_rounded,
-                      iconGradient: const [Color(0xFFF093FB), Color(0xFFF5576C)],
-                      titleEn: 'Location',
-                      titleEs: 'Ubicación',
-                      subtitleEn: 'Find us and get directions',
-                      subtitleEs: 'Encuéntranos y obtén direcciones',
-                      onTap: () {
-                        Navigator.pop(context);
-                        _handleLocation(context);
-                      },
-                      delay: 300,
-                    ),
-                    _MenuItem(
-                      icon: Icons.games_rounded,
-                      iconGradient: const [Color(0xFFFA709A), Color(0xFFFEE140)],
-                      titleEn: 'Kidz Gamez Zone',
-                      titleEs: 'Zona de Juegoz',
-                      subtitleEn: 'Fun games for kids',
-                      subtitleEs: 'Juegoz divertidos para niños',
-                      onTap: () {
-                        Navigator.pop(context);
-                        Navigator.pushNamed(context, '/kids');
-                      },
-                      delay: 400,
-                    ),
-                  ],
-                ),
-              ),
-
-              // Footer
-              Padding(
-                padding: const EdgeInsets.all(24),
-                child: Text(
-                  isEs ? 'Desliza hacia abajo para cerrar' : 'Swipe down to close',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: isDark ? Colors.white38 : Colors.black38,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ).animate().fadeIn(delay: 500.ms),
-            ],
->>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
           ),
         );
       },
     );
   }
-<<<<<<< HEAD
-  
-  // -- Handlers (Same logic, better polish maybe?) --
-  void _handleReservation(BuildContext context) {
-=======
 
+  // -- Handlers --
   void _handleReservation(BuildContext context) {
     // Navigate to Angelina chat with reservation context
->>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
     Navigator.pushNamed(
       context,
       '/contact',
@@ -432,7 +292,6 @@ class SandwichMenuSheet extends StatelessWidget {
 
   void _handleStartOrder(BuildContext context) {
     final isEs = AppState.of(context).languageCode.value == 'es';
-<<<<<<< HEAD
     showDialog(context: context, builder: (c) => _LiquidOrderTypeDialog(isEs: isEs));
   }
 
@@ -459,48 +318,6 @@ class _LiquidMenuItem extends StatelessWidget {
     required this.icon,
     required this.gradient,
     required this.onTap,
-=======
-    showDialog(
-      context: context,
-      builder: (context) => _OrderTypeDialog(isEs: isEs),
-    );
-  }
-
-  void _handleAbout(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => _AboutDialog(),
-    );
-  }
-
-  void _handleLocation(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => _LocationDialog(),
-    );
-  }
-}
-
-class _MenuItem extends StatelessWidget {
-  final IconData icon;
-  final List<Color> iconGradient;
-  final String titleEn;
-  final String titleEs;
-  final String subtitleEn;
-  final String subtitleEs;
-  final VoidCallback onTap;
-  final int delay;
-
-  const _MenuItem({
-    required this.icon,
-    required this.iconGradient,
-    required this.titleEn,
-    required this.titleEs,
-    required this.subtitleEn,
-    required this.subtitleEs,
-    required this.onTap,
-    required this.delay,
->>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
   });
 
   @override
@@ -600,6 +417,8 @@ class _MenuItem extends StatelessWidget {
     );
   }
 }
+
+
 
 // ---------------------------------------------------------------------------
 // PAINTERS (The Art)
