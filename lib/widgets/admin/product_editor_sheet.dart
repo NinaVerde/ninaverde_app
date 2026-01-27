@@ -214,6 +214,7 @@ class _ProductEditorSheetState extends State<ProductEditorSheet> {
       String finalDescEn = _descEn.text.trim();
       String finalDescEs = _descEs.text.trim();
 
+<<<<<<< HEAD
       // Auto-fill missing names SMARTLY
       // New logic: Check language of populated fields
       if (finalNameEn.isNotEmpty && finalNameEs.isEmpty) {
@@ -244,6 +245,13 @@ class _ProductEditorSheetState extends State<ProductEditorSheet> {
          }
       } else if (finalDescEs.isNotEmpty && finalDescEn.isEmpty) {
          finalDescEn = await TranslationService().translate(finalDescEs, 'en');
+=======
+      // Auto-fill missing names
+      if (finalNameEn.isEmpty && finalNameEs.isNotEmpty) {
+        finalNameEn = await TranslationService().translate(finalNameEs, 'en');
+      } else if (finalNameEs.isEmpty && finalNameEn.isNotEmpty) {
+        finalNameEs = await TranslationService().translate(finalNameEn, 'es');
+>>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
       }
 
       final isNew = widget.product == null;
@@ -339,7 +347,11 @@ class _ProductEditorSheetState extends State<ProductEditorSheet> {
             
              // --- CATEGORY DROPDOWN ---
             DropdownButtonFormField<String>(
+<<<<<<< HEAD
               initialValue: _selectedCategoryCanonical,
+=======
+              value: _selectedCategoryCanonical,
+>>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
               isExpanded: true,
               decoration: InputDecoration(
                 labelText: tr(context, en: 'Category', es: 'Categoría'),

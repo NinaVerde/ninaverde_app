@@ -1,4 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+<<<<<<< HEAD
+=======
+import 'package:flutter/foundation.dart';
+>>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
 import 'translation_service.dart';
 
 class DataStandardizationService {
@@ -126,11 +130,16 @@ class DataStandardizationService {
 
         if (changed) {
           await doc.reference.update(updates);
+<<<<<<< HEAD
           if (col == 'products') {
             updatedProducts++;
           } else {
             updatedEvents++;
           }
+=======
+          if (col == 'products') updatedProducts++;
+          else updatedEvents++;
+>>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
         }
         
         // Rate limit slightly to avoid API flooding?

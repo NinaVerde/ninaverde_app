@@ -308,7 +308,11 @@ class _AccountingDashboardScreenState extends State<AccountingDashboardScreen> {
                  ],
                ),
              );
+<<<<<<< HEAD
            }),
+=======
+           }).toList(),
+>>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
         ],
       )
     );
@@ -530,7 +534,11 @@ class _AddExpenseDialogState extends State<_AddExpenseDialog> {
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<ExpenseCategory>(
+<<<<<<< HEAD
                     initialValue: _category,
+=======
+                    value: _category,
+>>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
                     decoration: const InputDecoration(
                       labelText: 'Category',
                       border: OutlineInputBorder(),

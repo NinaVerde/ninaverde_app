@@ -154,7 +154,11 @@ class _HomeScreenState extends State<HomeScreen> {
     
     // Auto scroll down to products (gentle nudge, keeping Hero visible)
     _mainScrollController.animateTo(
+<<<<<<< HEAD
       120, // Reduced from 550 to keep Carousel in view
+=======
+      550,
+>>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
       duration: const Duration(milliseconds: 800),
       curve: Curves.easeInOutCubic,
     );

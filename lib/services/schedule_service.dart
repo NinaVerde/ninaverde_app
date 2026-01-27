@@ -2,7 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/schedule_model.dart';
 import '../models/shift_model.dart';
 import '../models/shift_swap_request_model.dart';
+<<<<<<< HEAD
 import '../models/user_profile_model.dart'; // Added missing import
+=======
+>>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
 
 class ScheduleService {
   static final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -129,9 +132,17 @@ class ScheduleService {
             .toList());
   }
   
+<<<<<<< HEAD
   /// Get active requests for a user (either sent by them or targeted to them/open)
   static Stream<List<ShiftSwapRequestModel>> getSwapRequestsForUser(String userId) {
     // 1. Direct requests to me
+=======
+  /// Get active requests for a user (either sent by them or targeted to them)
+  static Stream<List<ShiftSwapRequestModel>> getSwapRequestsForUser(String userId) {
+    // Note: Firestore OR queries are limited. We might need two queries or valueChanges.
+    // For now, let's just fetch all recent and filter client side if needed, or index properly.
+    // Simpler approach: Look where userId is target
+>>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
     return _db.collection('shift_swaps')
         .where('targetUserId', isEqualTo: userId)
         .where('status', isEqualTo: SwapStatus.pending.name)
@@ -139,6 +150,7 @@ class ScheduleService {
         .map((s) => s.docs.map((d) => ShiftSwapRequestModel.fromFirestore(d)).toList());
   }
 
+<<<<<<< HEAD
   /// Peer accepts the swap (Step 2)
   static Future<void> acceptSwapByPeer(String requestId, String peerId, String peerName) async {
        await _db.collection('shift_swaps').doc(requestId).update({
@@ -148,6 +160,8 @@ class ScheduleService {
        });
   }
 
+=======
+>>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
   /// Approve or Reject a swap
   static Future<void> processSwapResolution(ShiftSwapRequestModel request, bool approved, String? managerNote) async {
     final batch = _db.batch();
@@ -184,6 +198,7 @@ class ScheduleService {
     
     await batch.commit();
   }
+<<<<<<< HEAD
   /// "Smart Fill": Auto-assign open shifts to eligible staff
   static Future<int> autoAssignShifts(String scheduleId) async {
     final batch = _db.batch();
@@ -246,4 +261,6 @@ class ScheduleService {
     await batch.commit();
     return assignedCount;
   }
+=======
+>>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
 }

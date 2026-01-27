@@ -2,7 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+<<<<<<< HEAD
 // Ensure correct import for FinancialSummary if moved, or use accounting_service.dart
+=======
+import '../../models/accounting_model.dart'; // Ensure correct import for FinancialSummary if moved, or use accounting_service.dart
+>>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
 
 class JohnCFOWidget extends StatelessWidget {
   final int alertCount;

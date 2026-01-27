@@ -21,7 +21,11 @@ class _ScheduleEditorScreenState extends State<ScheduleEditorScreen> with Single
   late TabController _tabController;
   final List<DateTime> _days = [];
   
+<<<<<<< HEAD
   final Map<String, UserProfile> _staffCache = {};
+=======
+  Map<String, UserProfile> _staffCache = {};
+>>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
 
   @override
   void initState() {
@@ -62,18 +66,25 @@ class _ScheduleEditorScreenState extends State<ScheduleEditorScreen> with Single
         title: widget.schedule.name,
         showBack: true,
         extraActions: [
+<<<<<<< HEAD
            if (!widget.schedule.isPublished) ...[
             IconButton(
               icon: const Icon(Icons.auto_fix_high),
               tooltip: 'Smart Fill (Auto-Assign)',
               onPressed: _runSmartFill,
             ),
+=======
+           if (!widget.schedule.isPublished)
+>>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
             IconButton(
               icon: const Icon(Icons.check_circle_outline),
               tooltip: 'Publish Schedule',
               onPressed: _publishSchedule,
             ),
+<<<<<<< HEAD
            ],
+=======
+>>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
         ],
       ),
       body: Column(
@@ -160,6 +171,7 @@ class _ScheduleEditorScreenState extends State<ScheduleEditorScreen> with Single
           }
       }
   }
+<<<<<<< HEAD
 
     void _runSmartFill() async {
         final confirm = await showDialog<bool>(
@@ -202,6 +214,8 @@ class _ScheduleEditorScreenState extends State<ScheduleEditorScreen> with Single
             }
         }
     }
+=======
+>>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
 }
 
 class _TimelineScheduleView extends StatelessWidget {
@@ -531,7 +545,11 @@ class _ShiftEditorDialogState extends State<ShiftEditorDialog> {
     late DateTime _startDetails; // Combined Date+Time
     late TimeOfDay _startTime;
     late TimeOfDay _endTime;
+<<<<<<< HEAD
     final TextEditingController _notesCtrl = TextEditingController();
+=======
+    TextEditingController _notesCtrl = TextEditingController();
+>>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
     
     List<UserProfile> _allStaff = [];
     
@@ -589,7 +607,11 @@ class _ShiftEditorDialogState extends State<ShiftEditorDialog> {
                             children: [
                                 // 1. Role Selection
                                 DropdownButtonFormField<StaffRole>(
+<<<<<<< HEAD
                                     initialValue: _role,
+=======
+                                    value: _role,
+>>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
                                     decoration: const InputDecoration(labelText: 'Role'),
                                     items: StaffRole.values.map((r) => DropdownMenuItem(
                                         value: r, 
@@ -601,7 +623,11 @@ class _ShiftEditorDialogState extends State<ShiftEditorDialog> {
                                 
                                 // 2. Staff Selection (Optional -> Open Shift)
                                 DropdownButtonFormField<UserProfile?>(
+<<<<<<< HEAD
                                     initialValue: _selectedStaff,
+=======
+                                    value: _selectedStaff,
+>>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
                                     decoration: const InputDecoration(
                                         labelText: 'Staff Member', 
                                         helperText: 'Leave empty for Open Shift',
