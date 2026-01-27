@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-
 // lib/widgets/sandwich_menu.dart
 import 'dart:ui'; // For BackdropFilter
 import 'package:flutter/material.dart';
@@ -15,17 +13,6 @@ import '../theme/brand_colors.dart' as brand;
 /// portal. It uses "staggered" animation logic to make items feel like they
 /// are "flowing" into place, not just appearing.
 /// --------------------------------------------------------------------------
-
-=======
-// lib/widgets/sandwich_menu.dart
-import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import '../state/app_state.dart';
-import '../theme/brand_colors.dart' as brand;
-import 'nv_widgets.dart';
-
-/// Premium sandwich menu for customer-facing navigation
->>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
 class SandwichMenuButton extends StatelessWidget {
   final VoidCallback? onTap;
 
@@ -33,59 +20,6 @@ class SandwichMenuButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-<<<<<<< HEAD
-    // A "Jewel-like" button that sits on the highly active App Bar.
-    // It pulses slightly to indicate "I am alive".
-    return Animate(
-      onPlay: (c) => c.repeat(reverse: true),
-      effects: [
-         // Subtle "breathing" effect (Neuro-Calm)
-         ScaleEffect(
-           begin: const Offset(1.0, 1.0), 
-           end: const Offset(1.05, 1.05),
-           duration: 2000.ms,
-           curve: Curves.easeInOutSine,
-         )
-      ],
-      child: GestureDetector(
-        onTap: () {
-          HapticFeedback.mediumImpact(); // Sensory Confirmation
-          onTap?.call();
-        },
-        child: Container(
-          margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            // Deep Emerald "Portal" Color
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                const Color(0xFF1B4D3E),
-                const Color(0xFF0F2E24),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(16), 
-            // "Squircle" feeling (Standard Radius 16 is close to optimal)
-            border: Border.all(
-              color: Colors.white.withOpacity(0.2), // Light catcher
-              width: 1.5,
-            ),
-            boxShadow: [
-              // Inner Glow (simulated via gradient, but adding outer glow here)
-              BoxShadow(
-                color: const Color(0xFF1B4D3E).withOpacity(0.5),
-                blurRadius: 12,
-                spreadRadius: 2,
-              ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: SizedBox(
-              width: 24,
-              height: 24,
-              child: CustomPaint(painter: _LiquidMenuPainter()),
-=======
     // "Elite" Stylish Button
     // Glass/Gradient effect with custom iconography
     return Animate(
@@ -93,45 +27,46 @@ class SandwichMenuButton extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: const Color(0xFF1B4D3E), 
+          // Deep Emerald "Portal" Color
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              const Color(0xFF1B4D3E),
+              const Color(0xFF0F2E24),
+            ],
+          ),
           shape: BoxShape.circle, 
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: null, // Circle shape doesn't need radius
+          // "Squircle" feeling (Standard Radius 16 is close to optimal)
           border: Border.all(
-            color: Colors.white.withOpacity(0.15), 
-            width: 2,
+            color: Colors.white.withOpacity(0.2), // Light catcher
+            width: 1.5,
           ),
           boxShadow: [
+            // Inner Glow (simulated via gradient, but adding outer glow here)
             BoxShadow(
-              color: Colors.black.withOpacity(0.6),
-              offset: const Offset(2, 2),
-              blurRadius: 4,
-              // inset: true, // Manual inset simulation below? No, treating as standard for now.
-            ),
-            BoxShadow(
-              color: Colors.greenAccent.withOpacity(0.6), 
-              blurRadius: 10,
-              spreadRadius: 1,
-            ),
-            BoxShadow(
-              color: Colors.white.withOpacity(0.1),
-              offset: const Offset(-2, -2),
-              blurRadius: 4,
+              color: const Color(0xFF1B4D3E).withOpacity(0.5),
+              blurRadius: 12,
+              spreadRadius: 2,
             ),
           ],
         ),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            borderRadius: BorderRadius.circular(14),
-            onTap: onTap,
+            borderRadius: BorderRadius.circular(100),
+            onTap: () {
+              HapticFeedback.mediumImpact(); // Sensory Confirmation
+              onTap?.call();
+            },
             child: Padding(
-              padding: const EdgeInsets.all(10.0), 
+              padding: const EdgeInsets.all(10.0),
               child: SizedBox(
-                  width: 24, 
-                  height: 24,
-                  child: CustomPaint(painter: _EliteMenuPainter()),
+                width: 24,
+                height: 24,
+                child: CustomPaint(painter: _LiquidMenuPainter()),
               ),
->>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
             ),
           ),
         ),
@@ -159,7 +94,6 @@ class SandwichMenuSheet extends StatelessWidget {
         final isDark = theme.brightness == Brightness.dark;
         final isEs = langCode == 'es';
 
-<<<<<<< HEAD
         // 1. THE GLASS CONTAINER
         // Instead of a solid background, we use a ClipRRect + BackdropFilter.
         // This makes the menu feel like a physical lens placed over the app.
@@ -340,59 +274,6 @@ class SandwichMenuSheet extends StatelessWidget {
                 ],
               ),
             ),
-=======
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.75,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: isDark
-                  ? [
-                      const Color(0xFF1A1A1A),
-                      const Color(0xFF2D2D2D),
-                    ]
-                  : [
-                      Colors.white,
-                      const Color(0xFFF5F5F5),
-                    ],
-            ),
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.3),
-                blurRadius: 20,
-                offset: const Offset(0, -5),
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              // Handle bar
-              Container(
-                margin: const EdgeInsets.only(top: 12, bottom: 8),
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: isDark ? Colors.white24 : Colors.black12,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ).animate().fadeIn().slideY(begin: -0.5, end: 0),
-
-              // Header
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            brand.nvAccentOrange,
-                            brand.nvAccentOrange.withValues(alpha: 0.7),
-                          ],
-                        ),
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
@@ -624,7 +505,6 @@ class _MenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-<<<<<<< HEAD
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
@@ -660,44 +540,11 @@ class _MenuItem extends StatelessWidget {
             child: Row(
               children: [
                 // Gradient Icon Container
-=======
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final isEs = AppState.of(context).languageCode.value == 'es';
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(20),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
->>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
                 Container(
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-<<<<<<< HEAD
                       colors: gradient,
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -717,78 +564,39 @@ class _MenuItem extends StatelessWidget {
                 const SizedBox(width: 20),
 
                 // Text
-=======
-                      colors: iconGradient,
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: iconGradient.first.withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Icon(icon, color: Colors.white, size: 28),
-                ),
-                const SizedBox(width: 16),
->>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-<<<<<<< HEAD
                         title,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
-=======
-                        isEs ? titleEs : titleEn,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: -0.3,
->>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
-<<<<<<< HEAD
                         subtitle,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: isDark ? Colors.white54 : Colors.black54,
-=======
-                        isEs ? subtitleEs : subtitleEn,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: isDark ? Colors.white60 : Colors.black54,
->>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
                         ),
                       ),
                     ],
                   ),
                 ),
-<<<<<<< HEAD
 
                 // Chevron
                 Icon(
                   Icons.arrow_forward_ios_rounded, 
                   size: 16, 
                   color: isDark ? Colors.white24 : Colors.black12
-=======
-                Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 18,
-                  color: isDark ? Colors.white38 : Colors.black26,
->>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
                 ),
               ],
             ),
           ),
         ),
       ),
-<<<<<<< HEAD
     );
   }
 }
