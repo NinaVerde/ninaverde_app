@@ -106,7 +106,6 @@ class NvAppBar extends StatelessWidget implements PreferredSizeWidget {
       visibleTitle = 'Niña Verde - $visibleTitle';
     }
 
-<<<<<<< HEAD
     // Build custom title configuration
     Widget? customTitle;
     bool useCustomLayout = centerWidget != null;
@@ -179,39 +178,18 @@ class NvAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           );
         }
-=======
-    // Build custom title with center widget if provided
-    Widget? customTitle;
-    if (centerWidget != null) {
-      customTitle = Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Left-side actions
-          ...extraActions,
-          // Spacer to push center widget to middle
-          const Spacer(),
-          // Center widget (sandwich menu)
-          centerWidget!,
-          // Spacer to balance layout
-          const Spacer(),
-        ],
->>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
       );
     }
 
     return AppBar(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Seamless match
       elevation: 0, // Remove shadow for flat continuity
-<<<<<<< HEAD
       // In Custom Layout, title consumes all space (leading/actions disabled)
-=======
->>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
       title: customTitle ?? (titleWidget ??
           TranslatedText(
             visibleTitle,
             style: const TextStyle(fontWeight: FontWeight.w700),
           )),
-<<<<<<< HEAD
       centerTitle: useCustomLayout ? true : centerTitle,
       titleSpacing: useCustomLayout ? 0.0 : NavigationToolbar.kMiddleSpacing,
       automaticallyImplyLeading: useCustomLayout ? false : showBack,
@@ -220,19 +198,6 @@ class NvAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: useCustomLayout 
           ? [] // Hide standard actions in custom mode, we manually placed them in Stack
           : [
-=======
-      centerTitle: customTitle != null ? false : centerTitle,
-      automaticallyImplyLeading: showBack,
-      actions: customTitle != null 
-          ? [
-              // Right-side toggles only when using custom layout
-              const NvLanguageToggle(),
-              const NvCurrencyToggle(),
-              const NvThemeToggle(),
-            ]
-          : [
-              // Original layout: extraActions + toggles
->>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
               ...extraActions,
               const NvLanguageToggle(),
               const NvCurrencyToggle(),

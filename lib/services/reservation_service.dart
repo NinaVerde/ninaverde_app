@@ -16,7 +16,7 @@ class ReservationService {
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const iOS = DarwinInitializationSettings();
     const settings = InitializationSettings(android: android, iOS: iOS);
-    await _notifications.initialize(settings);
+    await _notifications.initialize(settings: settings);
   }
 
   /// Create a new reservation
@@ -244,10 +244,10 @@ class ReservationService {
     const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
 
     await _notifications.show(
-      DateTime.now().millisecondsSinceEpoch ~/ 1000,
-      title,
-      body,
-      details,
+      id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      title: title,
+      body: body,
+      notificationDetails: details,
     );
   }
 
