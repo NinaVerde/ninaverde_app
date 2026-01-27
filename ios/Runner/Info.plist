@@ -75,5 +75,9 @@
 	<string>Camera access is used to capture media for Angelina.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Photo library access is used to upload media for Angelina.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs access to location to provide delivery estimates and location-based services.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This app needs access to location to provide delivery estimates and location-based services.</string>
 </dict>
 </plist>

@@ -22,11 +22,7 @@ class TranslationService {
       return _cache[cacheKey]!;
     }
 
-    // 2. Heuristic: If target is EN and it looks like EN, return.
-    // (In a production app, we'd use language detection here).
-    if (targetLanguageCode == 'en' && _isAlreadyEnglish(text)) {
-      return text;
-    }
+    // 2. (Removed faulty heuristic)
 
     try {
       // 3. Perform Translation
@@ -59,10 +55,14 @@ class TranslationService {
     }
   }
 
-  bool _isAlreadyEnglish(String text) {
-    // Simple regex check for English-only characters (basic heuristic)
-    final enRegex = RegExp(r'^[a-zA-Z0-9\s\.,!\?\(\)\-]+$');
-    return enRegex.hasMatch(text);
+  // Expose detection capability
+  Future<String> detectLanguage(String text) async {
+    try {
+       final translation = await _qt.translate(text, to: 'en');
+       return translation.sourceLanguage.code;
+    } catch (e) {
+      return 'und';
+    }
   }
 
   /// Clears the translation cache.

@@ -471,39 +471,32 @@ class _CategoryEditorSheetState extends State<_CategoryEditorSheet> {
       // Let's use FilePicker for "Uploading from local machine" which implies Desktop usually.
       // But let's check imports. `import 'package:file_picker/file_picker.dart';` was added at top.
 
-      result = await FilePicker.platform.pickFiles(
-        type: video ? FileType.video : FileType.image,
-      );
-
-      if (result != null) {
-        final platformFile = result.files.first;
-        final ext = platformFile.extension ?? (video ? 'mp4' : 'png');
-        final bytes = platformFile.bytes;
-        final path = platformFile.path;
-
-        if (bytes == null && path == null) return; // Should not happen
-
-        final filename = 'carousel/${DateTime.now().millisecondsSinceEpoch}.$ext';
-        final ref = FirebaseStorage.instance.ref().child(filename);
+      final XFile? file = video 
+          ? await _picker.pickVideo(source: ImageSource.gallery)
+          : await _picker.pickImage(source: ImageSource.gallery);
+          
+      if (file == null) return;
+      
+      final bytes = await file.readAsBytes();
+      final ext = file.name.split('.').last;
+      
+      final filename = 'carousel/${DateTime.now().millisecondsSinceEpoch}.$ext';
+      final ref = FirebaseStorage.instance.ref().child(filename);
         
-        UploadTask task;
-        if (kIsWeb || (bytes != null)) { // use bytes if available (often web/desktop memory)
-           task = ref.putData(bytes!);
-        } else {
-           task = ref.putFile(File(path!)); 
-        }
+      UploadTask task;
+      // Use putData for cross-platform simplicity
+      task = ref.putData(bytes, SettableMetadata(contentType: video ? 'video/mp4' : 'image/jpeg'));
 
-        await task;
-        final url = await ref.getDownloadURL();
-        
-        setState(() {
+      await task;
+      final url = await ref.getDownloadURL();
+      
+      setState(() {
           if (video) {
             _videoUrlCtrl.text = url;
           } else {
             _assetPathCtrl.text = url;
           }
-        });
-      }
+      });
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${tr(context, en: 'Upload failed: ', es: 'Error de carga: ')}$e')));
     } finally {
