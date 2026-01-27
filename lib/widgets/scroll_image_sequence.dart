@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
-=======
 import 'package:flutter/scheduler.dart';
 import 'dart:ui';
 import 'dart:math' as math;
->>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
 import '../state/app_state.dart';
 
 class ScrollImageSequence extends StatefulWidget {
