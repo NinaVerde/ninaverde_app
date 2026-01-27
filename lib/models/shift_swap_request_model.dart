@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 enum SwapStatus {
   pending,          // Requester asked, waiting for peer
-  acceptedByPeer,   // Peer said yes, waiting for manager
+  acceptedByPeer,   // Peer said yes, waiting for manager (The "Final Step")
   approved,         // Manager approved, shift updated
   rejected,         // Peer or manager said no
   cancelled,        // Requester changed mind

@@ -378,7 +378,7 @@ class _AngelinaAdminScreenState extends State<AngelinaAdminScreen> {
                       child: Column(
                         children: [
                           SwitchListTile(
-                            activeColor: Colors.deepPurpleAccent,
+                            activeThumbColor: Colors.deepPurpleAccent,
                             title: Text(
                               _onlineEnabled ? 'AI Intelligent 🚀' : 'Local Intelligent 🧠',
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),

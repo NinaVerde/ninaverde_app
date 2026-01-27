@@ -268,7 +268,7 @@ class _GlobalControls extends StatelessWidget {
             title: Text(tr(context, en: 'Auto-Play', es: 'Reproducción Automática'), style: const TextStyle(fontWeight: FontWeight.bold)),
             subtitle: Text(tr(context, en: 'Automatically rotate through categories', es: 'Rotar automáticamente por categorías')),
             value: autoPlay,
-            activeColor: Colors.greenAccent,
+            activeThumbColor: Colors.greenAccent,
             onChanged: onAutoPlayChanged,
           ),
         ],

@@ -308,7 +308,7 @@ class _AccountingDashboardScreenState extends State<AccountingDashboardScreen> {
                  ],
                ),
              );
-           }).toList(),
+           }),
         ],
       )
     );
@@ -530,7 +530,7 @@ class _AddExpenseDialogState extends State<_AddExpenseDialog> {
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<ExpenseCategory>(
-                    value: _category,
+                    initialValue: _category,
                     decoration: const InputDecoration(
                       labelText: 'Category',
                       border: OutlineInputBorder(),

@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
-import 'dart:ui';
-import 'dart:math' as math;
 import '../state/app_state.dart';
 
 class ScrollImageSequence extends StatefulWidget {
@@ -259,7 +256,7 @@ class _ScrollImageSequenceState extends State<ScrollImageSequence>
                 fit: StackFit.expand,
                 children: [
                   // Background image - must have explicit size
-                  Container(
+                  SizedBox(
                     width: width,
                     height: widget.height,
                     // removed color: Colors.black to avoid black box borders when scaled

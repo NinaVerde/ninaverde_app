@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/schedule_model.dart';
 import '../models/shift_model.dart';
 import '../models/shift_swap_request_model.dart';
+import '../models/user_profile_model.dart'; // Added missing import
 
 class ScheduleService {
   static final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -128,16 +129,23 @@ class ScheduleService {
             .toList());
   }
   
-  /// Get active requests for a user (either sent by them or targeted to them)
+  /// Get active requests for a user (either sent by them or targeted to them/open)
   static Stream<List<ShiftSwapRequestModel>> getSwapRequestsForUser(String userId) {
-    // Note: Firestore OR queries are limited. We might need two queries or valueChanges.
-    // For now, let's just fetch all recent and filter client side if needed, or index properly.
-    // Simpler approach: Look where userId is target
+    // 1. Direct requests to me
     return _db.collection('shift_swaps')
         .where('targetUserId', isEqualTo: userId)
         .where('status', isEqualTo: SwapStatus.pending.name)
         .snapshots()
         .map((s) => s.docs.map((d) => ShiftSwapRequestModel.fromFirestore(d)).toList());
+  }
+
+  /// Peer accepts the swap (Step 2)
+  static Future<void> acceptSwapByPeer(String requestId, String peerId, String peerName) async {
+       await _db.collection('shift_swaps').doc(requestId).update({
+           'status': SwapStatus.acceptedByPeer.name,
+           'targetUserId': peerId, // Lock it in if it was "open"
+           'targetUserName': peerName, // Lock it in
+       });
   }
 
   /// Approve or Reject a swap
@@ -175,5 +183,67 @@ class ScheduleService {
     }
     
     await batch.commit();
+  }
+  /// "Smart Fill": Auto-assign open shifts to eligible staff
+  static Future<int> autoAssignShifts(String scheduleId) async {
+    final batch = _db.batch();
+    int assignedCount = 0;
+
+    // 1. Get all OPEN shifts for this schedule
+    final shiftsSnap = await _db
+        .collection('shifts')
+        .where('scheduleId', isEqualTo: scheduleId)
+        .where('userId', isNull: true) // Only open shifts
+        .get();
+
+    if (shiftsSnap.docs.isEmpty) return 0;
+
+    // 2. Get all ACTIVE staff
+    final staffSnap = await _db
+        .collection('users')
+        .where('userType', isEqualTo: 'staff') // String 'staff'
+        .where('isActive', isEqualTo: true)
+        .get();
+        
+    final allStaff = staffSnap.docs.map((d) => UserProfile.fromFirestore(d)).toList();
+    if (allStaff.isEmpty) return 0;
+
+    // 3. Round-Robin Assignment Logic
+    // Group staff by role for quick lookup
+    final staffByRole = <StaffRole, List<UserProfile>>{};
+    for (final s in allStaff) {
+       if (s.staffRole != null) staffByRole.putIfAbsent(s.staffRole!, () => []).add(s);
+    }
+
+    // Shuffle staff for fairness
+    for (final list in staffByRole.values) {
+        list.shuffle();
+    }
+    
+    // Track assignment counts to balance load
+    final assignmentCounts = {for (var s in allStaff) s.uid: 0};
+
+    for (final doc in shiftsSnap.docs) {
+       final shift = ShiftModel.fromFirestore(doc);
+       final candidates = staffByRole[shift.role] ?? [];
+       
+       if (candidates.isNotEmpty) {
+           // Find candidate with lowest assignments so far (basic load balancing)
+           candidates.sort((a, b) => assignmentCounts[a.uid]!.compareTo(assignmentCounts[b.uid]!));
+           final bestCandidate = candidates.first;
+           
+           batch.update(doc.reference, {
+               'userId': bestCandidate.uid,
+               'assigneeName': bestCandidate.displayName,
+               'status': ShiftStatus.assigned.name,
+           });
+           
+           assignmentCounts[bestCandidate.uid] = assignmentCounts[bestCandidate.uid]! + 1;
+           assignedCount++;
+       }
+    }
+
+    await batch.commit();
+    return assignedCount;
   }
 }

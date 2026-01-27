@@ -106,43 +106,98 @@ class NvAppBar extends StatelessWidget implements PreferredSizeWidget {
       visibleTitle = 'Niña Verde - $visibleTitle';
     }
 
-    // Build custom title with center widget if provided
+    // Build custom title configuration
     Widget? customTitle;
-    if (centerWidget != null) {
-      customTitle = Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Left-side actions
-          ...extraActions,
-          // Spacer to push center widget to middle
-          const Spacer(),
-          // Center widget (sandwich menu)
-          centerWidget!,
-          // Spacer to balance layout
-          const Spacer(),
-        ],
+    bool useCustomLayout = centerWidget != null;
+
+    if (useCustomLayout) {
+      // FULL CUSTOM STACK MODE (Sandwich Menu)
+      // We take over the entire AppBar content area to guarantee centering
+      // independent of side widget widths.
+      
+      customTitle = LayoutBuilder(
+        builder: (context, constraints) {
+          final totalW = constraints.maxWidth;
+          // Reserve space for the center widget (approx 80px) ensuring it doesn't get overlapped
+          const centerW = 80.0;
+          final sideW = (totalW - centerW) / 2;
+
+          return SizedBox(
+            height: kToolbarHeight,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // LEFT SIDE: Back Button + Extra Actions
+                Positioned(
+                  left: 0,
+                  width: sideW,
+                  top: 0,
+                  bottom: 0,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                           const SizedBox(width: 4),
+                           if (showBack) const BackButton(),
+                           ...extraActions,
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                // CENTER: Sandwich Menu
+                Center(child: centerWidget!),
+
+                // RIGHT SIDE: Toggles
+                Positioned(
+                  right: 0,
+                  width: sideW,
+                  top: 0,
+                  bottom: 0,
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const NvLanguageToggle(),
+                          const NvCurrencyToggle(),
+                          const NvThemeToggle(),
+                          const SizedBox(width: 4),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
       );
     }
 
     return AppBar(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Seamless match
       elevation: 0, // Remove shadow for flat continuity
+      // In Custom Layout, title consumes all space (leading/actions disabled)
       title: customTitle ?? (titleWidget ??
           TranslatedText(
             visibleTitle,
             style: const TextStyle(fontWeight: FontWeight.w700),
           )),
-      centerTitle: customTitle != null ? false : centerTitle,
-      automaticallyImplyLeading: showBack,
-      actions: customTitle != null 
-          ? [
-              // Right-side toggles only when using custom layout
-              const NvLanguageToggle(),
-              const NvCurrencyToggle(),
-              const NvThemeToggle(),
-            ]
+      centerTitle: useCustomLayout ? true : centerTitle,
+      titleSpacing: useCustomLayout ? 0.0 : NavigationToolbar.kMiddleSpacing,
+      automaticallyImplyLeading: useCustomLayout ? false : showBack,
+      leading: useCustomLayout ? null : null, // Standard mode handles leading automatically
+      leadingWidth: useCustomLayout ? 0.0 : null,
+      actions: useCustomLayout 
+          ? [] // Hide standard actions in custom mode, we manually placed them in Stack
           : [
-              // Original layout: extraActions + toggles
               ...extraActions,
               const NvLanguageToggle(),
               const NvCurrencyToggle(),

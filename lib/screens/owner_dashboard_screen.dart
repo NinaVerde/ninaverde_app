@@ -12,9 +12,10 @@ import '../models/live_game_models.dart';
 import '../services/migration_service.dart';
 import '../widgets/nv_widgets.dart';
 import '../widgets/johns_insights_widget.dart';
+import '../widgets/john_copilot_sheet.dart';
 import 'kitchen_display_screen.dart';
 import 'driver_dashboard_screen.dart';
-import 'accounting_dashboard_screen.dart';
+import 'payroll_dashboard_screen.dart';
 
 class OwnerDashboardScreen extends StatefulWidget {
   const OwnerDashboardScreen({super.key});
@@ -276,6 +277,7 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
 
   void _handleModuleTap(_DashboardModule module, bool isEs) {
     if (_customize) return;
+    
     if (module.id == 'gaming') {
       Navigator.push(
         context,
@@ -289,11 +291,15 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
     } else if (module.id == 'accounting') {
        Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const AccountingDashboardScreen()),
+        MaterialPageRoute(builder: (context) => const PayrollDashboardScreen()),
       );
     } else if (module.id == 'staff') {
-       // Navigate to Schedule Admin
        Navigator.pushNamed(context, '/schedule-admin');
+    } else if (module.id == 'drivers') {
+        Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const DriverDashboardScreen()),
+        );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(isEs ? 'Módulo en desarrollo' : 'Module under development')),
@@ -402,6 +408,8 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
                 const SizedBox(height: 16),
                 _AdminLinks(isEs: isEs),
                 const SizedBox(height: 24),
+                // Footer padding for FAB
+                const SizedBox(height: 80), 
                 if (_customize)
                   FilledButton(
                     onPressed: () => setState(() => _customize = false),
@@ -410,9 +418,41 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
               ],
             ),
           ),
+          floatingActionButton: _buildJohnFab(context),
         );
       },
     );
+  }
+  
+  Widget _buildJohnFab(BuildContext context) {
+      return Container(
+          decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                  BoxShadow(color: Colors.cyanAccent.withOpacity(0.4), blurRadius: 15, spreadRadius: 2)
+              ]
+          ),
+          child: FloatingActionButton.extended(
+              onPressed: () => _openJohnCopilot(context),
+              backgroundColor: Colors.black,
+              icon: const Icon(Icons.smart_toy, color: Colors.cyanAccent),
+              label: const Text('ASK JOHN', style: TextStyle(color: Colors.cyanAccent, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+          )
+          .animate(onPlay: (c) => c.repeat(reverse: true))
+          .shimmer(duration: 3.seconds, delay: 2.seconds, color: Colors.cyanAccent.withOpacity(0.3)),
+      );
+  }
+
+  void _openJohnCopilot(BuildContext context) {
+      showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (_) => Padding(
+              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+              child: const JohnCopilotSheet(),
+          ),
+      );
   }
 }
 
@@ -422,60 +462,51 @@ class _HeroStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final title = isEs ? 'Tu centro de mando' : 'Your command center';
-    final subtitle = isEs
-        ? 'Todo el negocio, en tiempo real.'
-        : 'The entire business, in real time.';
+    final title = isEs ? 'Tu centro de mando' : 'Command Center';
     final surface = Theme.of(context).colorScheme.surface;
-    final subtitleColor =
-        Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7);
+    
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: surface.withValues(alpha: 0.94),
+        borderRadius: BorderRadius.circular(24),
+        gradient: const LinearGradient(
+            colors: [Color(0xFF001e36), Color(0xFF000000)], // Deep tech blue to black
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight
+        ),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x22000000),
+            color: Color(0x44000000),
             blurRadius: 20,
             offset: Offset(0, 10),
           ),
         ],
+        border: Border.all(color: Colors.white10),
       ),
       child: Row(
         children: [
-          Container(
-            width: 62,
-            height: 62,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0xFF4CAF50),
-            ),
-            child: const Icon(Icons.dashboard, color: Colors.white, size: 34),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  subtitle,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(color: subtitleColor),
-                ),
-              ],
-            ),
-          ),
+           // User Avatar
+           const CircleAvatar(
+               radius: 24,
+               backgroundImage: AssetImage('assets/images/avatar/default_avatar.png'), // Placeholder
+               backgroundColor: Colors.grey,
+           ),
+           
+           // Connection Line
+           Expanded(child: Container(height: 1, color: Colors.cyanAccent.withOpacity(0.3))),
+           const Icon(Icons.link, color: Colors.cyanAccent, size: 16),
+           Expanded(child: Container(height: 1, color: Colors.cyanAccent.withOpacity(0.3))),
+           
+           // John Avatar
+           Container(
+               padding: const EdgeInsets.all(2),
+               decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.cyanAccent)),
+               child: const CircleAvatar(
+                   radius: 22,
+                   backgroundColor: Colors.black,
+                   child: Icon(Icons.smart_toy, color: Colors.cyanAccent),
+               ),
+           ).animate(onPlay: (c) => c.repeat(reverse: true)).boxShadow(end: const BoxShadow(color: Colors.cyanAccent, blurRadius: 10)),
         ],
       ),
     ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.08, end: 0);

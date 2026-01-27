@@ -449,7 +449,7 @@ class _LanguageSettingsScreenState extends State<LanguageSettingsScreen> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
-              value: _defaultLanguage,
+              initialValue: _defaultLanguage,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

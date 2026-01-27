@@ -4,6 +4,8 @@ import '../services/live_game_service.dart';
 import '../models/live_game_models.dart';
 
 class StaffSessionManager extends StatelessWidget {
+  const StaffSessionManager({super.key});
+
   @override
   Widget build(BuildContext context) {
     final isEs = AppState.of(context).languageCode.value == 'es';
@@ -72,8 +74,7 @@ class _StaffSessionTile extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       title: Text(session.userName),
       subtitle: Text(
-        '${session.gameId} • ${duration.inMinutes} mins\n' +
-        (session.collateralDescription.isNotEmpty ? 'Collateral: ${session.collateralDescription}' : 'No Collateral'),
+        '${session.gameId} • ${duration.inMinutes} mins\n${session.collateralDescription.isNotEmpty ? 'Collateral: ${session.collateralDescription}' : 'No Collateral'}',
         style: const TextStyle(fontSize: 12),
       ),
       leading: CircleAvatar(

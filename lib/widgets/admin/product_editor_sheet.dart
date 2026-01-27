@@ -214,11 +214,36 @@ class _ProductEditorSheetState extends State<ProductEditorSheet> {
       String finalDescEn = _descEn.text.trim();
       String finalDescEs = _descEs.text.trim();
 
-      // Auto-fill missing names
-      if (finalNameEn.isEmpty && finalNameEs.isNotEmpty) {
+      // Auto-fill missing names SMARTLY
+      // New logic: Check language of populated fields
+      if (finalNameEn.isNotEmpty && finalNameEs.isEmpty) {
+        // Did the user type Spanish in the English field?
+        final detected = await TranslationService().detectLanguage(finalNameEn);
+        if (detected == 'es') {
+          // Swap!
+          finalNameEs = finalNameEn;
+          // Translate to English
+          finalNameEn = await TranslationService().translate(finalNameEs, 'en');
+        } else {
+          // It's English (or unknown), translate to Spanish
+          finalNameEs = await TranslationService().translate(finalNameEn, 'es');
+        }
+      } else if (finalNameEs.isNotEmpty && finalNameEn.isEmpty) {
+        // Standard flow: Spanish filled, English empty
         finalNameEn = await TranslationService().translate(finalNameEs, 'en');
-      } else if (finalNameEs.isEmpty && finalNameEn.isNotEmpty) {
-        finalNameEs = await TranslationService().translate(finalNameEn, 'es');
+      }
+
+      // Do the same for description if possible, or just standard fill
+      if (finalDescEn.isNotEmpty && finalDescEs.isEmpty) {
+         final detected = await TranslationService().detectLanguage(finalDescEn);
+         if (detected == 'es') {
+           finalDescEs = finalDescEn;
+           finalDescEn = await TranslationService().translate(finalDescEs, 'en');
+         } else {
+           finalDescEs = await TranslationService().translate(finalDescEn, 'es');
+         }
+      } else if (finalDescEs.isNotEmpty && finalDescEn.isEmpty) {
+         finalDescEn = await TranslationService().translate(finalDescEs, 'en');
       }
 
       final isNew = widget.product == null;
@@ -314,7 +339,7 @@ class _ProductEditorSheetState extends State<ProductEditorSheet> {
             
              // --- CATEGORY DROPDOWN ---
             DropdownButtonFormField<String>(
-              value: _selectedCategoryCanonical,
+              initialValue: _selectedCategoryCanonical,
               isExpanded: true,
               decoration: InputDecoration(
                 labelText: tr(context, en: 'Category', es: 'Categoría'),

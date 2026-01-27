@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import '../models/shift_model.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import '../models/shift_model.dart';
 import '../models/time_log_model.dart';
@@ -43,23 +42,25 @@ class _StaffDashboardScreenState extends State<StaffDashboardScreen> {
             const SizedBox(height: 24),
             
             // 1.5 Gamification (Elite)
-            _buildReliabilityCard(),
+            _buildReliabilityCard().animate().fadeIn(delay: 200.ms).slideX(begin: 0.1),
             const SizedBox(height: 24),
             
             // 2. Earnings (Elite Feature)
-            _buildEarningsCard(),
+            _buildEarningsCard().animate().fadeIn(delay: 400.ms).slideX(begin: 0.1),
             const SizedBox(height: 24),
 
             // 3. Next Shift
-            const Text('Next Shift', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text('Next Shift', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold))
+                .animate().fadeIn(delay: 600.ms),
             const SizedBox(height: 8),
-            _buildNextShiftCard(),
+            _buildNextShiftCard().animate().fadeIn(delay: 700.ms).slideY(begin: 0.2),
              const SizedBox(height: 24),
 
             // 3. Upcoming
-            const Text('Upcoming Schedule', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text('Upcoming Schedule', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold))
+                .animate().fadeIn(delay: 800.ms),
             const SizedBox(height: 8),
-            _buildUpcomingList(),
+            _buildUpcomingList().animate().fadeIn(delay: 900.ms),
           ],
         ),
       ),

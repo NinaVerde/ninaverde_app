@@ -841,7 +841,7 @@ class _StandardizationDialogState extends State<_StandardizationDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
            DropdownButtonFormField<String>(
-             value: _mode,
+             initialValue: _mode,
              decoration: InputDecoration(labelText: widget.isEs ? 'Tipo de Operación' : 'Operation Type'),
              items: [
                DropdownMenuItem(value: 'currency', child: Text(widget.isEs ? 'Sincronizar Monedas' : 'Sync Currencies')),
@@ -861,7 +861,7 @@ class _StandardizationDialogState extends State<_StandardizationDialog> {
              
            if (_mode == 'language')
              DropdownButtonFormField<String>(
-               value: _targetLang,
+               initialValue: _targetLang,
                decoration: InputDecoration(labelText: widget.isEs ? 'Idioma Objetivo' : 'Target Language'),
                items: const [
                  DropdownMenuItem(value: 'es', child: Text('Spanish (es)')),

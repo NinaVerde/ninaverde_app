@@ -4,7 +4,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../state/app_state.dart';
 import '../services/profile_picture_service.dart';
-import '../theme/brand_colors.dart';
 
 class JohnProfileSettingsScreen extends StatefulWidget {
   const JohnProfileSettingsScreen({super.key});
@@ -352,7 +351,7 @@ class _JohnProfileSettingsScreenState extends State<JohnProfileSettingsScreen> {
                   onChanged: pics.length < 2
                       ? null
                       : (value) => app.johnProfilePicRandomize.value = value,
-                  activeColor: Colors.blueAccent,
+                  activeThumbColor: Colors.blueAccent,
                 );
               },
             ),
