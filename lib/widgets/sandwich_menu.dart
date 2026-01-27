@@ -723,380 +723,153 @@ class _SimpleOption extends StatelessWidget {
             Text(label, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 16)),
           ],
         ),
-=======
+      ),
     )
-        .animate(delay: Duration(milliseconds: delay))
-        .fadeIn(duration: 400.ms)
-        .slideX(begin: -0.2, end: 0, curve: Curves.easeOutCubic);
+    .animate(delay: 200.ms) // Fixed delay for simplicity
+    .fadeIn(duration: 400.ms)
+    .slideX(begin: -0.2, end: 0, curve: Curves.easeOutCubic);
   }
 }
 
-class _OrderTypeDialog extends StatelessWidget {
-  final bool isEs;
+// ---------------------------------------------------------------------------
+// RICH CONTENT DIALOGS (Adopted from Translations Branch)
+// ---------------------------------------------------------------------------
 
-  const _OrderTypeDialog({required this.isEs});
+class _AboutDialog extends StatelessWidget {
+  const _AboutDialog();
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final isEs = AppState.of(context).languageCode.value == 'es';
 
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: isDark
-                ? [const Color(0xFF1A1A1A), const Color(0xFF2D2D2D)]
-                : [Colors.white, const Color(0xFFF5F5F5)],
-          ),
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              isEs ? '¿Cómo prefieres ordenar?' : 'How would you like to order?',
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            _OrderTypeButton(
-              icon: Icons.delivery_dining_rounded,
-              label: isEs ? 'Entrega a Domicilio' : 'Delivery',
-              color: const Color(0xFF4ECDC4),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushNamed(context, '/checkout', arguments: {'orderType': 'delivery'});
-              },
-            ),
-            const SizedBox(height: 12),
-            _OrderTypeButton(
-              icon: Icons.shopping_bag_rounded,
-              label: isEs ? 'Recoger' : 'Pickup',
-              color: const Color(0xFFFF6B6B),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushNamed(context, '/checkout', arguments: {'orderType': 'pickup'});
-              },
-            ),
-            const SizedBox(height: 12),
-            _OrderTypeButton(
-              icon: Icons.restaurant_rounded,
-              label: isEs ? 'Comer Aquí' : 'Dine In',
-              color: const Color(0xFF667EEA),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushNamed(context, '/checkout', arguments: {'orderType': 'dine-in'});
-              },
-            ),
-            const SizedBox(height: 12),
-            _OrderTypeButton(
-              icon: Icons.schedule_rounded,
-              label: isEs ? 'Preordenar' : 'Preorder',
-              color: const Color(0xFFF093FB),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushNamed(context, '/checkout', arguments: {'orderType': 'preorder'});
-              },
-            ),
-          ],
-        ),
-      ).animate().scale(duration: 300.ms, curve: Curves.easeOutBack),
-    );
-  }
-}
-
-class _OrderTypeButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _OrderTypeButton({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+    return BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+      child: Dialog(
+        backgroundColor: Colors.transparent,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [color, color.withValues(alpha: 0.7)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: isDark
+                  ? [const Color(0xFF1A1A1A), const Color(0xFF2D2D2D)]
+                  : [Colors.white, const Color(0xFFF5F5F5)],
             ),
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: color.withValues(alpha: 0.3),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              ),
-            ],
+            borderRadius: BorderRadius.circular(24),
           ),
-          child: Row(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, color: Colors.white, size: 28),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  label,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+              Icon(
+                Icons.restaurant_rounded,
+                size: 64,
+                color: brand.nvAccentOrange,
+              ).animate().scale(delay: 100.ms, duration: 400.ms, curve: Curves.elasticOut),
+              const SizedBox(height: 16),
+              Text(
+                'Niña Verde',
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: brand.nvAccentOrange,
                 ),
               ),
-              const Icon(Icons.arrow_forward_rounded, color: Colors.white),
+              const SizedBox(height: 16),
+              Text(
+                isEs
+                    ? 'Bienvenido a Niña Verde, donde la tradición nicaragüense se encuentra con la innovación culinaria. Ofrecemos una experiencia gastronómica única con sabores auténticos y un servicio excepcional.'
+                    : 'Welcome to Niña Verde, where Nicaraguan tradition meets culinary innovation. We offer a unique dining experience with authentic flavors and exceptional service.',
+                style: theme.textTheme.bodyMedium,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: brand.nvAccentOrange,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(isEs ? 'Cerrar' : 'Close'),
+              ),
             ],
           ),
-        ),
->>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
+        ).animate().scale(duration: 300.ms, curve: Curves.easeOutBack),
       ),
     );
   }
 }
 
-<<<<<<< HEAD
-// Re-implementing simplified About/Location dialogs to avoid breaking references
-class _AboutDialog extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final isEs = AppState.of(context).languageCode.value == 'es';
-    return Dialog(
-       backgroundColor: Theme.of(context).cardColor,
-       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-       child: Padding(
-         padding: const EdgeInsets.all(24.0),
-         child: Column(
-           mainAxisSize: MainAxisSize.min,
-           children: [
-             const Icon(Icons.info_outline, size: 48, color: Colors.orange),
-             const SizedBox(height: 16),
-             Text('Niña Verde', style: Theme.of(context).textTheme.headlineSmall),
-             const SizedBox(height: 8),
-             Text(
-               isEs ? 'Donde la tradición se encuentra con la innovación.' : 'Where tradition meets innovation.',
-               textAlign: TextAlign.center,
-             ),
-             const SizedBox(height: 24),
-             TextButton(onPressed: () => Navigator.pop(context), child: Text(isEs ? 'Cerrar' : 'Close'))
-           ],
-         ),
-       ),
-=======
-class _AboutDialog extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final isEs = AppState.of(context).languageCode.value == 'es';
-
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: isDark
-                ? [const Color(0xFF1A1A1A), const Color(0xFF2D2D2D)]
-                : [Colors.white, const Color(0xFFF5F5F5)],
-          ),
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.restaurant_rounded,
-              size: 64,
-              color: brand.nvAccentOrange,
-            ).animate().scale(delay: 100.ms, duration: 400.ms, curve: Curves.elasticOut),
-            const SizedBox(height: 16),
-            Text(
-              'Niña Verde',
-              style: theme.textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: brand.nvAccentOrange,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              isEs
-                  ? 'Bienvenido a Niña Verde, donde la tradición nicaragüense se encuentra con la innovación culinaria. Ofrecemos una experiencia gastronómica única con sabores auténticos y un servicio excepcional.'
-                  : 'Welcome to Niña Verde, where Nicaraguan tradition meets culinary innovation. We offer a unique dining experience with authentic flavors and exceptional service.',
-              style: theme.textTheme.bodyMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: brand.nvAccentOrange,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Text(isEs ? 'Cerrar' : 'Close'),
-            ),
-          ],
-        ),
-      ).animate().scale(duration: 300.ms, curve: Curves.easeOutBack),
->>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
-    );
-  }
-}
-
 class _LocationDialog extends StatelessWidget {
+  const _LocationDialog();
+
   @override
   Widget build(BuildContext context) {
-<<<<<<< HEAD
-    final isEs = AppState.of(context).languageCode.value == 'es';
-    return Dialog(
-       backgroundColor: Theme.of(context).cardColor,
-       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-       child: Padding(
-         padding: const EdgeInsets.all(24.0),
-         child: Column(
-           mainAxisSize: MainAxisSize.min,
-           children: [
-             const Icon(Icons.map, size: 48, color: Colors.purple),
-             const SizedBox(height: 16),
-             Text(isEs ? 'Ubicación' : 'Location', style: Theme.of(context).textTheme.headlineSmall),
-             const SizedBox(height: 8),
-             Text(
-               'Managua, Nicaragua',
-               textAlign: TextAlign.center,
-             ),
-             const SizedBox(height: 24),
-             TextButton(onPressed: () => Navigator.pop(context), child: Text(isEs ? 'Cerrar' : 'Close'))
-           ],
-         ),
-       ),
-    );
-  }
-}
-=======
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final isEs = AppState.of(context).languageCode.value == 'es';
 
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: isDark
-                ? [const Color(0xFF1A1A1A), const Color(0xFF2D2D2D)]
-                : [Colors.white, const Color(0xFFF5F5F5)],
+    return BackdropFilter(
+       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+       child: Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: isDark
+                  ? [const Color(0xFF1A1A1A), const Color(0xFF2D2D2D)]
+                  : [Colors.white, const Color(0xFFF5F5F5)],
+            ),
+            borderRadius: BorderRadius.circular(24),
           ),
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.location_on_rounded,
-              size: 64,
-              color: brand.nvAccentOrange,
-            ).animate().scale(delay: 100.ms, duration: 400.ms, curve: Curves.elasticOut),
-            const SizedBox(height: 16),
-            Text(
-              isEs ? 'Nuestra Ubicación' : 'Our Location',
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              isEs
-                  ? 'Managua, Nicaragua\n\nHorario:\nLunes - Domingo\n11:00 AM - 10:00 PM'
-                  : 'Managua, Nicaragua\n\nHours:\nMonday - Sunday\n11:00 AM - 10:00 PM',
-              style: theme.textTheme.bodyMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: brand.nvAccentOrange,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.location_on_rounded,
+                size: 64,
+                color: brand.nvAccentOrange,
+              ).animate().scale(delay: 100.ms, duration: 400.ms, curve: Curves.elasticOut),
+              const SizedBox(height: 16),
+              Text(
+                isEs ? 'Nuestra Ubicación' : 'Our Location',
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              child: Text(isEs ? 'Cerrar' : 'Close'),
-            ),
-          ],
-        ),
-      ).animate().scale(duration: 300.ms, curve: Curves.easeOutBack),
+              const SizedBox(height: 16),
+              Text(
+                isEs
+                    ? 'Managua, Nicaragua\n\nHorario:\nLunes - Domingo\n11:00 AM - 10:00 PM'
+                    : 'Managua, Nicaragua\n\nHours:\nMonday - Sunday\n11:00 AM - 10:00 PM',
+                style: theme.textTheme.bodyMedium,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: brand.nvAccentOrange,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(isEs ? 'Cerrar' : 'Close'),
+              ),
+            ],
+          ),
+        ).animate().scale(duration: 300.ms, curve: Curves.easeOutBack),
+      )
     );
   }
 }
-
-class _EliteMenuPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 2.5
-      ..strokeCap = StrokeCap.round;
-
-    final cx = size.width / 2;
-    // Top line (Longest)
-    canvas.drawLine(
-      Offset(0, size.height * 0.2),
-      Offset(size.width, size.height * 0.2),
-      paint
-    );
-
-    // Middle line (Medium)
-    final midW = size.width * 0.7;
-    canvas.drawLine(
-      Offset(cx - midW/2, size.height * 0.5),
-      Offset(cx + midW/2, size.height * 0.5),
-      paint
-    );
-
-    // Bottom line (Shortest)
-    final botW = size.width * 0.4;
-    canvas.drawLine(
-      Offset(cx - botW/2, size.height * 0.8),
-      Offset(cx + botW/2, size.height * 0.8),
-      paint
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
->>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
