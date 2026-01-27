@@ -1,0 +1,380 @@
+Resolving dependencies...
+Downloading packages...
+  characters 1.4.0 (1.4.1 available)
+  code_assets 0.19.10 (1.0.0 available)
+  geolocator 13.0.4 (14.0.2 available)
+  geolocator_android 4.6.2 (5.0.2 available)
+  google_fonts 7.0.2 (7.1.0 available)
+  hooks 0.20.5 (1.0.0 available)
+  image_picker_android 0.8.13+10 (0.8.13+12 available)
+  matcher 0.12.17 (0.12.18 available)
+  material_color_utilities 0.11.1 (0.13.0 available)
+  meta 1.17.0 (1.18.0 available)
+  native_toolchain_c 0.17.2 (0.17.4 available)
+  objective_c 9.2.2 (9.2.4 available)
+  test_api 0.7.7 (0.7.9 available)
+  timezone 0.10.1 (0.11.0 available)
+  video_player_avfoundation 2.8.10 (2.9.0 available)
+Got dependencies!
+15 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Analyzing ninaverde_app...                                      
+
+  error - Undefined name 'HeroCategoryConfig' - fresh_inspect\lib\main.dart:196:32 - undefined_identifier
+   info - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre - fresh_inspect\lib\screens\carousel_settings_screen.dart:253:13 - deprecated_member_use
+warning - The value of the local variable 'theme' isn't used - fresh_inspect\lib\screens\carousel_settings_screen.dart:278:11 - unused_local_variable
+warning - The value of the field '_picker' isn't used - fresh_inspect\lib\screens\carousel_settings_screen.dart:353:9 - unused_field
+  error - The method 'ImagePicker' isn't defined for the type '_CategoryEditorSheetState' - fresh_inspect\lib\screens\carousel_settings_screen.dart:353:19 - undefined_method
+warning - The declaration '_buildScaffoldContent' isn't referenced - fresh_inspect\lib\screens\login_video_settings_screen.dart:312:10 - unused_element
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - fresh_inspect\lib\screens\login_video_settings_screen.dart:342:11 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - fresh_inspect\lib\screens\login_video_settings_screen.dart:343:11 - deprecated_member_use
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - fresh_inspect\lib\screens\login_video_settings_screen.dart:349:11 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - fresh_inspect\lib\screens\login_video_settings_screen.dart:350:11 - deprecated_member_use
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - fresh_inspect\lib\screens\login_video_settings_screen.dart:391:11 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - fresh_inspect\lib\screens\login_video_settings_screen.dart:392:11 - deprecated_member_use
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - fresh_inspect\lib\screens\login_video_settings_screen.dart:397:11 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - fresh_inspect\lib\screens\login_video_settings_screen.dart:398:11 - deprecated_member_use
+  error - The named parameter 'bottom' isn't defined - fresh_inspect\lib\screens\settings_pages.dart:537:13 - undefined_named_parameter
+  error - The name 'carouselAutoPlay' is already defined - fresh_inspect\lib\state\app_state.dart:51:29 - duplicate_definition
+  error - The name 'carouselGlobalMode' is already defined - fresh_inspect\lib\state\app_state.dart:52:37 - duplicate_definition
+  error - All final variables must be initialized, but 'carouselAutoPlay' and 'carouselGlobalMode' aren't - fresh_inspect\lib\state\app_state.dart:65:9 - final_not_initialized_constructor
+  error - The field 'carouselAutoPlay' can't be initialized by multiple parameters in the same constructor - fresh_inspect\lib\state\app_state.dart:89:19 - duplicate_field_formal_parameter
+  error - The field 'carouselGlobalMode' can't be initialized by multiple parameters in the same constructor - fresh_inspect\lib\state\app_state.dart:90:19 - duplicate_field_formal_parameter
+warning - Unused import: 'dart:io' - fresh_inspect\lib\widgets\hero_carousel.dart:5:8 - unused_import
+  error - Undefined class 'Timer' - fresh_inspect\lib\widgets\nv_widgets.dart:323:8 - undefined_class
+warning - The value of the field '_orangePadV' isn't used - fresh_inspect\lib\widgets\nv_widgets.dart:328:23 - unused_field
+  error - The method 'Timer' isn't defined for the type '_TickerBandState' - fresh_inspect\lib\widgets\nv_widgets.dart:358:19 - undefined_method
+  error - Undefined name 'Timer' - fresh_inspect\lib\widgets\nv_widgets.dart:413:19 - undefined_identifier
+warning - The value of the local variable 'begin' isn't used - fresh_inspect\lib\widgets\nv_widgets.dart:574:21 - unused_local_variable
+warning - The value of the local variable 'end' isn't used - fresh_inspect\lib\widgets\nv_widgets.dart:574:28 - unused_local_variable
+warning - Unused import: 'package:flutter/scheduler.dart' - fresh_inspect\lib\widgets\scroll_image_sequence.dart:2:8 - unused_import
+   info - The import of 'dart:ui' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - fresh_inspect\lib\widgets\scroll_image_sequence.dart:3:8 - unnecessary_import
+warning - Unused import: 'dart:math' - fresh_inspect\lib\widgets\scroll_image_sequence.dart:4:8 - unused_import
+warning - The value of the local variable 'opacity' isn't used - fresh_inspect\lib\widgets\scroll_image_sequence.dart:185:22 - unused_local_variable
+   info - Use a 'SizedBox' to add whitespace to a layout - fresh_inspect\lib\widgets\scroll_image_sequence.dart:220:19 - sized_box_for_whitespace
+   info - 'scale' is deprecated and shouldn't be used. Use scaleByVector3, scaleByVector4, or scaleByDouble instead - fresh_inspect\lib\widgets\scroll_image_sequence.dart:228:27 - deprecated_member_use
+  error - Target of URI doesn't exist: '../config/product_animations_map.dart' - fresh_inspect\temp_restore\hero_carousel.dart:7:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../state/app_state.dart' - fresh_inspect\temp_restore\hero_carousel.dart:9:8 - uri_does_not_exist
+warning - The value of the field '_autoPlayController' isn't used - fresh_inspect\temp_restore\hero_carousel.dart:36:34 - unused_field
+  error - Undefined name 'HeroCategoryConfig' - fresh_inspect\temp_restore\hero_carousel.dart:45:36 - undefined_identifier
+warning - The value of the field '_currentSpeedCfg' isn't used - fresh_inspect\temp_restore\hero_carousel.dart:52:15 - unused_field
+  error - Undefined name 'AppState' - fresh_inspect\temp_restore\hero_carousel.dart:112:17 - undefined_identifier
+  error - Undefined name 'HeroCategoryConfig' - fresh_inspect\temp_restore\hero_carousel.dart:185:16 - undefined_identifier
+  error - Undefined name 'AppState' - fresh_inspect\temp_restore\hero_carousel.dart:231:29 - undefined_identifier
+   info - Don't use 'BuildContext's across async gaps - fresh_inspect\temp_restore\hero_carousel.dart:231:41 - use_build_context_synchronously
+  error - Undefined name 'HeroCategoryConfig' - fresh_inspect\temp_restore\hero_carousel.dart:243:31 - undefined_identifier
+  error - Undefined name 'AppState' - fresh_inspect\temp_restore\hero_carousel.dart:254:25 - undefined_identifier
+  error - The name 'CarouselMode' isn't a type, so it can't be used as a type argument - fresh_inspect\temp_restore\hero_carousel.dart:261:43 - non_type_as_type_argument
+  error - The name 'CategoryConfig' isn't a type, so it can't be used as a type argument - fresh_inspect\temp_restore\hero_carousel.dart:264:59 - non_type_as_type_argument
+   info - 'translate' is deprecated and shouldn't be used. Use translateByVector3, translateByVector4, or translateByDouble instead - fresh_inspect\temp_restore\hero_carousel.dart:292:31 - deprecated_member_use
+   info - 'scale' is deprecated and shouldn't be used. Use scaleByVector3, scaleByVector4, or scaleByDouble instead - fresh_inspect\temp_restore\hero_carousel.dart:295:31 - deprecated_member_use
+  error - Undefined class 'CarouselMode' - fresh_inspect\temp_restore\hero_carousel.dart:343:9 - undefined_class
+  error - Undefined name 'AppState' - fresh_inspect\temp_restore\hero_carousel.dart:526:46 - undefined_identifier
+  error - Undefined name 'HeroCategoryConfig' - fresh_inspect\temp_restore\hero_carousel.dart:528:39 - undefined_identifier
+  error - Undefined name 'HeroCategoryConfig' - fresh_inspect\temp_restore\hero_carousel.dart:567:37 - undefined_identifier
+  error - Target of URI doesn't exist: '../state/app_state.dart' - fresh_inspect\temp_restore\scroll_image_sequence.dart:5:8 - uri_does_not_exist
+  error - Undefined class 'CarouselMode' - fresh_inspect\temp_restore\scroll_image_sequence.dart:13:9 - undefined_class
+  error - Undefined name 'CarouselMode' - fresh_inspect\temp_restore\scroll_image_sequence.dart:22:17 - undefined_identifier
+  error - Undefined name 'CarouselMode' - fresh_inspect\temp_restore\scroll_image_sequence.dart:112:24 - undefined_identifier
+warning - The value of the local variable 'opacity' isn't used - fresh_inspect\temp_restore\scroll_image_sequence.dart:180:22 - unused_local_variable
+   info - Use a 'SizedBox' to add whitespace to a layout - fresh_inspect\temp_restore\scroll_image_sequence.dart:196:19 - sized_box_for_whitespace
+   info - 'scale' is deprecated and shouldn't be used. Use scaleByVector3, scaleByVector4, or scaleByDouble instead - fresh_inspect\temp_restore\scroll_image_sequence.dart:204:27 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use component accessors like .r or .g, or toARGB32 for an explicit conversion - lib\models\theme_config_model.dart:49:36 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use component accessors like .r or .g, or toARGB32 for an explicit conversion - lib\models\theme_config_model.dart:50:40 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use component accessors like .r or .g, or toARGB32 for an explicit conversion - lib\models\theme_config_model.dart:51:36 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use component accessors like .r or .g, or toARGB32 for an explicit conversion - lib\models\theme_config_model.dart:52:42 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use component accessors like .r or .g, or toARGB32 for an explicit conversion - lib\models\theme_config_model.dart:53:32 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use component accessors like .r or .g, or toARGB32 for an explicit conversion - lib\models\theme_config_model.dart:54:30 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use component accessors like .r or .g, or toARGB32 for an explicit conversion - lib\models\theme_config_model.dart:55:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\accounting_dashboard_screen.dart:142:56 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\accounting_dashboard_screen.dart:303:53 - deprecated_member_use
+   info - Unnecessary use of 'toList' in a spread - lib\screens\accounting_dashboard_screen.dart:311:15 - unnecessary_to_list_in_spreads
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\accounting_dashboard_screen.dart:377:31 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\accounting_dashboard_screen.dart:417:44 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\accounting_dashboard_screen.dart:423:57 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\accounting_dashboard_screen.dart:441:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\accounting_dashboard_screen.dart:447:36 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\screens\accounting_dashboard_screen.dart:533:21 - deprecated_member_use
+warning - The value of the local variable 'onlineLabel' isn't used - lib\screens\angelina_admin_screen.dart:272:19 - unused_local_variable
+   info - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre - lib\screens\angelina_admin_screen.dart:381:29 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\angelina_profile_settings_screen.dart:437:46 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\angelina_profile_settings_screen.dart:440:52 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\screens\app_settings_admin_screen.dart:844:14 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\screens\app_settings_admin_screen.dart:864:16 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\carousel_settings_screen.dart:191:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\carousel_settings_screen.dart:193:70 - deprecated_member_use
+   info - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre - lib\screens\carousel_settings_screen.dart:271:13 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\carousel_settings_screen.dart:331:50 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\carousel_settings_screen.dart:333:36 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\carousel_settings_screen.dart:363:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\carousel_settings_screen.dart:409:33 - deprecated_member_use
+warning - The value of the field '_picker' isn't used - lib\screens\carousel_settings_screen.dart:440:9 - unused_field
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\carousel_settings_screen.dart:677:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\carousel_settings_screen.dart:762:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\carousel_settings_screen.dart:765:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\carousel_settings_screen.dart:792:44 - deprecated_member_use
+warning - Unused import: '../models/app_config_model.dart' - lib\screens\currency_settings_screen.dart:7:8 - unused_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\currency_settings_screen.dart:305:68 - deprecated_member_use
+   info - Unnecessary use of string interpolation - lib\screens\currency_settings_screen.dart:356:14 - unnecessary_string_interpolations
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\screens\currency_settings_screen.dart:525:15 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\currency_settings_screen.dart:677:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\financial_report_screen.dart:106:44 - deprecated_member_use
+   info - 'Share' is deprecated and shouldn't be used. Use SharePlus instead - lib\screens\financial_report_screen.dart:181:5 - deprecated_member_use
+   info - 'share' is deprecated and shouldn't be used. Use SharePlus.instance.share() instead - lib\screens\financial_report_screen.dart:181:11 - deprecated_member_use
+warning - The declaration '_KnowledgeEntry.seed' isn't referenced - lib\screens\john_admin_screen.dart:597:27 - unused_element
+warning - Unused import: '../theme/brand_colors.dart' - lib\screens\john_profile_settings_screen.dart:7:8 - unused_import
+   info - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre - lib\screens\john_profile_settings_screen.dart:355:19 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\john_profile_settings_screen.dart:427:46 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\john_profile_settings_screen.dart:430:51 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\screens\language_settings_screen.dart:452:15 - deprecated_member_use
+warning - The declaration '_buildScaffoldContent' isn't referenced - lib\screens\login_video_settings_screen.dart:312:10 - unused_element
+warning - The declaration '_sectionHeader' isn't referenced - lib\screens\login_video_settings_screen.dart:523:10 - unused_element
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\login_video_settings_screen.dart:556:35 - deprecated_member_use
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - lib\screens\product_detail_screen.dart:811:19 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - lib\screens\product_detail_screen.dart:812:19 - deprecated_member_use
+warning - The value of the local variable 'trWelcome' isn't used - lib\screens\registration_screen.dart:77:11 - unused_local_variable
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\reviews_admin_screen.dart:290:43 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\reviews_admin_screen.dart:295:43 - deprecated_member_use
+warning - The receiver can't be null, so the null-aware operator '?.' is unnecessary - lib\screens\reviews_admin_screen.dart:332:51 - invalid_null_aware_operator
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\reviews_admin_screen.dart:386:46 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\reviews_admin_screen.dart:386:137 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\schedule_admin_screen.dart:129:42 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\schedule_admin_screen.dart:131:61 - deprecated_member_use
+   info - The private field _staffCache could be 'final' - lib\screens\schedule_editor_screen.dart:24:28 - prefer_final_fields
+warning - The value of the field '_staffCache' isn't used - lib\screens\schedule_editor_screen.dart:24:28 - unused_field
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\schedule_editor_screen.dart:224:65 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\schedule_editor_screen.dart:226:60 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\schedule_editor_screen.dart:413:68 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\schedule_editor_screen.dart:416:59 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\schedule_editor_screen.dart:425:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\schedule_editor_screen.dart:426:39 - deprecated_member_use
+warning - The value of the field '_startDetails' isn't used - lib\screens\schedule_editor_screen.dart:483:19 - unused_field
+   info - The private field _notesCtrl could be 'final' - lib\screens\schedule_editor_screen.dart:486:27 - prefer_final_fields
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\screens\schedule_editor_screen.dart:544:37 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\screens\schedule_editor_screen.dart:556:37 - deprecated_member_use
+warning - Duplicate import - lib\screens\settings_pages.dart:11:8 - duplicate_import
+warning - Duplicate import - lib\screens\settings_pages.dart:12:8 - duplicate_import
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - lib\screens\settings_pages.dart:204:37 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - lib\screens\settings_pages.dart:205:37 - deprecated_member_use
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - lib\screens\settings_pages.dart:438:37 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - lib\screens\settings_pages.dart:439:37 - deprecated_member_use
+   info - The private field _isTranslating could be 'final' - lib\screens\settings_pages.dart:497:8 - prefer_final_fields
+warning - The declaration '_buildLegendItem' isn't referenced - lib\screens\settings_pages.dart:748:10 - unused_element
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\settings_pages.dart:1332:61 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\settings_pages.dart:1537:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\settings_pages.dart:1540:29 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\settings_pages.dart:1550:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\settings_pages.dart:1553:105 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\settings_pages.dart:1573:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\settings_pages.dart:1591:29 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\settings_pages.dart:1592:61 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\settings_pages.dart:1620:54 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use component accessors like .r or .g, or toARGB32 for an explicit conversion - lib\screens\settings_pages.dart:1691:18 - deprecated_member_use
+warning - A value for optional parameter 'showLabels' isn't ever given - lib\screens\settings_pages.dart:1743:10 - unused_element_parameter
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\settings_pages.dart:1771:39 - deprecated_member_use
+warning - Duplicate import - lib\screens\staff_dashboard_screen.dart:5:8 - duplicate_import
+warning - Duplicate import - lib\screens\staff_dashboard_screen.dart:6:8 - duplicate_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\staff_dashboard_screen.dart:90:66 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\staff_dashboard_screen.dart:90:109 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\staff_dashboard_screen.dart:254:50 - deprecated_member_use
+warning - The value of the local variable 'dateFmt' isn't used - lib\screens\staff_dashboard_screen.dart:381:15 - unused_local_variable
+   info - Constructors for public widgets should have a named 'key' parameter - lib\screens\staff_game_manager.dart:6:7 - use_key_in_widget_constructors
+   info - Use interpolation to compose strings and values - lib\screens\staff_game_manager.dart:75:9 - prefer_interpolation_to_compose_strings
+warning - The value of the local variable 'needsHealing' isn't used - lib\services\config_service.dart:26:12 - unused_local_variable
+warning - Unused import: 'package:flutter/foundation.dart' - lib\services\data_standardization_service.dart:2:8 - unused_import
+   info - Statements in an if should be enclosed in a block - lib\services\data_standardization_service.dart:130:34 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - lib\services\data_standardization_service.dart:131:16 - curly_braces_in_flow_control_structures
+warning - Unused import: '../../models/accounting_model.dart' - lib\widgets\accounting\john_cfo_widget.dart:5:8 - unused_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\accounting\john_cfo_widget.dart:34:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\accounting\john_cfo_widget.dart:38:37 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\accounting\john_cfo_widget.dart:137:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\accounting\john_cfo_widget.dart:154:49 - deprecated_member_use
+   info - Don't use 'BuildContext's across async gaps - lib\widgets\admin\product_editor_sheet.dart:153:28 - use_build_context_synchronously
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\widgets\admin\product_editor_sheet.dart:317:15 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\admin\product_editor_sheet.dart:353:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\admin\product_editor_sheet.dart:355:59 - deprecated_member_use
+warning - Unused import: 'dart:io' - lib\widgets\hero_carousel.dart:5:8 - unused_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\hero_carousel.dart:365:42 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\hero_carousel.dart:366:36 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\hero_carousel.dart:373:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\hero_carousel.dart:380:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\johns_insights_widget.dart:51:73 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\johns_insights_widget.dart:73:58 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\johns_insights_widget.dart:99:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\johns_insights_widget.dart:168:41 - deprecated_member_use
+warning - Duplicate import - lib\widgets\nv_widgets.dart:6:8 - duplicate_import
+warning - Unused import: 'dart:async' - lib\widgets\nv_widgets.dart:9:8 - unused_import
+warning - The value of the field '_orangePadV' isn't used - lib\widgets\nv_widgets.dart:379:23 - unused_field
+warning - The value of the local variable 'begin' isn't used - lib\widgets\nv_widgets.dart:720:21 - unused_local_variable
+warning - The value of the local variable 'end' isn't used - lib\widgets\nv_widgets.dart:720:28 - unused_local_variable
+warning - Unused import: 'nv_widgets.dart' - lib\widgets\sandwich_menu.dart:6:8 - unused_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\sandwich_menu.dart:27:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\sandwich_menu.dart:32:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\sandwich_menu.dart:38:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\sandwich_menu.dart:43:35 - deprecated_member_use
+warning - Unused import: 'package:flutter/scheduler.dart' - lib\widgets\scroll_image_sequence.dart:2:8 - unused_import
+   info - The import of 'dart:ui' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - lib\widgets\scroll_image_sequence.dart:3:8 - unnecessary_import
+warning - Unused import: 'dart:math' - lib\widgets\scroll_image_sequence.dart:4:8 - unused_import
+warning - The value of the local variable 'opacity' isn't used - lib\widgets\scroll_image_sequence.dart:222:22 - unused_local_variable
+   info - Use a 'SizedBox' to add whitespace to a layout - lib\widgets\scroll_image_sequence.dart:262:19 - sized_box_for_whitespace
+   info - 'scale' is deprecated and shouldn't be used. Use scaleByVector3, scaleByVector4, or scaleByDouble instead - lib\widgets\scroll_image_sequence.dart:270:27 - deprecated_member_use
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - midnight_inspect\lib\screens\login_video_settings_screen.dart:306:11 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - midnight_inspect\lib\screens\login_video_settings_screen.dart:307:11 - deprecated_member_use
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - midnight_inspect\lib\screens\login_video_settings_screen.dart:313:11 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - midnight_inspect\lib\screens\login_video_settings_screen.dart:314:11 - deprecated_member_use
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - midnight_inspect\lib\screens\login_video_settings_screen.dart:363:11 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - midnight_inspect\lib\screens\login_video_settings_screen.dart:364:11 - deprecated_member_use
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - midnight_inspect\lib\screens\login_video_settings_screen.dart:369:11 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - midnight_inspect\lib\screens\login_video_settings_screen.dart:370:11 - deprecated_member_use
+warning - The value of the field '_editingSpanish' isn't used - midnight_inspect\lib\screens\settings_pages.dart:262:13 - unused_field
+warning - Unused import: 'package:flutter/scheduler.dart' - midnight_inspect\lib\widgets\scroll_image_sequence.dart:2:8 - unused_import
+   info - The import of 'dart:ui' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - midnight_inspect\lib\widgets\scroll_image_sequence.dart:3:8 - unnecessary_import
+warning - Unused import: 'dart:math' - midnight_inspect\lib\widgets\scroll_image_sequence.dart:4:8 - unused_import
+warning - The value of the local variable 'opacity' isn't used - midnight_inspect\lib\widgets\scroll_image_sequence.dart:185:22 - unused_local_variable
+   info - Use a 'SizedBox' to add whitespace to a layout - midnight_inspect\lib\widgets\scroll_image_sequence.dart:220:19 - sized_box_for_whitespace
+   info - 'scale' is deprecated and shouldn't be used. Use scaleByVector3, scaleByVector4, or scaleByDouble instead - midnight_inspect\lib\widgets\scroll_image_sequence.dart:228:27 - deprecated_member_use
+  error - Target of URI doesn't exist: '../config/product_animations_map.dart' - midnight_inspect\temp_restore\hero_carousel.dart:7:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../state/app_state.dart' - midnight_inspect\temp_restore\hero_carousel.dart:9:8 - uri_does_not_exist
+warning - The value of the field '_autoPlayController' isn't used - midnight_inspect\temp_restore\hero_carousel.dart:36:34 - unused_field
+  error - Undefined name 'HeroCategoryConfig' - midnight_inspect\temp_restore\hero_carousel.dart:45:36 - undefined_identifier
+warning - The value of the field '_currentSpeedCfg' isn't used - midnight_inspect\temp_restore\hero_carousel.dart:52:15 - unused_field
+  error - Undefined name 'AppState' - midnight_inspect\temp_restore\hero_carousel.dart:112:17 - undefined_identifier
+  error - Undefined name 'HeroCategoryConfig' - midnight_inspect\temp_restore\hero_carousel.dart:185:16 - undefined_identifier
+  error - Undefined name 'AppState' - midnight_inspect\temp_restore\hero_carousel.dart:231:29 - undefined_identifier
+   info - Don't use 'BuildContext's across async gaps - midnight_inspect\temp_restore\hero_carousel.dart:231:41 - use_build_context_synchronously
+  error - Undefined name 'HeroCategoryConfig' - midnight_inspect\temp_restore\hero_carousel.dart:243:31 - undefined_identifier
+  error - Undefined name 'AppState' - midnight_inspect\temp_restore\hero_carousel.dart:254:25 - undefined_identifier
+  error - The name 'CarouselMode' isn't a type, so it can't be used as a type argument - midnight_inspect\temp_restore\hero_carousel.dart:261:43 - non_type_as_type_argument
+  error - The name 'CategoryConfig' isn't a type, so it can't be used as a type argument - midnight_inspect\temp_restore\hero_carousel.dart:264:59 - non_type_as_type_argument
+   info - 'translate' is deprecated and shouldn't be used. Use translateByVector3, translateByVector4, or translateByDouble instead - midnight_inspect\temp_restore\hero_carousel.dart:292:31 - deprecated_member_use
+   info - 'scale' is deprecated and shouldn't be used. Use scaleByVector3, scaleByVector4, or scaleByDouble instead - midnight_inspect\temp_restore\hero_carousel.dart:295:31 - deprecated_member_use
+  error - Undefined class 'CarouselMode' - midnight_inspect\temp_restore\hero_carousel.dart:343:9 - undefined_class
+  error - Undefined name 'AppState' - midnight_inspect\temp_restore\hero_carousel.dart:526:46 - undefined_identifier
+  error - Undefined name 'HeroCategoryConfig' - midnight_inspect\temp_restore\hero_carousel.dart:528:39 - undefined_identifier
+  error - Undefined name 'HeroCategoryConfig' - midnight_inspect\temp_restore\hero_carousel.dart:567:37 - undefined_identifier
+  error - Target of URI doesn't exist: '../state/app_state.dart' - midnight_inspect\temp_restore\scroll_image_sequence.dart:5:8 - uri_does_not_exist
+  error - Undefined class 'CarouselMode' - midnight_inspect\temp_restore\scroll_image_sequence.dart:13:9 - undefined_class
+  error - Undefined name 'CarouselMode' - midnight_inspect\temp_restore\scroll_image_sequence.dart:22:17 - undefined_identifier
+  error - Undefined name 'CarouselMode' - midnight_inspect\temp_restore\scroll_image_sequence.dart:112:24 - undefined_identifier
+warning - The value of the local variable 'opacity' isn't used - midnight_inspect\temp_restore\scroll_image_sequence.dart:180:22 - unused_local_variable
+   info - Use a 'SizedBox' to add whitespace to a layout - midnight_inspect\temp_restore\scroll_image_sequence.dart:196:19 - sized_box_for_whitespace
+   info - 'scale' is deprecated and shouldn't be used. Use scaleByVector3, scaleByVector4, or scaleByDouble instead - midnight_inspect\temp_restore\scroll_image_sequence.dart:204:27 - deprecated_member_use
+  error - Undefined name 'HeroCategoryConfig' - temp_full_restore\lib\main.dart:196:32 - undefined_identifier
+   info - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre - temp_full_restore\lib\screens\carousel_settings_screen.dart:253:13 - deprecated_member_use
+warning - The value of the local variable 'theme' isn't used - temp_full_restore\lib\screens\carousel_settings_screen.dart:278:11 - unused_local_variable
+warning - The value of the field '_picker' isn't used - temp_full_restore\lib\screens\carousel_settings_screen.dart:353:9 - unused_field
+  error - The method 'ImagePicker' isn't defined for the type '_CategoryEditorSheetState' - temp_full_restore\lib\screens\carousel_settings_screen.dart:353:19 - undefined_method
+warning - The declaration '_buildScaffoldContent' isn't referenced - temp_full_restore\lib\screens\login_video_settings_screen.dart:312:10 - unused_element
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - temp_full_restore\lib\screens\login_video_settings_screen.dart:342:11 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - temp_full_restore\lib\screens\login_video_settings_screen.dart:343:11 - deprecated_member_use
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - temp_full_restore\lib\screens\login_video_settings_screen.dart:349:11 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - temp_full_restore\lib\screens\login_video_settings_screen.dart:350:11 - deprecated_member_use
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - temp_full_restore\lib\screens\login_video_settings_screen.dart:391:11 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - temp_full_restore\lib\screens\login_video_settings_screen.dart:392:11 - deprecated_member_use
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - temp_full_restore\lib\screens\login_video_settings_screen.dart:397:11 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - temp_full_restore\lib\screens\login_video_settings_screen.dart:398:11 - deprecated_member_use
+  error - The named parameter 'bottom' isn't defined - temp_full_restore\lib\screens\settings_pages.dart:537:13 - undefined_named_parameter
+  error - The name 'carouselAutoPlay' is already defined - temp_full_restore\lib\state\app_state.dart:51:29 - duplicate_definition
+  error - The name 'carouselGlobalMode' is already defined - temp_full_restore\lib\state\app_state.dart:52:37 - duplicate_definition
+  error - All final variables must be initialized, but 'carouselAutoPlay' and 'carouselGlobalMode' aren't - temp_full_restore\lib\state\app_state.dart:65:9 - final_not_initialized_constructor
+  error - The field 'carouselAutoPlay' can't be initialized by multiple parameters in the same constructor - temp_full_restore\lib\state\app_state.dart:89:19 - duplicate_field_formal_parameter
+  error - The field 'carouselGlobalMode' can't be initialized by multiple parameters in the same constructor - temp_full_restore\lib\state\app_state.dart:90:19 - duplicate_field_formal_parameter
+warning - Unused import: 'dart:io' - temp_full_restore\lib\widgets\hero_carousel.dart:5:8 - unused_import
+  error - Undefined class 'Timer' - temp_full_restore\lib\widgets\nv_widgets.dart:323:8 - undefined_class
+warning - The value of the field '_orangePadV' isn't used - temp_full_restore\lib\widgets\nv_widgets.dart:328:23 - unused_field
+  error - The method 'Timer' isn't defined for the type '_TickerBandState' - temp_full_restore\lib\widgets\nv_widgets.dart:358:19 - undefined_method
+  error - Undefined name 'Timer' - temp_full_restore\lib\widgets\nv_widgets.dart:413:19 - undefined_identifier
+warning - The value of the local variable 'begin' isn't used - temp_full_restore\lib\widgets\nv_widgets.dart:574:21 - unused_local_variable
+warning - The value of the local variable 'end' isn't used - temp_full_restore\lib\widgets\nv_widgets.dart:574:28 - unused_local_variable
+warning - Unused import: 'package:flutter/scheduler.dart' - temp_full_restore\lib\widgets\scroll_image_sequence.dart:2:8 - unused_import
+   info - The import of 'dart:ui' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - temp_full_restore\lib\widgets\scroll_image_sequence.dart:3:8 - unnecessary_import
+warning - Unused import: 'dart:math' - temp_full_restore\lib\widgets\scroll_image_sequence.dart:4:8 - unused_import
+warning - The value of the local variable 'opacity' isn't used - temp_full_restore\lib\widgets\scroll_image_sequence.dart:185:22 - unused_local_variable
+   info - Use a 'SizedBox' to add whitespace to a layout - temp_full_restore\lib\widgets\scroll_image_sequence.dart:220:19 - sized_box_for_whitespace
+   info - 'scale' is deprecated and shouldn't be used. Use scaleByVector3, scaleByVector4, or scaleByDouble instead - temp_full_restore\lib\widgets\scroll_image_sequence.dart:228:27 - deprecated_member_use
+  error - Target of URI doesn't exist: '../config/product_animations_map.dart' - temp_full_restore\temp_restore\hero_carousel.dart:7:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../state/app_state.dart' - temp_full_restore\temp_restore\hero_carousel.dart:9:8 - uri_does_not_exist
+warning - The value of the field '_autoPlayController' isn't used - temp_full_restore\temp_restore\hero_carousel.dart:36:34 - unused_field
+  error - Undefined name 'HeroCategoryConfig' - temp_full_restore\temp_restore\hero_carousel.dart:45:36 - undefined_identifier
+warning - The value of the field '_currentSpeedCfg' isn't used - temp_full_restore\temp_restore\hero_carousel.dart:52:15 - unused_field
+  error - Undefined name 'AppState' - temp_full_restore\temp_restore\hero_carousel.dart:112:17 - undefined_identifier
+  error - Undefined name 'HeroCategoryConfig' - temp_full_restore\temp_restore\hero_carousel.dart:185:16 - undefined_identifier
+  error - Undefined name 'AppState' - temp_full_restore\temp_restore\hero_carousel.dart:231:29 - undefined_identifier
+   info - Don't use 'BuildContext's across async gaps - temp_full_restore\temp_restore\hero_carousel.dart:231:41 - use_build_context_synchronously
+  error - Undefined name 'HeroCategoryConfig' - temp_full_restore\temp_restore\hero_carousel.dart:243:31 - undefined_identifier
+  error - Undefined name 'AppState' - temp_full_restore\temp_restore\hero_carousel.dart:254:25 - undefined_identifier
+  error - The name 'CarouselMode' isn't a type, so it can't be used as a type argument - temp_full_restore\temp_restore\hero_carousel.dart:261:43 - non_type_as_type_argument
+  error - The name 'CategoryConfig' isn't a type, so it can't be used as a type argument - temp_full_restore\temp_restore\hero_carousel.dart:264:59 - non_type_as_type_argument
+   info - 'translate' is deprecated and shouldn't be used. Use translateByVector3, translateByVector4, or translateByDouble instead - temp_full_restore\temp_restore\hero_carousel.dart:292:31 - deprecated_member_use
+   info - 'scale' is deprecated and shouldn't be used. Use scaleByVector3, scaleByVector4, or scaleByDouble instead - temp_full_restore\temp_restore\hero_carousel.dart:295:31 - deprecated_member_use
+  error - Undefined class 'CarouselMode' - temp_full_restore\temp_restore\hero_carousel.dart:343:9 - undefined_class
+  error - Undefined name 'AppState' - temp_full_restore\temp_restore\hero_carousel.dart:526:46 - undefined_identifier
+  error - Undefined name 'HeroCategoryConfig' - temp_full_restore\temp_restore\hero_carousel.dart:528:39 - undefined_identifier
+  error - Undefined name 'HeroCategoryConfig' - temp_full_restore\temp_restore\hero_carousel.dart:567:37 - undefined_identifier
+  error - Target of URI doesn't exist: '../state/app_state.dart' - temp_full_restore\temp_restore\scroll_image_sequence.dart:5:8 - uri_does_not_exist
+  error - Undefined class 'CarouselMode' - temp_full_restore\temp_restore\scroll_image_sequence.dart:13:9 - undefined_class
+  error - Undefined name 'CarouselMode' - temp_full_restore\temp_restore\scroll_image_sequence.dart:22:17 - undefined_identifier
+  error - Undefined name 'CarouselMode' - temp_full_restore\temp_restore\scroll_image_sequence.dart:112:24 - undefined_identifier
+warning - The value of the local variable 'opacity' isn't used - temp_full_restore\temp_restore\scroll_image_sequence.dart:180:22 - unused_local_variable
+   info - Use a 'SizedBox' to add whitespace to a layout - temp_full_restore\temp_restore\scroll_image_sequence.dart:196:19 - sized_box_for_whitespace
+   info - 'scale' is deprecated and shouldn't be used. Use scaleByVector3, scaleByVector4, or scaleByDouble instead - temp_full_restore\temp_restore\scroll_image_sequence.dart:204:27 - deprecated_member_use
+  error - Undefined name 'HeroCategoryConfig' - temp_repair\lib\main.dart:196:32 - undefined_identifier
+   info - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre - temp_repair\lib\screens\carousel_settings_screen.dart:253:13 - deprecated_member_use
+warning - The value of the local variable 'theme' isn't used - temp_repair\lib\screens\carousel_settings_screen.dart:278:11 - unused_local_variable
+warning - The value of the field '_picker' isn't used - temp_repair\lib\screens\carousel_settings_screen.dart:353:9 - unused_field
+  error - The method 'ImagePicker' isn't defined for the type '_CategoryEditorSheetState' - temp_repair\lib\screens\carousel_settings_screen.dart:353:19 - undefined_method
+warning - The declaration '_buildScaffoldContent' isn't referenced - temp_repair\lib\screens\login_video_settings_screen.dart:312:10 - unused_element
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - temp_repair\lib\screens\login_video_settings_screen.dart:342:11 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - temp_repair\lib\screens\login_video_settings_screen.dart:343:11 - deprecated_member_use
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - temp_repair\lib\screens\login_video_settings_screen.dart:349:11 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - temp_repair\lib\screens\login_video_settings_screen.dart:350:11 - deprecated_member_use
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - temp_repair\lib\screens\login_video_settings_screen.dart:391:11 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - temp_repair\lib\screens\login_video_settings_screen.dart:392:11 - deprecated_member_use
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - temp_repair\lib\screens\login_video_settings_screen.dart:397:11 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - temp_repair\lib\screens\login_video_settings_screen.dart:398:11 - deprecated_member_use
+  error - The named parameter 'bottom' isn't defined - temp_repair\lib\screens\settings_pages.dart:537:13 - undefined_named_parameter
+  error - The name 'carouselAutoPlay' is already defined - temp_repair\lib\state\app_state.dart:51:29 - duplicate_definition
+  error - The name 'carouselGlobalMode' is already defined - temp_repair\lib\state\app_state.dart:52:37 - duplicate_definition
+  error - All final variables must be initialized, but 'carouselAutoPlay' and 'carouselGlobalMode' aren't - temp_repair\lib\state\app_state.dart:65:9 - final_not_initialized_constructor
+  error - The field 'carouselAutoPlay' can't be initialized by multiple parameters in the same constructor - temp_repair\lib\state\app_state.dart:89:19 - duplicate_field_formal_parameter
+  error - The field 'carouselGlobalMode' can't be initialized by multiple parameters in the same constructor - temp_repair\lib\state\app_state.dart:90:19 - duplicate_field_formal_parameter
+warning - Unused import: 'dart:io' - temp_repair\lib\widgets\hero_carousel.dart:5:8 - unused_import
+  error - Undefined class 'Timer' - temp_repair\lib\widgets\nv_widgets.dart:323:8 - undefined_class
+warning - The value of the field '_orangePadV' isn't used - temp_repair\lib\widgets\nv_widgets.dart:328:23 - unused_field
+  error - The method 'Timer' isn't defined for the type '_TickerBandState' - temp_repair\lib\widgets\nv_widgets.dart:358:19 - undefined_method
+  error - Undefined name 'Timer' - temp_repair\lib\widgets\nv_widgets.dart:413:19 - undefined_identifier
+warning - The value of the local variable 'begin' isn't used - temp_repair\lib\widgets\nv_widgets.dart:574:21 - unused_local_variable
+warning - The value of the local variable 'end' isn't used - temp_repair\lib\widgets\nv_widgets.dart:574:28 - unused_local_variable
+warning - Unused import: 'package:flutter/scheduler.dart' - temp_repair\lib\widgets\scroll_image_sequence.dart:2:8 - unused_import
+   info - The import of 'dart:ui' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - temp_repair\lib\widgets\scroll_image_sequence.dart:3:8 - unnecessary_import
+warning - Unused import: 'dart:math' - temp_repair\lib\widgets\scroll_image_sequence.dart:4:8 - unused_import
+warning - The value of the local variable 'opacity' isn't used - temp_repair\lib\widgets\scroll_image_sequence.dart:185:22 - unused_local_variable
+   info - Use a 'SizedBox' to add whitespace to a layout - temp_repair\lib\widgets\scroll_image_sequence.dart:220:19 - sized_box_for_whitespace
+   info - 'scale' is deprecated and shouldn't be used. Use scaleByVector3, scaleByVector4, or scaleByDouble instead - temp_repair\lib\widgets\scroll_image_sequence.dart:228:27 - deprecated_member_use
+  error - Target of URI doesn't exist: '../config/product_animations_map.dart' - temp_repair\temp_restore\hero_carousel.dart:7:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../state/app_state.dart' - temp_repair\temp_restore\hero_carousel.dart:9:8 - uri_does_not_exist
+warning - The value of the field '_autoPlayController' isn't used - temp_repair\temp_restore\hero_carousel.dart:36:34 - unused_field
+  error - Undefined name 'HeroCategoryConfig' - temp_repair\temp_restore\hero_carousel.dart:45:36 - undefined_identifier
+warning - The value of the field '_currentSpeedCfg' isn't used - temp_repair\temp_restore\hero_carousel.dart:52:15 - unused_field
+  error - Undefined name 'AppState' - temp_repair\temp_restore\hero_carousel.dart:112:17 - undefined_identifier
+  error - Undefined name 'HeroCategoryConfig' - temp_repair\temp_restore\hero_carousel.dart:185:16 - undefined_identifier
+  error - Undefined name 'AppState' - temp_repair\temp_restore\hero_carousel.dart:231:29 - undefined_identifier
+   info - Don't use 'BuildContext's across async gaps - temp_repair\temp_restore\hero_carousel.dart:231:41 - use_build_context_synchronously
+  error - Undefined name 'HeroCategoryConfig' - temp_repair\temp_restore\hero_carousel.dart:243:31 - undefined_identifier
+  error - Undefined name 'AppState' - temp_repair\temp_restore\hero_carousel.dart:254:25 - undefined_identifier
+  error - The name 'CarouselMode' isn't a type, so it can't be used as a type argument - temp_repair\temp_restore\hero_carousel.dart:261:43 - non_type_as_type_argument
+  error - The name 'CategoryConfig' isn't a type, so it can't be used as a type argument - temp_repair\temp_restore\hero_carousel.dart:264:59 - non_type_as_type_argument
+   info - 'translate' is deprecated and shouldn't be used. Use translateByVector3, translateByVector4, or translateByDouble instead - temp_repair\temp_restore\hero_carousel.dart:292:31 - deprecated_member_use
+   info - 'scale' is deprecated and shouldn't be used. Use scaleByVector3, scaleByVector4, or scaleByDouble instead - temp_repair\temp_restore\hero_carousel.dart:295:31 - deprecated_member_use
+  error - Undefined class 'CarouselMode' - temp_repair\temp_restore\hero_carousel.dart:343:9 - undefined_class
+  error - Undefined name 'AppState' - temp_repair\temp_restore\hero_carousel.dart:526:46 - undefined_identifier
+  error - Undefined name 'HeroCategoryConfig' - temp_repair\temp_restore\hero_carousel.dart:528:39 - undefined_identifier
+  error - Undefined name 'HeroCategoryConfig' - temp_repair\temp_restore\hero_carousel.dart:567:37 - undefined_identifier
+  error - Target of URI doesn't exist: '../state/app_state.dart' - temp_repair\temp_restore\scroll_image_sequence.dart:5:8 - uri_does_not_exist
+  error - Undefined class 'CarouselMode' - temp_repair\temp_restore\scroll_image_sequence.dart:13:9 - undefined_class
+  error - Undefined name 'CarouselMode' - temp_repair\temp_restore\scroll_image_sequence.dart:22:17 - undefined_identifier
+  error - Undefined name 'CarouselMode' - temp_repair\temp_restore\scroll_image_sequence.dart:112:24 - undefined_identifier
+warning - The value of the local variable 'opacity' isn't used - temp_repair\temp_restore\scroll_image_sequence.dart:180:22 - unused_local_variable
+   info - Use a 'SizedBox' to add whitespace to a layout - temp_repair\temp_restore\scroll_image_sequence.dart:196:19 - sized_box_for_whitespace
+   info - 'scale' is deprecated and shouldn't be used. Use scaleByVector3, scaleByVector4, or scaleByDouble instead - temp_repair\temp_restore\scroll_image_sequence.dart:204:27 - deprecated_member_use
+

@@ -75,43 +75,72 @@ class AuthService {
 
   /// --- Apple ---
   static Future<UserCredential> signInWithApple() async {
+    // 1. Web: Popup
     if (kIsWeb) {
       final cred = await _auth.signInWithPopup(OAuthProvider('apple.com'));
       await UserService.upsertCurrentUser();
       return cred;
     }
 
+    // 2. Android: Generic OAuthProvider (Firebase handles the flow via browser/tab)
+    // NOTE: This requires "Sign in with Apple" enabled in Firebase with Service ID + Private Key
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      final provider = OAuthProvider('apple.com');
+      provider
+        ..addScope('email')
+        ..addScope('name');
+      
+      final cred = await _auth.signInWithProvider(provider);
+      await UserService.upsertCurrentUser();
+      return cred;
+    }
+
+    // 3. iOS/macOS: Native Sign In with Apple (SHA-256 nonce flow)
     final rawNonce = _generateNonce();
     final nonce = _sha256ofString(rawNonce);
 
-    final appleIdCred = await SignInWithApple.getAppleIDCredential(
-      scopes: [
-        AppleIDAuthorizationScopes.email,
-        AppleIDAuthorizationScopes.fullName,
-      ],
-      nonce: nonce,
-    );
+    try {
+      final appleIdCred = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+        nonce: nonce,
+      );
 
-    final appleCred = OAuthProvider('apple.com').credential(
-      idToken: appleIdCred.identityToken,
-      rawNonce: rawNonce,
-    );
+      final appleCred = OAuthProvider('apple.com').credential(
+        idToken: appleIdCred.identityToken,
+        rawNonce: rawNonce,
+      );
 
-    final cred = await _auth.signInWithCredential(appleCred);
-    await UserService.upsertCurrentUser();
-    return cred;
+      final cred = await _auth.signInWithCredential(appleCred);
+      await UserService.upsertCurrentUser();
+      return cred;
+    } catch (e) {
+      if (e is SignInWithAppleAuthorizationException && 
+          e.code == AuthorizationErrorCode.canceled) {
+        throw Exception('Apple sign-in canceled');
+      }
+      rethrow;
+    }
   }
 
   /// --- Microsoft ---
   static Future<UserCredential> signInWithMicrosoft() async {
     final provider = OAuthProvider('microsoft.com');
-    provider.setCustomParameters({'prompt': 'select_account'});
+    // provider.setCustomParameters({'prompt': 'login'}); // Reverted to allow biometric auto-login
     provider
       ..addScope('openid')
       ..addScope('profile')
-      ..addScope('email')
-      ..addScope('User.Read');
+      ..addScope('email');
 
+    if (kIsWeb) {
+      final cred = await _auth.signInWithPopup(provider);
+      await UserService.upsertCurrentUser();
+      return cred;
+    }
+
+    // For Android/iOS, generic provider flow is cleanest if secrets are in Firebase
     final cred = await _auth.signInWithProvider(provider);
     await UserService.upsertCurrentUser();
     return cred;

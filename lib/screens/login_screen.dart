@@ -24,6 +24,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../state/app_state.dart';
 import '../widgets/nv_widgets.dart';
 import '../services/user_service.dart'; // Firestore upsert on sign-in
+import '../services/auth_service.dart';
 import '../services/user_prefs_service.dart';
 import '../widgets/nv_video_overlay.dart';
 import '../theme/brand_colors.dart';
@@ -271,20 +272,9 @@ class _LoginScreenState extends State<LoginScreen>
             await FirebaseAuth.instance.signInWithCredential(fbCred);
       }
     } else if (methods.contains('apple.com')) {
-      final appleCred = await _getAppleCredential();
-      if (appleCred != null) {
-        existing =
-            await FirebaseAuth.instance.signInWithCredential(appleCred);
-      }
+      existing = await AuthService.signInWithApple();
     } else if (methods.contains('microsoft.com')) {
-      final provider = OAuthProvider('microsoft.com');
-      provider.setCustomParameters({'prompt': 'select_account'});
-      provider
-        ..addScope('openid')
-        ..addScope('profile')
-        ..addScope('email')
-        ..addScope('User.Read');
-      existing = await FirebaseAuth.instance.signInWithProvider(provider);
+      existing = await AuthService.signInWithMicrosoft();
     }
 
     if (existing?.user == null) {
@@ -328,26 +318,7 @@ class _LoginScreenState extends State<LoginScreen>
     return GoogleAuthProvider.credential(idToken: auth.idToken);
   }
 
-  Future<AuthCredential?> _getAppleCredential() async {
-    if (!(defaultTargetPlatform == TargetPlatform.iOS ||
-        defaultTargetPlatform == TargetPlatform.macOS)) {
-      return null;
-    }
-    final rawNonce = _randomNonce();
-    final nonce = _sha256ofString(rawNonce);
-    final appleCred = await SignInWithApple.getAppleIDCredential(
-      scopes: [
-        AppleIDAuthorizationScopes.email,
-        AppleIDAuthorizationScopes.fullName
-      ],
-      nonce: nonce,
-    );
-    if (appleCred.identityToken == null) return null;
-    return OAuthProvider('apple.com').credential(
-      idToken: appleCred.identityToken,
-      rawNonce: rawNonce,
-    );
-  }
+  // Removed _getAppleCredential as it is now handled in AuthService
 
   Future<void> signInEmailPassword() async {
     if (!formKey.currentState!.validate()) return;
@@ -416,8 +387,21 @@ class _LoginScreenState extends State<LoginScreen>
           _showError(_firebaseMessage(e));
         }
       }
+    } on PlatformException catch (e) {
+      // Handle native cancellation
+      if (e.code == 'sign_in_canceled' || e.code == 'canceled') {
+         _showSnack(t(context, 'fb_cancelled').replaceAll('Facebook', 'Google')); // Reuse or add new str
+      } else {
+         _showError(e.message ?? e.toString());
+      }
     } catch (e) {
-      _showError(e.toString());
+       // Check for GoogleSignInException by string if type is not exported or wrapped
+       final s = e.toString();
+       if (s.contains('GoogleSignInException') && (s.contains('canceled') || s.contains('code 12501') || s.contains('code 16'))) {
+          _showSnack(t(context, 'fb_cancelled').replaceAll('Facebook', 'Google'));
+       } else {
+          _showError(e.toString());
+       }
     } finally {
       if (mounted) setState(() => busy = false);
     }
@@ -468,7 +452,7 @@ class _LoginScreenState extends State<LoginScreen>
       await _navigateToHome();
     } on PlatformException catch (e) {
       if (!mounted) return;
-      if (e.code == 'cancelled') {
+      if (e.code == 'cancelled' || e.code == 'sign_in_canceled') {
         _showSnack(t(context, 'fb_cancelled'));
       } else {
         _showError(e.message ?? t(context, 'fb_failed'));
@@ -477,14 +461,21 @@ class _LoginScreenState extends State<LoginScreen>
       if (e.code == 'account-exists-with-different-credential') {
         await _handleAccountExists(e);
       } else {
-        if (e.code == 'provider-already-linked' || e.code == 'credential-already-in-use') {
+        if (e.code == 'provider-already-linked' ||
+            e.code == 'credential-already-in-use') {
           await _navigateToHome();
+        } else if (e.code == 'web-context-canceled' || e.code == 'canceled') {
+          _showSnack(t(context, 'fb_cancelled'));
         } else {
           _showError(_firebaseMessage(e));
         }
       }
     } catch (e) {
-      _showError(e.toString());
+      if (e.toString().contains('canceled')) {
+        _showSnack(t(context, 'fb_cancelled'));
+      } else {
+        _showError(e.toString());
+      }
     } finally {
       if (mounted) setState(() => busy = false);
     }
@@ -494,52 +485,14 @@ class _LoginScreenState extends State<LoginScreen>
   Future<void> signInApple() async {
     setState(() => busy = true);
     try {
-      if (kIsWeb) {
-        await FirebaseAuth.instance.signInWithPopup(OAuthProvider('apple.com'));
-      } else if (defaultTargetPlatform == TargetPlatform.iOS ||
-          defaultTargetPlatform == TargetPlatform.macOS) {
-        final oauth = await _getAppleCredential();
-        if (oauth == null) {
-          throw FirebaseAuthException(
-              code: 'missing-client-identifier',
-              message: 'Missing Apple credential.');
-        }
-        final current = FirebaseAuth.instance.currentUser;
-        if (current != null) {
-          try {
-            await current.linkWithCredential(oauth);
-          } on FirebaseAuthException catch (le) {
-            if (le.code == 'credential-already-in-use' || le.code == 'provider-already-linked') {
-              await FirebaseAuth.instance.signInWithCredential(oauth);
-            } else {
-              rethrow;
-            }
-          }
-        } else {
-          await FirebaseAuth.instance.signInWithCredential(oauth);
-        }
-      } else {
-        await FirebaseAuth.instance
-            .signInWithProvider(OAuthProvider('apple.com'));
-      }
-      await UserService.upsertCurrentUser();
+      await AuthService.signInWithApple();
       await _navigateToHome();
-    } on SignInWithAppleAuthorizationException catch (e) {
-      if (e.code != AuthorizationErrorCode.canceled) {
-        _showError('Apple sign-in failed: ${e.code.name}');
-      }
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'account-exists-with-different-credential') {
-        await _handleAccountExists(e);
+    } on Exception catch (e) {
+      if (e.toString().contains('canceled')) {
+        _showSnack(t(context, 'fb_cancelled').replaceAll('Facebook', 'Apple'));
       } else {
-        if (e.code == 'provider-already-linked' || e.code == 'credential-already-in-use') {
-          await _navigateToHome();
-        } else {
-          _showError(_firebaseMessage(e));
-        }
+        _showError(e.toString());
       }
-    } catch (e) {
-      _showError(e.toString());
     } finally {
       if (mounted) setState(() => busy = false);
     }
@@ -549,51 +502,29 @@ class _LoginScreenState extends State<LoginScreen>
   Future<void> signInMicrosoft() async {
     setState(() => busy = true);
     try {
-      final provider = OAuthProvider('microsoft.com');
-      provider.setCustomParameters({'prompt': 'select_account'});
-      provider
-        ..addScope('openid')
-        ..addScope('profile')
-        ..addScope('email')
-        ..addScope('User.Read');
-
-      UserCredential cred;
-      if (kIsWeb) {
-        cred = await FirebaseAuth.instance.signInWithPopup(provider);
-      } else {
-        final current = FirebaseAuth.instance.currentUser;
-        if (current != null) {
-          try {
-            cred = await current.linkWithProvider(provider);
-          } on FirebaseAuthException catch (le) {
-            if (le.code == 'credential-already-in-use' || le.code == 'provider-already-linked') {
-              cred = await FirebaseAuth.instance.signInWithProvider(provider);
-            } else {
-              rethrow;
-            }
-          }
-        } else {
-          cred = await FirebaseAuth.instance.signInWithProvider(provider);
-        }
-      }
-      if (cred.user == null) {
-        throw FirebaseAuthException(
-            code: 'microsoft-error', message: 'No user returned.');
-      }
-      await UserService.upsertCurrentUser();
+      await AuthService.signInWithMicrosoft();
       await _navigateToHome();
     } on FirebaseAuthException catch (e) {
       if (e.code == 'account-exists-with-different-credential') {
         await _handleAccountExists(e);
       } else {
-        if (e.code == 'provider-already-linked' || e.code == 'credential-already-in-use') {
+        if (e.code == 'provider-already-linked' ||
+            e.code == 'credential-already-in-use') {
           await _navigateToHome();
+        } else if (e.code == 'web-context-canceled' || e.code == 'canceled') {
+          _showSnack(
+              t(context, 'fb_cancelled').replaceAll('Facebook', 'Microsoft'));
         } else {
           _showError(_firebaseMessage(e));
         }
       }
     } catch (e) {
-      _showError(e.toString());
+      if (e.toString().contains('canceled')) {
+        _showSnack(
+            t(context, 'fb_cancelled').replaceAll('Facebook', 'Microsoft'));
+      } else {
+        _showError(e.toString());
+      }
     } finally {
       if (mounted) setState(() => busy = false);
     }
@@ -636,7 +567,7 @@ class _LoginScreenState extends State<LoginScreen>
       case 'missing-or-invalid-nonce':
       case 'missing-client-identifier':
       case 'unauthorized-domain':
-        return t(context, 'err_oauth_missing');
+        return '${t(context, 'err_oauth_missing')} (${e.code})';
       case 'provider-not-supported':
         return t(context, 'err_provider_unsupported');
       default:

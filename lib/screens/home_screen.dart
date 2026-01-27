@@ -152,9 +152,9 @@ class _HomeScreenState extends State<HomeScreen> {
       UserPrefsService.saveCategory(category);
     }
     
-    // Auto scroll down to products
+    // Auto scroll down to products (gentle nudge, keeping Hero visible)
     _mainScrollController.animateTo(
-      550,
+      120, // Reduced from 550 to keep Carousel in view
       duration: const Duration(milliseconds: 800),
       curve: Curves.easeInOutCubic,
     );
