@@ -1,0 +1,10 @@
+Analyzing 2 items...                                            
+
+  error - 1 positional argument expected by 'initialize', but 0 found - lib\services\reservation_service.dart:19:37 - not_enough_positional_arguments
+  error - The named parameter 'settings' isn't defined - lib\services\reservation_service.dart:19:37 - undefined_named_parameter
+  error - 4 positional arguments expected by 'show', but 0 found - lib\services\reservation_service.dart:247:7 - not_enough_positional_arguments
+  error - The named parameter 'id' isn't defined - lib\services\reservation_service.dart:247:7 - undefined_named_parameter
+  error - The named parameter 'title' isn't defined - lib\services\reservation_service.dart:248:7 - undefined_named_parameter
+  error - The named parameter 'body' isn't defined - lib\services\reservation_service.dart:249:7 - undefined_named_parameter
+  error - The named parameter 'notificationDetails' isn't defined - lib\services\reservation_service.dart:250:7 - undefined_named_parameter
+

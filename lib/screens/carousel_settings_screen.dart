@@ -460,17 +460,7 @@ class _CategoryEditorSheetState extends State<_CategoryEditorSheet> {
   Future<void> _pickAndUpload(bool video) async {
     setState(() => _uploading = true);
     try {
-      // Use file_picker for broader support or image_picker? 
-      // ImagePicker supports video too.
-      // Need `import 'package:image_picker/image_picker.dart';`
-      // I commented out `file_picker` in imports initially but I should add `image_picker` import if not present.
-      // It WAS imported in angelina_admin_screen.
       
-      FilePickerResult? result; 
-      // Actually let's use FilePicker for desktop support if needed, but ImagePicker is easier for standard "gallery".
-      // Let's use FilePicker for "Uploading from local machine" which implies Desktop usually.
-      // But let's check imports. `import 'package:file_picker/file_picker.dart';` was added at top.
-
       final XFile? file = video 
           ? await _picker.pickVideo(source: ImageSource.gallery)
           : await _picker.pickImage(source: ImageSource.gallery);
