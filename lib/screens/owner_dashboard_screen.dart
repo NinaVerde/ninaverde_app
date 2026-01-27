@@ -15,11 +15,7 @@ import '../widgets/johns_insights_widget.dart';
 import '../widgets/john_copilot_sheet.dart';
 import 'kitchen_display_screen.dart';
 import 'driver_dashboard_screen.dart';
-<<<<<<< HEAD
-import 'payroll_dashboard_screen.dart';
-=======
 import 'accounting_dashboard_screen.dart';
->>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
 
 class OwnerDashboardScreen extends StatefulWidget {
   const OwnerDashboardScreen({super.key});
@@ -295,23 +291,11 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
     } else if (module.id == 'accounting') {
        Navigator.push(
         context,
-<<<<<<< HEAD
-        MaterialPageRoute(builder: (context) => const PayrollDashboardScreen()),
-      );
-    } else if (module.id == 'staff') {
-       Navigator.pushNamed(context, '/schedule-admin');
-    } else if (module.id == 'drivers') {
-        Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const DriverDashboardScreen()),
-        );
-=======
         MaterialPageRoute(builder: (context) => const AccountingDashboardScreen()),
       );
     } else if (module.id == 'staff') {
        // Navigate to Schedule Admin
        Navigator.pushNamed(context, '/schedule-admin');
->>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(isEs ? 'Módulo en desarrollo' : 'Module under development')),

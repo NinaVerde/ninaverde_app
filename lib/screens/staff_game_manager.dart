@@ -4,11 +4,6 @@ import '../services/live_game_service.dart';
 import '../models/live_game_models.dart';
 
 class StaffSessionManager extends StatelessWidget {
-<<<<<<< HEAD
-  const StaffSessionManager({super.key});
-
-=======
->>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
   @override
   Widget build(BuildContext context) {
     final isEs = AppState.of(context).languageCode.value == 'es';
@@ -77,12 +72,8 @@ class _StaffSessionTile extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       title: Text(session.userName),
       subtitle: Text(
-<<<<<<< HEAD
-        '${session.gameId} • ${duration.inMinutes} mins\n${session.collateralDescription.isNotEmpty ? 'Collateral: ${session.collateralDescription}' : 'No Collateral'}',
-=======
         '${session.gameId} • ${duration.inMinutes} mins\n' +
         (session.collateralDescription.isNotEmpty ? 'Collateral: ${session.collateralDescription}' : 'No Collateral'),
->>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
         style: const TextStyle(fontSize: 12),
       ),
       leading: CircleAvatar(

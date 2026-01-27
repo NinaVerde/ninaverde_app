@@ -4,10 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../state/app_state.dart';
 import '../services/profile_picture_service.dart';
-<<<<<<< HEAD
-=======
 import '../theme/brand_colors.dart';
->>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
 
 class JohnProfileSettingsScreen extends StatefulWidget {
   const JohnProfileSettingsScreen({super.key});
@@ -355,11 +352,7 @@ class _JohnProfileSettingsScreenState extends State<JohnProfileSettingsScreen> {
                   onChanged: pics.length < 2
                       ? null
                       : (value) => app.johnProfilePicRandomize.value = value,
-<<<<<<< HEAD
-                  activeThumbColor: Colors.blueAccent,
-=======
                   activeColor: Colors.blueAccent,
->>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
                 );
               },
             ),

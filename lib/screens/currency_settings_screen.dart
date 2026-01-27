@@ -4,10 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../state/app_state.dart';
 import '../widgets/nv_widgets.dart';
-<<<<<<< HEAD
-=======
 import '../models/app_config_model.dart';
->>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
 import '../services/exchange_rate_service.dart';
 
 class CurrencySettingsScreen extends StatefulWidget {
@@ -356,11 +353,7 @@ class _CurrencySettingsScreenState extends State<CurrencySettingsScreen> {
       final amount = 100.0 * r;
       return '\$100 USD = $symbol${amount.toStringAsFixed(2)} $code';
     } catch (_) {
-<<<<<<< HEAD
-      return isEs ? 'Vista previa no disponible' : 'Preview unavailable';
-=======
       return '${isEs ? 'Vista previa no disponible' : 'Preview unavailable'}';
->>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
     }
   }
 
@@ -529,11 +522,7 @@ class _CurrencySettingsScreenState extends State<CurrencySettingsScreen> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
-<<<<<<< HEAD
-              initialValue: _defaultCurrency,
-=======
               value: _defaultCurrency,
->>>>>>> 2364cb6 (feat: On-the-fly Product Translation, Ticker Improvements, Search B… (#87))
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

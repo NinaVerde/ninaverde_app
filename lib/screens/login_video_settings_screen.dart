@@ -103,30 +103,17 @@ class _LoginVideoSettingsScreenState extends State<LoginVideoSettingsScreen> {
 
   Future<void> _uploadVideo() async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.video,
-        allowMultiple: false,
-      );
+      final ImagePicker picker = ImagePicker();
+      final XFile? file = await picker.pickVideo(source: ImageSource.gallery);
 
-      if (result != null) {
+      if (file != null) {
         setState(() {
           _isUploading = true;
           _uploadProgress = 0.0;
         });
 
-        Uint8List? fileBytes;
+        final fileBytes = await file.readAsBytes();
         String fileName = 'intro_video_${DateTime.now().millisecondsSinceEpoch}.mp4';
-        
-        if (kIsWeb) {
-          fileBytes = result.files.first.bytes;
-        } else {
-          final path = result.files.single.path;
-          if (path != null) {
-            fileBytes = await File(path).readAsBytes();
-          }
-        }
-
-        if (fileBytes == null) throw Exception("No file data");
 
         final ref = FirebaseStorage.instance.ref().child('config/videos/$fileName');
         final task = ref.putData(fileBytes, SettableMetadata(contentType: 'video/mp4'));
@@ -200,7 +187,7 @@ class _LoginVideoSettingsScreenState extends State<LoginVideoSettingsScreen> {
            ScaffoldMessenger.of(context).showSnackBar(
              SnackBar(content: Text(tr(context, en: 'Logo uploaded!', es: '¡Logo subido!'))),
            );
-         }
+        }
       }
     } catch (e) {
       debugPrint('Upload error: $e');
