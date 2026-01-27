@@ -28,7 +28,7 @@ class KitchenService {
       iOS: iosSettings,
     );
     
-    await _notifications.initialize(initSettings);
+    await _notifications.initialize(settings: initSettings);
   }
   
   /// Get stream of active orders for kitchen display
@@ -215,10 +215,10 @@ class KitchenService {
     );
     
     await _notifications.show(
-      DateTime.now().millisecondsSinceEpoch % 100000,
-      title,
-      body,
-      details,
+      id: DateTime.now().millisecondsSinceEpoch % 100000,
+      title: title,
+      body: body,
+      notificationDetails: details,
     );
   }
 }

@@ -197,10 +197,10 @@ class JobBoardService {
     const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
 
     await _notifications.show(
-      DateTime.now().millisecondsSinceEpoch ~/ 1000,
-      title,
-      body,
-      details,
+      id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      title: title,
+      body: body,
+      notificationDetails: details,
     );
   }
 }
