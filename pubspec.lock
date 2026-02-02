@@ -285,10 +285,10 @@ packages:
     dependency: "direct main"
     description:
       name: file_picker
-      sha256: b9c6bbfe174bcc1ec1e3a0de92e9b839fe553a46dd91862debfbbb5055ca876f
+      sha256: "57d9a1dd5063f85fa3107fb42d1faffda52fdc948cefd5fe5ea85267a5fc7343"
       url: "https://pub.dev"
     source: hosted
-    version: "10.3.9"
+    version: "10.3.10"
   file_selector_linux:
     dependency: transitive
     description:
@@ -429,18 +429,18 @@ packages:
     dependency: "direct main"
     description:
       name: flame
-      sha256: "348136b7d928188a8c9a11cd844d9125b02e7afc6c83bb9a52a16aee88ab7e81"
+      sha256: "6a98c1697bfe4669c604e4459cb01ca96559f464d3523f6af90a8956bf2080ee"
       url: "https://pub.dev"
     source: hosted
-    version: "1.34.0"
+    version: "1.35.0"
   flame_audio:
     dependency: "direct main"
     description:
       name: flame_audio
-      sha256: "339b8aa5576e9d4678608c07b8e973ffa17802aaabb701a813364b59b64aedec"
+      sha256: "1b8df0e277cc1aea3a8bf93530e64ab92612344a5580ed737edee0cbde46d78b"
       url: "https://pub.dev"
     source: hosted
-    version: "2.11.12"
+    version: "2.11.13"
   flutter:
     dependency: "direct main"
     description: flutter
