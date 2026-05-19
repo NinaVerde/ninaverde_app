@@ -10,8 +10,8 @@ dependencies:
     sdk: flutter
 
   # UI / Icons
-  cupertino_icons: ^1.0.8
-  font_awesome_flutter: ^10.12.0
+  cupertino_icons: ^1.0.9
+  font_awesome_flutter: ^11.0.0
   cached_network_image: ^3.4.1
   provider: ^6.1.5+1
   shimmer: ^3.0.0
@@ -19,54 +19,54 @@ dependencies:
 
   # Core / Utils
   url_launcher: ^6.3.2
-  flutter_secure_storage: ^10.0.0
+  flutter_secure_storage: ^10.2.0
   intl: ^0.20.2
   crypto: ^3.0.7
 
   # Firebase
   firebase_core: ^4.3.0
-  firebase_auth: ^6.1.4
+  firebase_auth: ^6.4.0
   firebase_auth_platform_interface: ^8.1.5
-  cloud_firestore: ^6.1.2
+  cloud_firestore: ^6.3.0
 
   # Social sign-in
-  sign_in_with_apple: ^7.0.1
+  sign_in_with_apple: ^8.0.0
   google_sign_in: ^7.2.0
 
   # Media
-  video_player: ^2.10.1
-  youtube_player_iframe: ^5.2.2
-  audioplayers: ^6.5.1
+  video_player: ^2.11.1
+  youtube_player_iframe: ^6.0.0
+  audioplayers: ^6.6.0
   speech_to_text: ^7.1.0
   flutter_tts: ^4.1.0
   http: ^1.6.0
-  firebase_storage: ^13.0.6
-  image_picker: ^1.1.2
+  firebase_storage: ^13.3.0
+  image_picker: ^1.2.2
   model_viewer_plus: ^1.7.2
-  share_plus: ^12.0.1
-  firebase_messaging: ^16.1.1
-  file_picker: ^10.3.9
-  csv: ^6.0.0
+  share_plus: ^12.0.2
+  firebase_messaging: ^16.2.0
+  file_picker: ^11.0.2
+  csv: ^8.0.0
 
   # Animations
   flutter_animate: ^4.5.2
 
   # WebView
   webview_flutter: ^4.13.1
-  webview_flutter_android: ^4.10.11
-  webview_flutter_wkwebview: ^3.23.5
+  webview_flutter_android: ^4.12.0
+  webview_flutter_wkwebview: ^3.25.1
 
   # Game / Stage
-  flame: ^1.34.0
-  flame_audio: ^2.11.12
-  shared_preferences: ^2.5.4
+  flame: ^1.37.0
+  flame_audio: ^2.12.1
+  shared_preferences: ^2.5.5
   permission_handler: ^12.0.1
   geolocator: ^14.0.2
   
   # Notifications & Scheduling
-  flutter_local_notifications: ^20.0.0
-  timezone: ^0.10.1
-  google_fonts: ^8.0.0
+  flutter_local_notifications: ^21.0.0
+  timezone: ^0.11.0
+  google_fonts: ^8.1.0
   vector_math: ^2.2.0
   path: ^1.9.1
   translator: ^1.0.4+1
