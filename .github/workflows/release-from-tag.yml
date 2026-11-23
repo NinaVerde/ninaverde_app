@@ -1,4 +1,4 @@
-﻿name: Publish Release from tag
+name: Publish Release from tag
 on:
   push:
     tags:
@@ -10,7 +10,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: release-drafter/release-drafter@v6
+      - uses: release-drafter/release-drafter@v7
         with:
           publish: true
         env:
